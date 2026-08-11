@@ -1,5 +1,20 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-background: #05050a;
+  --color-surface: #0b0b14;
+  --color-elevated: #12121e;
+  --color-border: #27233a;
+  --color-primary-neon: #b026ff;
+  --color-electric-purple: #7c3aed;
+  --color-neon-pink: #ff2bd6;
+  --color-cyber-cyan: #00f5ff;
+  --color-electric-blue: #2979ff;
+  --color-acid-green: #39ff88;
+  --color-text: #f4f2ff;
+  --color-muted-text: #8e8aa3;
+}
+
 @layer base {
   html {
     font-family:
