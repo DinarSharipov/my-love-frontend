@@ -82,16 +82,34 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className={`w-full ${containerClassName}`}>
         {label && (
-          <motion.label
-            animate={{
-              color: isFocused ? 'var(--color-text)' : 'var(--color-muted-text)',
-            }}
-            className="mb-2 block text-sm font-medium"
-            htmlFor={inputId}
-            transition={{ duration: 0.2 }}
-          >
-            {label}
-          </motion.label>
+          <div className="mb-2 flex h-5 items-center justify-between gap-3">
+            <motion.label
+              animate={{
+                color: isFocused ? 'var(--color-text)' : 'var(--color-muted-text)',
+              }}
+              className="shrink-0 text-sm font-medium"
+              htmlFor={inputId}
+              transition={{ duration: 0.2 }}
+            >
+              {label}
+            </motion.label>
+            <AnimatePresence initial={false} mode="wait">
+              {error && (
+                <motion.span
+                  animate={{ opacity: 1, x: 0 }}
+                  className="text-neon-pink min-w-0 truncate text-right text-xs"
+                  exit={{ opacity: 0, x: 6 }}
+                  id={errorId}
+                  initial={{ opacity: 0, x: 6 }}
+                  key={error}
+                  role="alert"
+                  title={error}
+                >
+                  {error}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </div>
         )}
 
         <div className="relative">
@@ -152,7 +170,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         <AnimatePresence initial={false} mode="wait">
-          {error ? (
+          {!label && error ? (
             <motion.p
               animate={{ opacity: 1, y: 0 }}
               className="text-neon-pink mt-2 text-sm"
@@ -165,6 +183,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               {error}
             </motion.p>
           ) : (
+            !error &&
             hint && (
               <motion.p
                 animate={{ opacity: 1, y: 0 }}

@@ -6,45 +6,27 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import type { MouseEvent as ReactMouseEvent, ReactNode } from 'react';
 
 type AnimateVariant = 'magnetic' | 'base';
+type ButtonSize = 's' | 'm' | 'l' | 'xl';
 
 type ButtonProps = Omit<HTMLMotionProps<'button'>, 'children'> & {
   animateVariant?: AnimateVariant;
   children?: ReactNode;
   containerClassName?: string;
+  size?: ButtonSize;
 };
 
-type ElectricBurst = {
+type WaveBurst = {
   id: number;
-  x: number;
-  y: number;
 };
 
 const magneticRadius = 100;
 const magneticStrength = 0.4;
-const electricColors = [
-  'var(--color-primary-neon)',
-  'var(--color-neon-pink)',
-  'var(--color-cyber-cyan)',
-  'var(--color-electric-blue)',
-];
-
-const electricParticles = Array.from({ length: 18 }, (_, index) => {
-  const angle = (Math.PI * 2 * index) / 18;
-  const distance = 58 + (index % 4) * 13;
-  const directionX = Math.cos(angle) * distance;
-  const directionY = Math.sin(angle) * distance;
-  const offset = index % 2 === 0 ? 9 : -9;
-
-  return {
-    angle: (angle * 180) / Math.PI,
-    color: electricColors[index % electricColors.length],
-    id: `particle-${index}`,
-    midX: directionX * 0.46 + Math.sin(angle) * offset,
-    midY: directionY * 0.46 - Math.cos(angle) * offset,
-    x: directionX,
-    y: directionY,
-  };
-});
+const sizeClassNames: Record<ButtonSize, string> = {
+  s: 'px-3 py-2 text-xs',
+  m: 'px-5 py-2.5 text-sm',
+  l: 'px-6 py-3 text-base',
+  xl: 'px-8 py-4 text-lg',
+};
 
 gsap.registerPlugin(useGSAP);
 
@@ -57,6 +39,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       containerClassName = '',
       disabled,
       onClick,
+      size = 'm',
       type = 'button',
       ...buttonProps
     },
@@ -67,7 +50,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const magneticTargetRef = useRef<HTMLSpanElement | null>(null);
     const burstId = useRef(0);
     const cleanupTimers = useRef<number[]>([]);
-    const [bursts, setBursts] = useState<ElectricBurst[]>([]);
+    const [bursts, setBursts] = useState<WaveBurst[]>([]);
 
     useImperativeHandle(forwardedRef, () => buttonRef.current as HTMLButtonElement);
 
@@ -179,13 +162,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     );
 
     const handleClick = (event: ReactMouseEvent<HTMLButtonElement>) => {
-      const rect = event.currentTarget.getBoundingClientRect();
       burstId.current += 1;
 
       const nextBurst = {
         id: burstId.current,
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
       };
 
       setBursts((currentBursts) => [...currentBursts, nextBurst]);
@@ -207,7 +187,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           <motion.button
             {...buttonProps}
             ref={buttonRef}
-            className={`border-primary-neon/60 bg-primary-neon text-text group relative isolate overflow-hidden rounded-xl border px-6 py-3 font-semibold shadow-[0_0_22px_color-mix(in_srgb,var(--color-primary-neon)_18%,transparent)] outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+            className={`border-primary-neon cursor-pointer bg-surface/20 text-text group relative isolate overflow-hidden rounded-xl border font-semibold shadow-[0_0_10px_color-mix(in_srgb,var(--color-primary-neon)_55%,transparent),0_0_28px_color-mix(in_srgb,var(--color-primary-neon)_22%,transparent),inset_0_0_16px_color-mix(in_srgb,var(--color-primary-neon)_10%,transparent)] outline-none backdrop-blur-xl transition-[color,background-color,border-color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 ${sizeClassNames[size]} ${className}`}
             disabled={disabled}
             onClick={handleClick}
             transition={{ duration: 0.18, ease: 'easeOut' }}
@@ -221,7 +201,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               aria-hidden="true"
               className="from-electric-purple via-neon-pink to-primary-neon absolute inset-0 -z-10 bg-gradient-to-r opacity-0"
               transition={{ duration: 0.25 }}
-              whileHover={{ opacity: 1 }}
+              whileHover={{ opacity: 0.22 }}
             />
             <span className="relative z-10">{children}</span>
           </motion.button>
@@ -229,38 +209,25 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           <AnimatePresence>
             {bursts.map((burst) => (
               <motion.span
-                className="pointer-events-none absolute z-30"
+                className="pointer-events-none absolute inset-0 z-30 rounded-xl"
                 exit={{ opacity: 0 }}
                 key={burst.id}
-                style={{ left: burst.x, top: burst.y }}
               >
-                {[0, 1, 2].map((ring) => (
-                  <motion.span
-                    animate={{ opacity: [0.8, 0.36, 0], scale: [0.3, 3.8 + ring * 1.6] }}
-                    className="border-cyber-cyan absolute -left-2 -top-2 h-4 w-4 rounded-full border"
-                    initial={{ opacity: 0.8, scale: 0.3 }}
-                    key={`ring-${ring}`}
-                    transition={{ delay: ring * 0.08, duration: 0.72, ease: 'easeOut' }}
-                  />
-                ))}
-
-                {electricParticles.map((particle) => (
+                {[0, 1, 2, 3].map((wave) => (
                   <motion.span
                     animate={{
-                      opacity: [0, 1, 0.75, 0],
-                      scaleX: [0.2, 1.35, 0.8, 0],
-                      x: [0, particle.midX, particle.x],
-                      y: [0, particle.midY, particle.y],
+                      filter: ['blur(0px)', 'blur(1px)', 'blur(4px)'],
+                      opacity: [0.85, 0.36, 0],
+                      scale: [1, 1.22 + wave * 0.14, 1.48 + wave * 0.2],
                     }}
-                    className="absolute -left-0.5 -top-px h-0.5 w-4 origin-left rounded-full"
-                    initial={{ opacity: 0, scaleX: 0.2, x: 0, y: 0 }}
-                    key={particle.id}
+                    className="border-primary-neon absolute inset-0 rounded-xl border"
+                    initial={{ filter: 'blur(0px)', opacity: 0.85, scale: 1 }}
+                    key={`wave-${wave}`}
                     style={{
-                      backgroundColor: particle.color,
-                      boxShadow: `0 0 8px ${particle.color}`,
-                      rotate: particle.angle,
+                      boxShadow:
+                        '0 0 12px color-mix(in srgb, var(--color-primary-neon) 65%, transparent)',
                     }}
-                    transition={{ duration: 0.76, ease: 'easeOut' }}
+                    transition={{ delay: wave * 0.09, duration: 0.78, ease: 'easeOut' }}
                   />
                 ))}
               </motion.span>
