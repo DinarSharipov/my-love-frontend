@@ -5,18 +5,33 @@ import { HomePage } from '@/pages/home';
 import { LoginPage } from '@/pages/login';
 import { MainPage } from '@/pages/main';
 import { RestorePage } from '@/pages/restore';
-import { AppBackground } from '@/shared/ui';
+import { AppBackground, MainLayout } from '@/shared/ui';
+import { ProtectedRoute } from '@/app/providers/router/ProtectedRoute';
 
 export const router = createBrowserRouter([
   {
     path: '/main',
-    element: <MainPage />,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <Outlet />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        path: '',
+        element: <MainPage />,
+      },
+    ],
   },
   {
     element: (
-      <AppBackground>
-        <Outlet />
-      </AppBackground>
+      <ProtectedRoute mode="guest">
+        <AppBackground>
+          <Outlet />
+        </AppBackground>
+      </ProtectedRoute>
     ),
     children: [
       {

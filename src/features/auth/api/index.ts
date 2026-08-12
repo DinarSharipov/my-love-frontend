@@ -1,6 +1,7 @@
 export {
   authApi,
   useLoginMutation,
+  useLogoutMutation,
   useRegisterMutation,
   useRestorePasswordMutation,
 } from '@/features/auth/api/authApi';

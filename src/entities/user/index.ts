@@ -1,4 +1,9 @@
 export {
+  getStoredAccessToken,
+  removeStoredAccessToken,
+  storeAccessToken,
+} from '@/entities/user/lib/authTokenStorage';
+export {
   clearCredentials,
   selectAccessToken,
   selectCurrentUser,

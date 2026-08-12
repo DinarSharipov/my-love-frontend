@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
+import { getStoredAccessToken } from '@/entities/user/lib/authTokenStorage';
 import type { AuthSession, User } from '@/entities/user/model/types';
 
 export type UserState = {
@@ -9,18 +10,24 @@ export type UserState = {
   user: User | null;
 };
 
-const initialState: UserState = {
+const storedAccessToken = getStoredAccessToken();
+
+const emptyState: UserState = {
   accessToken: null,
   expiresIn: null,
   tokenType: null,
   user: null,
 };
 
+const initialState: UserState = storedAccessToken
+  ? { ...emptyState, accessToken: storedAccessToken, tokenType: 'Bearer' }
+  : emptyState;
+
 const userSlice = createSlice({
   initialState,
   name: 'user',
   reducers: {
-    clearCredentials: () => initialState,
+    clearCredentials: () => emptyState,
     setCredentials: (_, { payload }: PayloadAction<AuthSession>) => ({ ...payload }),
   },
 });

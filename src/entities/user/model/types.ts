@@ -1,20 +1,5 @@
-export type Gender = 'MALE' | 'FEMALE' | 'OTHER' | 'NOT_SPECIFIED';
+import type { AuthResponseDto, RegisterDto, UserResponseDto } from '@/shared/api';
 
-export type User = {
-  birthDate: string;
-  createdAt: string;
-  description: string | null;
-  email: string;
-  firstName: string;
-  gender: Gender;
-  id: string;
-  lastName: string;
-  phone: string | null;
-};
-
-export type AuthSession = {
-  accessToken: string;
-  expiresIn: number;
-  tokenType: string;
-  user: User;
-};
+export type AuthSession = AuthResponseDto;
+export type Gender = RegisterDto['gender'];
+export type User = UserResponseDto;

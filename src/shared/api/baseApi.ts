@@ -1,7 +1,24 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+type StateWithAccessToken = {
+  user?: {
+    accessToken?: string | null;
+  };
+};
+
 export const baseApi = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: '/',
+    prepareHeaders: (headers, { getState }) => {
+      const accessToken = (getState() as StateWithAccessToken).user?.accessToken;
+
+      if (accessToken) {
+        headers.set('authorization', `Bearer ${accessToken}`);
+      }
+
+      return headers;
+    },
+  }),
   endpoints: () => ({}),
 });

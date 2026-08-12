@@ -15,9 +15,9 @@ const messageWords = [
   'нужно',
   'ничего',
   'объяснять.',
-  'Выбирай',
-  'действие',
 ];
+
+const endMessageWords = ['Выбирай', 'действие!'];
 
 const textContainerVariants: Variants = {
   hidden: {},
@@ -93,12 +93,22 @@ export const HomePage = () => {
           initial="hidden"
           variants={textContainerVariants}
         >
-          {messageWords.map((word, index) => (
+          {messageWords.map((word) => (
             <motion.span aria-hidden="true" className="pb-0.5" key={word} variants={wordVariants}>
-              <ScrambleText
-                className={index >= messageWords.length - 2 ? 'text-cyber-cyan' : undefined}
-                text={word}
-              />
+              <ScrambleText text={word} />
+            </motion.span>
+          ))}
+        </motion.p>
+        <motion.p
+          animate="visible"
+          aria-label="Если ты находишься здесь, значит тебе не нужно ничего объяснять. Выбирай действие"
+          className="text-muted-text flex max-w-3xl flex-wrap justify-center gap-x-[0.3em] py-2 text-lg font-medium leading-[1.65] md:text-xl"
+          initial="hidden"
+          variants={textContainerVariants}
+        >
+          {endMessageWords.map((word) => (
+            <motion.span aria-hidden="true" className="pb-0.5" key={word} variants={wordVariants}>
+              <ScrambleText className="text-cyber-cyan" text={word} />
             </motion.span>
           ))}
         </motion.p>

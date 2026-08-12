@@ -24,7 +24,7 @@ export const LoginForm = () => {
     setRequestError(undefined);
 
     try {
-      await login(values).unwrap();
+      await login({ loginDto: values }).unwrap();
       navigate('/main');
     } catch (error) {
       setRequestError(getApiErrorMessage(error, 'Не удалось войти. Проверьте данные.'));

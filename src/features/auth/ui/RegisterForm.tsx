@@ -37,13 +37,15 @@ export const RegisterForm = () => {
 
     try {
       await registerUser({
-        birthDate: values.birthDate,
-        email: values.email,
-        firstName: values.firstName,
-        gender: values.gender,
-        lastName: values.lastName,
-        password: values.password,
-        phone: values.phone,
+        registerDto: {
+          birthDate: values.birthDate,
+          email: values.email,
+          firstName: values.firstName,
+          gender: values.gender,
+          lastName: values.lastName,
+          password: values.password,
+          phone: values.phone,
+        },
       }).unwrap();
       navigate('/main');
     } catch (error) {

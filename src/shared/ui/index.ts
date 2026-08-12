@@ -1,4 +1,5 @@
 export { AppBackground } from '@/shared/ui/app-background';
+export { MainLayout } from '@/shared/ui/main-layout';
 export { AnimatedPanel } from '@/shared/ui/animated-panel';
 export { BackgroundMusic } from '@/shared/ui/background-music';
 export { Button } from '@/shared/ui/button';
