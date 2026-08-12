@@ -8,52 +8,58 @@ import { ProfilePage } from '@/pages/profile';
 import { RestorePage } from '@/pages/restore';
 import { AppBackground, MainLayout } from '@/shared/ui';
 import { ProtectedRoute } from '@/app/providers/router/ProtectedRoute';
+import { RouteTransition } from '@/app/providers/router/RouteTransition';
 
 export const router = createBrowserRouter([
   {
-    path: '/main',
-    element: (
-      <ProtectedRoute>
-        <MainLayout>
-          <Outlet />
-        </MainLayout>
-      </ProtectedRoute>
-    ),
+    element: <RouteTransition />,
     children: [
       {
-        path: '',
-        element: <MainPage />,
+        path: '/main',
+        element: (
+          <ProtectedRoute>
+            <MainLayout>
+              <Outlet />
+            </MainLayout>
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            path: '',
+            element: <MainPage />,
+          },
+          {
+            path: 'profile',
+            element: <ProfilePage />,
+          },
+        ],
       },
       {
-        path: 'profile',
-        element: <ProfilePage />,
-      },
-    ],
-  },
-  {
-    element: (
-      <ProtectedRoute mode="guest">
-        <AppBackground>
-          <Outlet />
-        </AppBackground>
-      </ProtectedRoute>
-    ),
-    children: [
-      {
-        path: '/',
-        element: <HomePage />,
-      },
-      {
-        path: '/login',
-        element: <LoginPage />,
-      },
-      {
-        path: '/auth',
-        element: <AuthPage />,
-      },
-      {
-        path: '/restore',
-        element: <RestorePage />,
+        element: (
+          <ProtectedRoute mode="guest">
+            <AppBackground>
+              <Outlet />
+            </AppBackground>
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            path: '/',
+            element: <HomePage />,
+          },
+          {
+            path: '/login',
+            element: <LoginPage />,
+          },
+          {
+            path: '/auth',
+            element: <AuthPage />,
+          },
+          {
+            path: '/restore',
+            element: <RestorePage />,
+          },
+        ],
       },
     ],
   },

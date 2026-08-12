@@ -1,1 +1,7 @@
-export const ProfilePage = () => <main className="min-h-full" aria-label="Личный кабинет" />;
+import { Calendar } from '@/shared/ui';
+
+export const ProfilePage = () => (
+  <div>
+    <Calendar />
+  </div>
+);

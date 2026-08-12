@@ -3,6 +3,8 @@ export { MainLayout } from '@/shared/ui/main-layout';
 export { AnimatedPanel } from '@/shared/ui/animated-panel';
 export { BackgroundMusic } from '@/shared/ui/background-music';
 export { Button } from '@/shared/ui/button';
+export { Calendar } from '@/shared/ui/calendar';
+export type { CalendarPeriod, PlannedItem } from '@/shared/ui/calendar';
 export { Footer } from '@/shared/ui/footer';
 export { Input } from '@/shared/ui/input';
 export { ScrambleText } from '@/shared/ui/scramble-text';
