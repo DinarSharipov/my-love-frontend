@@ -6,6 +6,7 @@ export { Button } from '@/shared/ui/button';
 export { Calendar } from '@/shared/ui/calendar';
 export type { CalendarPeriod, PlannedItem } from '@/shared/ui/calendar';
 export { Footer } from '@/shared/ui/footer';
+export type { MenuItem } from '@/shared/ui/footer';
 export { Input } from '@/shared/ui/input';
 export { ScrambleText } from '@/shared/ui/scramble-text';
 export { Select } from '@/shared/ui/select';

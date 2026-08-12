@@ -6,7 +6,8 @@ import { LoginPage } from '@/pages/login';
 import { MainPage } from '@/pages/main';
 import { ProfilePage } from '@/pages/profile';
 import { RestorePage } from '@/pages/restore';
-import { AppBackground, MainLayout } from '@/shared/ui';
+import { AppBackground } from '@/shared/ui';
+import { MainRouteLayout } from '@/app/providers/router/MainRouteLayout';
 import { ProtectedRoute } from '@/app/providers/router/ProtectedRoute';
 import { RouteTransition } from '@/app/providers/router/RouteTransition';
 
@@ -16,13 +17,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/main',
-        element: (
-          <ProtectedRoute>
-            <MainLayout>
-              <Outlet />
-            </MainLayout>
-          </ProtectedRoute>
-        ),
+        element: <MainRouteLayout />,
         children: [
           {
             path: '',

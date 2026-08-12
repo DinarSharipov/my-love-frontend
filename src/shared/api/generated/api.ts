@@ -5,6 +5,7 @@ export const addTagTypes = [
   'families',
   'family invitations',
   'family events',
+  'first date',
   'health',
 ] as const;
 const injectedRtkApi = api
@@ -149,6 +150,30 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['family events'],
       }),
+      createFirstDate: build.mutation<CreateFirstDateApiResponse, CreateFirstDateApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/first-date`,
+          method: 'POST',
+          body: queryArg.createFirstDateDto,
+        }),
+        invalidatesTags: ['first date'],
+      }),
+      findMyFirstDate: build.query<FindMyFirstDateApiResponse, FindMyFirstDateApiArg>({
+        query: () => ({ url: `/api/v1/first-date` }),
+        providesTags: ['first date'],
+      }),
+      updateFirstDate: build.mutation<UpdateFirstDateApiResponse, UpdateFirstDateApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/first-date`,
+          method: 'PATCH',
+          body: queryArg.updateFirstDateDto,
+        }),
+        invalidatesTags: ['first date'],
+      }),
+      removeFirstDate: build.mutation<RemoveFirstDateApiResponse, RemoveFirstDateApiArg>({
+        query: () => ({ url: `/api/v1/first-date`, method: 'DELETE' }),
+        invalidatesTags: ['first date'],
+      }),
       checkHealth: build.query<CheckHealthApiResponse, CheckHealthApiArg>({
         query: () => ({ url: `/api/v1/health` }),
         providesTags: ['health'],
@@ -229,6 +254,18 @@ export type RejectFamilyEventApiResponse = /** status 200  */ FamilyEventRespons
 export type RejectFamilyEventApiArg = {
   id: string;
 };
+export type CreateFirstDateApiResponse = /** status 201  */ FirstDateResponseDto;
+export type CreateFirstDateApiArg = {
+  createFirstDateDto: CreateFirstDateDto;
+};
+export type FindMyFirstDateApiResponse = /** status 200  */ FirstDateResponseDto;
+export type FindMyFirstDateApiArg = void;
+export type UpdateFirstDateApiResponse = /** status 200  */ FirstDateResponseDto;
+export type UpdateFirstDateApiArg = {
+  updateFirstDateDto: UpdateFirstDateDto;
+};
+export type RemoveFirstDateApiResponse = unknown;
+export type RemoveFirstDateApiArg = void;
 export type CheckHealthApiResponse = /** status 200  */ any;
 export type CheckHealthApiArg = void;
 export type UserResponseDto = {
@@ -330,6 +367,26 @@ export type PaginatedFamilyEventsResponseDto = {
   limit: number;
   totalPages: number;
 };
+export type FirstDateResponseDto = {
+  id: string;
+  familyId: string;
+  name: string;
+  date: string;
+  description?: object | null;
+  createdBy: UserResponseDto;
+  createdAt: string;
+  updatedAt: string;
+};
+export type CreateFirstDateDto = {
+  name: string;
+  date: string;
+  description?: string;
+};
+export type UpdateFirstDateDto = {
+  name?: string;
+  date?: string;
+  description?: string;
+};
 export const {
   useRegisterMutation,
   useLoginMutation,
@@ -349,5 +406,9 @@ export const {
   useRemoveFamilyEventMutation,
   useConfirmFamilyEventMutation,
   useRejectFamilyEventMutation,
+  useCreateFirstDateMutation,
+  useFindMyFirstDateQuery,
+  useUpdateFirstDateMutation,
+  useRemoveFirstDateMutation,
   useCheckHealthQuery,
 } = injectedRtkApi;

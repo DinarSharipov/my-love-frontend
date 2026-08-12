@@ -46,6 +46,6 @@ export const AnimatedPanel = ({ children, className = '', ...props }: AnimatedPa
       className="bg-surface/90 absolute inset-0 -z-10 rounded-3xl border backdrop-blur-md"
       variants={surfaceVariants}
     />
-    <div className="relative z-10">{children}</div>
+    <div className="relative z-10 h-full min-h-0">{children}</div>
   </motion.section>
 );
