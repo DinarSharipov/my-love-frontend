@@ -1,8 +1,10 @@
-import { FC, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
+
+import { Footer } from '@/shared/ui/footer';
 
 export const MainLayout: FC<{ children: ReactNode }> = ({ children }) => (
-  <div className="w-full h-screen flex flex-col min-h-0 bg-background text-text">
-    <div className="h-full w-full min-h-0 p-4">{children}</div>
-    <div>footer</div>
+  <div className="bg-background text-text flex h-dvh min-h-0 w-full flex-col overflow-hidden">
+    <div className="min-h-0 w-full flex-1 overflow-auto p-4">{children}</div>
+    <Footer />
   </div>
 );

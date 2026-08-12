@@ -4,6 +4,7 @@ import { AuthPage } from '@/pages/auth';
 import { HomePage } from '@/pages/home';
 import { LoginPage } from '@/pages/login';
 import { MainPage } from '@/pages/main';
+import { ProfilePage } from '@/pages/profile';
 import { RestorePage } from '@/pages/restore';
 import { AppBackground, MainLayout } from '@/shared/ui';
 import { ProtectedRoute } from '@/app/providers/router/ProtectedRoute';
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
       {
         path: '',
         element: <MainPage />,
+      },
+      {
+        path: 'profile',
+        element: <ProfilePage />,
       },
     ],
   },
