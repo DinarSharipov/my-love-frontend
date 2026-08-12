@@ -2,7 +2,6 @@ import { motion } from 'motion/react';
 import type { PropsWithChildren } from 'react';
 
 import mainBackground from '@/shared/assets/main-bg.png';
-import { BackgroundMusic } from '@/shared/ui/background-music';
 
 const backgroundImage = {
   backgroundImage: `url(${mainBackground})`,
@@ -70,6 +69,5 @@ export const AppBackground = ({ children }: PropsWithChildren) => (
     </div>
 
     <div className="relative z-10 min-h-screen">{children}</div>
-    <BackgroundMusic />
   </div>
 );
