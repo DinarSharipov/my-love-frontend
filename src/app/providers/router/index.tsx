@@ -4,6 +4,8 @@ import { AuthPage } from '@/pages/auth';
 import { HomePage } from '@/pages/home';
 import { LoginPage } from '@/pages/login';
 import { MainPage } from '@/pages/main';
+import { AllUsersPage } from '@/pages/all-users';
+import { MyFamilyPage } from '@/pages/my-family';
 import { ProfilePage } from '@/pages/profile';
 import { RestorePage } from '@/pages/restore';
 import { AppBackground } from '@/shared/ui';
@@ -16,16 +18,23 @@ export const router = createBrowserRouter([
     element: <RouteTransition />,
     children: [
       {
-        path: '/main',
         element: <MainRouteLayout />,
         children: [
           {
-            path: '',
+            path: '/main',
             element: <MainPage />,
           },
           {
-            path: 'profile',
+            path: '/main/profile',
             element: <ProfilePage />,
+          },
+          {
+            path: '/all_users',
+            element: <AllUsersPage />,
+          },
+          {
+            path: '/my_family',
+            element: <MyFamilyPage />,
           },
         ],
       },

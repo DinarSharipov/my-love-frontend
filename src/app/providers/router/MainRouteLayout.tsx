@@ -45,7 +45,7 @@ export const MainRouteLayout = () => {
       {
         label: 'Моя семья',
         icon: DogIcon,
-        to: 'my_family',
+        to: '/my_family',
       },
     ],
     [handleLogout],

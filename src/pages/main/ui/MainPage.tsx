@@ -1,11 +1,9 @@
 import { AnimatedPanel, Calendar } from '@/shared/ui';
-import { FirstDateTracker } from '@/widgets/first-date-tracker';
 
 export const MainPage = () => (
   <main className="flex-1 h-full min-h-0 gap-4 grid grid-cols-[.5fr_1fr]">
     <AnimatedPanel className="h-full! min-h-0!">
       <div className="flex flex-col gap-2 overflow-auto h-full min-h-0 scrollbar-none">
-        <FirstDateTracker />
         {Array.from({ length: 100 }, (_, i) => (
           <span key={i}>{i}</span>
         ))}
