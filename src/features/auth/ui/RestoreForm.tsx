@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
-import { useRestorePasswordMutation } from '@/features/auth/api';
+import { useRequestPasswordResetMutation } from '@/features/auth/api';
 import { restoreSchema, type RestoreFormValues } from '@/features/auth/model/schemas';
 import { AuthFormLayout } from '@/features/auth/ui/AuthFormLayout';
 import { FormStatus } from '@/features/auth/ui/FormStatus';
@@ -12,7 +12,7 @@ import { getApiErrorMessage } from '@/shared/api';
 
 export const RestoreForm = () => {
   const navigate = useNavigate();
-  const [restorePassword, { isLoading }] = useRestorePasswordMutation();
+  const [requestPasswordReset, { isLoading }] = useRequestPasswordResetMutation();
   const [requestError, setRequestError] = useState<string>();
   const [successMessage, setSuccessMessage] = useState<string>();
   const {
@@ -26,7 +26,7 @@ export const RestoreForm = () => {
     setSuccessMessage(undefined);
 
     try {
-      const response = await restorePassword(values).unwrap();
+      const response = await requestPasswordReset({ requestPasswordResetDto: values }).unwrap();
       setSuccessMessage(
         response.message || 'Инструкции по восстановлению отправлены на указанную почту.',
       );

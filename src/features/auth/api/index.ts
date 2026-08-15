@@ -3,6 +3,7 @@ export {
   useLoginMutation,
   useLogoutMutation,
   useRegisterMutation,
-  useRestorePasswordMutation,
+  useRequestPasswordResetMutation,
+  useResetPasswordMutation,
 } from '@/features/auth/api/authApi';
-export type { LoginRequest, RegisterRequest, RestoreRequest } from '@/features/auth/api/authApi';
+export type { LoginRequest, RegisterRequest } from '@/features/auth/api/authApi';

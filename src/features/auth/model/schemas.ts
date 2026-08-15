@@ -42,6 +42,20 @@ export const restoreSchema = z.object({
   email: emailSchema,
 });
 
+export const resetPasswordSchema = z
+  .object({
+    confirmPassword: z.string().min(1, 'Повторите пароль'),
+    newPassword: z
+      .string()
+      .min(8, 'Пароль должен содержать минимум 8 символов')
+      .max(128, 'Максимум 128 символов'),
+  })
+  .refine(({ confirmPassword, newPassword }) => confirmPassword === newPassword, {
+    message: 'Пароли не совпадают',
+    path: ['confirmPassword'],
+  });
+
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type RestoreFormValues = z.infer<typeof restoreSchema>;
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;

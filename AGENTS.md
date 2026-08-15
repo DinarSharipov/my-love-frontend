@@ -21,8 +21,9 @@ Cyberpunk web app for creating a family and managing family life: household task
 ## Backend and configuration
 
 - Backend repository: `/Users/dinarsaripov/projects/my-love`.
+- Backend is read-only for frontend tasks: never edit files, migrations, configuration, or run state-changing backend commands in `/Users/dinarsaripov/projects/my-love`.
 - Before implementing API-dependent behavior, inspect the backend for an existing endpoint, DTO, validation, and domain rules. Match its contract; do not invent or mock an API silently.
-- If backend support is missing, stop that part and clearly propose the needed backend change or a better alternative.
+- If backend support is missing or does not meet the task requirements, stop that part and clearly warn the user about the gap, proposing the needed backend change or a better alternative.
 - Put backend-related configuration in `.env` and access client variables through `import.meta.env` (`VITE_` prefix). During development use the repository `.env`; never hard-code URLs or commit secrets.
 - Prefer generated RTK Query contracts where applicable (`npm run api:generate`). Do not edit generated code manually.
 

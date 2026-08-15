@@ -11,6 +11,7 @@ import { AllUsersPage } from '@/pages/all-users';
 import { MyFamilyPage } from '@/pages/my-family';
 import { ProfilePage } from '@/pages/profile';
 import { RestorePage } from '@/pages/restore';
+import { ResetPasswordPage } from '@/pages/reset-password';
 import { AppBackground } from '@/shared/ui';
 import { MainRouteLayout } from '@/app/providers/router/MainRouteLayout';
 import { ProtectedRoute } from '@/app/providers/router/ProtectedRoute';
@@ -54,6 +55,14 @@ export const router = createBrowserRouter([
         element: (
           <AppBackground>
             <JoinFamilyPage />
+          </AppBackground>
+        ),
+      },
+      {
+        path: '/reset-password',
+        element: (
+          <AppBackground>
+            <ResetPasswordPage />
           </AppBackground>
         ),
       },

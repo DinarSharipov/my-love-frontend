@@ -9,6 +9,7 @@ export {
   selectAccessToken,
   selectCurrentUser,
   setCredentials,
+  updateCurrentUser,
   userReducer,
 } from '@/entities/user/model/userSlice';
 export type { UserState } from '@/entities/user/model/userSlice';

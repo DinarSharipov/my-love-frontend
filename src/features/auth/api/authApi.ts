@@ -1,17 +1,9 @@
 import { clearCredentials, setCredentials } from '@/entities/user';
 import type { AuthResponseDto, LoginDto, RegisterDto } from '@/shared/api';
-import { baseApi, generatedApi } from '@/shared/api';
+import { generatedApi } from '@/shared/api';
 
 export type LoginRequest = LoginDto;
 export type RegisterRequest = RegisterDto;
-
-export type RestoreRequest = {
-  email: string;
-};
-
-type RestoreResponse = {
-  message: string;
-};
 
 const saveSession = async (
   queryFulfilled: Promise<{ data: AuthResponseDto }>,
@@ -51,13 +43,10 @@ export const authApi = generatedApi.enhanceEndpoints({
   },
 });
 
-export const restoreApi = baseApi.injectEndpoints({
-  endpoints: (builder) => ({
-    restorePassword: builder.mutation<RestoreResponse, RestoreRequest>({
-      query: (body) => ({ body, method: 'POST', url: '/api/v1/auth/restore' }),
-    }),
-  }),
-});
-
-export const { useLoginMutation, useLogoutMutation, useRegisterMutation } = authApi;
-export const { useRestorePasswordMutation } = restoreApi;
+export const {
+  useLoginMutation,
+  useLogoutMutation,
+  useRegisterMutation,
+  useRequestPasswordResetMutation,
+  useResetPasswordMutation,
+} = authApi;

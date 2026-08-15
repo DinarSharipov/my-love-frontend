@@ -34,6 +34,48 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/v1/auth/logout`, method: 'POST' }),
         invalidatesTags: ['auth'],
       }),
+      requestPasswordReset: build.mutation<
+        RequestPasswordResetApiResponse,
+        RequestPasswordResetApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/auth/password-reset/request`,
+          method: 'POST',
+          body: queryArg.requestPasswordResetDto,
+        }),
+        invalidatesTags: ['auth'],
+      }),
+      resetPassword: build.mutation<ResetPasswordApiResponse, ResetPasswordApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/auth/password-reset/confirm`,
+          method: 'POST',
+          body: queryArg.resetPasswordDto,
+        }),
+        invalidatesTags: ['auth'],
+      }),
+      listSessions: build.query<ListSessionsApiResponse, ListSessionsApiArg>({
+        query: () => ({ url: `/api/v1/auth/sessions` }),
+        providesTags: ['auth'],
+      }),
+      revokeOtherSessions: build.mutation<
+        RevokeOtherSessionsApiResponse,
+        RevokeOtherSessionsApiArg
+      >({
+        query: () => ({ url: `/api/v1/auth/sessions/others`, method: 'DELETE' }),
+        invalidatesTags: ['auth'],
+      }),
+      revokeSession: build.mutation<RevokeSessionApiResponse, RevokeSessionApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/auth/sessions/${queryArg.id}`, method: 'DELETE' }),
+        invalidatesTags: ['auth'],
+      }),
+      changePassword: build.mutation<ChangePasswordApiResponse, ChangePasswordApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/auth/password`,
+          method: 'PATCH',
+          body: queryArg.changePasswordDto,
+        }),
+        invalidatesTags: ['auth'],
+      }),
       findCurrentUser: build.query<FindCurrentUserApiResponse, FindCurrentUserApiArg>({
         query: () => ({ url: `/api/v1/users/me` }),
         providesTags: ['users'],
@@ -275,6 +317,26 @@ export type LoginApiArg = {
 };
 export type LogoutApiResponse = unknown;
 export type LogoutApiArg = void;
+export type RequestPasswordResetApiResponse = /** status 202  */ PasswordResetRequestResponseDto;
+export type RequestPasswordResetApiArg = {
+  requestPasswordResetDto: RequestPasswordResetDto;
+};
+export type ResetPasswordApiResponse = unknown;
+export type ResetPasswordApiArg = {
+  resetPasswordDto: ResetPasswordDto;
+};
+export type ListSessionsApiResponse = /** status 200  */ AuthSessionResponseDto[];
+export type ListSessionsApiArg = void;
+export type RevokeOtherSessionsApiResponse = unknown;
+export type RevokeOtherSessionsApiArg = void;
+export type RevokeSessionApiResponse = unknown;
+export type RevokeSessionApiArg = {
+  id: string;
+};
+export type ChangePasswordApiResponse = unknown;
+export type ChangePasswordApiArg = {
+  changePasswordDto: ChangePasswordDto;
+};
 export type FindCurrentUserApiResponse = /** status 200  */ UserResponseDto;
 export type FindCurrentUserApiArg = void;
 export type UpdateCurrentUserApiResponse = /** status 200  */ UserResponseDto;
@@ -430,6 +492,30 @@ export type LoginDto = {
   email: string;
   password: string;
 };
+export type PasswordResetRequestResponseDto = {
+  message: string;
+};
+export type RequestPasswordResetDto = {
+  email: string;
+};
+export type ResetPasswordDto = {
+  /** One-time token from the password reset link */
+  token: string;
+  newPassword: string;
+};
+export type AuthSessionResponseDto = {
+  id: string;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  lastSeenAt: string;
+  expiresAt: string;
+  createdAt: string;
+  isCurrent: boolean;
+};
+export type ChangePasswordDto = {
+  currentPassword: string;
+  newPassword: string;
+};
 export type UpdateCurrentUserDto = {
   firstName?: string;
   lastName?: string;
@@ -569,6 +655,12 @@ export const {
   useRegisterMutation,
   useLoginMutation,
   useLogoutMutation,
+  useRequestPasswordResetMutation,
+  useResetPasswordMutation,
+  useListSessionsQuery,
+  useRevokeOtherSessionsMutation,
+  useRevokeSessionMutation,
+  useChangePasswordMutation,
   useFindCurrentUserQuery,
   useUpdateCurrentUserMutation,
   useFindUsersQuery,

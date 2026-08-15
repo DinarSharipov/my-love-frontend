@@ -29,10 +29,11 @@ const userSlice = createSlice({
   reducers: {
     clearCredentials: () => emptyState,
     setCredentials: (_, { payload }: PayloadAction<AuthSession>) => ({ ...payload }),
+    updateCurrentUser: (state, { payload }: PayloadAction<User>) => ({ ...state, user: payload }),
   },
 });
 
-export const { clearCredentials, setCredentials } = userSlice.actions;
+export const { clearCredentials, setCredentials, updateCurrentUser } = userSlice.actions;
 export const userReducer = userSlice.reducer;
 
 type StateWithUser = {
