@@ -34,13 +34,28 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/v1/auth/logout`, method: 'POST' }),
         invalidatesTags: ['auth'],
       }),
+      findCurrentUser: build.query<FindCurrentUserApiResponse, FindCurrentUserApiArg>({
+        query: () => ({ url: `/api/v1/users/me` }),
+        providesTags: ['users'],
+      }),
+      updateCurrentUser: build.mutation<UpdateCurrentUserApiResponse, UpdateCurrentUserApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/users/me`,
+          method: 'PATCH',
+          body: queryArg.updateCurrentUserDto,
+          headers: {
+            'If-Match': queryArg['If-Match'],
+          },
+        }),
+        invalidatesTags: ['users'],
+      }),
       findUsers: build.query<FindUsersApiResponse, FindUsersApiArg>({
         query: (queryArg) => ({
           url: `/api/v1/users`,
           params: {
-            search: queryArg.search,
             page: queryArg.page,
             limit: queryArg.limit,
+            search: queryArg.search,
           },
         }),
         providesTags: ['users'],
@@ -61,6 +76,51 @@ const injectedRtkApi = api
           url: `/api/v1/family-invitations`,
           method: 'POST',
           body: queryArg.createFamilyInvitationDto,
+          headers: {
+            'Idempotency-Key': queryArg['Idempotency-Key'],
+          },
+        }),
+        invalidatesTags: ['family invitations'],
+      }),
+      createPrivateFamilyInvitation: build.mutation<
+        CreatePrivateFamilyInvitationApiResponse,
+        CreatePrivateFamilyInvitationApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/family-invitations/private`,
+          method: 'POST',
+          body: queryArg.createPrivateFamilyInvitationDto,
+        }),
+        invalidatesTags: ['family invitations'],
+      }),
+      findOutgoingPrivateFamilyInvitations: build.query<
+        FindOutgoingPrivateFamilyInvitationsApiResponse,
+        FindOutgoingPrivateFamilyInvitationsApiArg
+      >({
+        query: () => ({ url: `/api/v1/family-invitations/private/outgoing` }),
+        providesTags: ['family invitations'],
+      }),
+      acceptPrivateFamilyInvitation: build.mutation<
+        AcceptPrivateFamilyInvitationApiResponse,
+        AcceptPrivateFamilyInvitationApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/family-invitations/private/accept`,
+          method: 'POST',
+          body: queryArg.acceptPrivateFamilyInvitationDto,
+          headers: {
+            'Idempotency-Key': queryArg['Idempotency-Key'],
+          },
+        }),
+        invalidatesTags: ['family invitations'],
+      }),
+      revokePrivateFamilyInvitation: build.mutation<
+        RevokePrivateFamilyInvitationApiResponse,
+        RevokePrivateFamilyInvitationApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/family-invitations/private/${queryArg.id}/revoke`,
+          method: 'PATCH',
         }),
         invalidatesTags: ['family invitations'],
       }),
@@ -85,6 +145,9 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/api/v1/family-invitations/${queryArg.id}/accept`,
           method: 'PATCH',
+          headers: {
+            'Idempotency-Key': queryArg['Idempotency-Key'],
+          },
         }),
         invalidatesTags: ['family invitations'],
       }),
@@ -113,6 +176,9 @@ const injectedRtkApi = api
           url: `/api/v1/family-events`,
           method: 'POST',
           body: queryArg.createFamilyEventDto,
+          headers: {
+            'Idempotency-Key': queryArg['Idempotency-Key'],
+          },
         }),
         invalidatesTags: ['family events'],
       }),
@@ -120,10 +186,10 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/api/v1/family-events`,
           params: {
-            dateFrom: queryArg.dateFrom,
-            dateTo: queryArg.dateTo,
             page: queryArg.page,
             limit: queryArg.limit,
+            dateFrom: queryArg.dateFrom,
+            dateTo: queryArg.dateTo,
           },
         }),
         providesTags: ['family events'],
@@ -131,6 +197,17 @@ const injectedRtkApi = api
       findFamilyEventById: build.query<FindFamilyEventByIdApiResponse, FindFamilyEventByIdApiArg>({
         query: (queryArg) => ({ url: `/api/v1/family-events/${queryArg.id}` }),
         providesTags: ['family events'],
+      }),
+      updateFamilyEvent: build.mutation<UpdateFamilyEventApiResponse, UpdateFamilyEventApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/family-events/${queryArg.id}`,
+          method: 'PATCH',
+          body: queryArg.updateFamilyEventDto,
+          headers: {
+            'If-Match': queryArg['If-Match'],
+          },
+        }),
+        invalidatesTags: ['family events'],
       }),
       removeFamilyEvent: build.mutation<RemoveFamilyEventApiResponse, RemoveFamilyEventApiArg>({
         query: (queryArg) => ({ url: `/api/v1/family-events/${queryArg.id}`, method: 'DELETE' }),
@@ -155,6 +232,9 @@ const injectedRtkApi = api
           url: `/api/v1/first-date`,
           method: 'POST',
           body: queryArg.createFirstDateDto,
+          headers: {
+            'Idempotency-Key': queryArg['Idempotency-Key'],
+          },
         }),
         invalidatesTags: ['first date'],
       }),
@@ -167,6 +247,9 @@ const injectedRtkApi = api
           url: `/api/v1/first-date`,
           method: 'PATCH',
           body: queryArg.updateFirstDateDto,
+          headers: {
+            'If-Match': queryArg['If-Match'],
+          },
         }),
         invalidatesTags: ['first date'],
       }),
@@ -192,12 +275,20 @@ export type LoginApiArg = {
 };
 export type LogoutApiResponse = unknown;
 export type LogoutApiArg = void;
+export type FindCurrentUserApiResponse = /** status 200  */ UserResponseDto;
+export type FindCurrentUserApiArg = void;
+export type UpdateCurrentUserApiResponse = /** status 200  */ UserResponseDto;
+export type UpdateCurrentUserApiArg = {
+  /** Optional current profile version */
+  'If-Match'?: string;
+  updateCurrentUserDto: UpdateCurrentUserDto;
+};
 export type FindUsersApiResponse = /** status 200  */ PaginatedUsersResponseDto;
 export type FindUsersApiArg = {
+  page?: number;
+  limit?: number;
   /** Search by first name, last name or email */
   search?: string;
-  page?: Object;
-  limit?: Object;
 };
 export type FindUserByIdApiResponse = /** status 200  */ PublicUserResponseDto;
 export type FindUserByIdApiArg = {
@@ -207,7 +298,29 @@ export type FindMyFamilyApiResponse = /** status 200  */ FamilyResponseDto;
 export type FindMyFamilyApiArg = void;
 export type CreateFamilyInvitationApiResponse = /** status 201  */ FamilyInvitationResponseDto;
 export type CreateFamilyInvitationApiArg = {
+  /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
+  'Idempotency-Key'?: string;
   createFamilyInvitationDto: CreateFamilyInvitationDto;
+};
+export type CreatePrivateFamilyInvitationApiResponse =
+  /** status 201  */ CreatedPrivateFamilyInvitationResponseDto;
+export type CreatePrivateFamilyInvitationApiArg = {
+  createPrivateFamilyInvitationDto: CreatePrivateFamilyInvitationDto;
+};
+export type FindOutgoingPrivateFamilyInvitationsApiResponse =
+  /** status 200  */ PrivateFamilyInvitationResponseDto[];
+export type FindOutgoingPrivateFamilyInvitationsApiArg = void;
+export type AcceptPrivateFamilyInvitationApiResponse =
+  /** status 200  */ PrivateFamilyInvitationResponseDto;
+export type AcceptPrivateFamilyInvitationApiArg = {
+  /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
+  'Idempotency-Key'?: string;
+  acceptPrivateFamilyInvitationDto: AcceptPrivateFamilyInvitationDto;
+};
+export type RevokePrivateFamilyInvitationApiResponse =
+  /** status 200  */ PrivateFamilyInvitationResponseDto;
+export type RevokePrivateFamilyInvitationApiArg = {
+  id: string;
 };
 export type FindIncomingInvitationsApiResponse = /** status 200  */ FamilyInvitationResponseDto[];
 export type FindIncomingInvitationsApiArg = void;
@@ -216,6 +329,8 @@ export type FindOutgoingInvitationsApiArg = void;
 export type AcceptFamilyInvitationApiResponse = /** status 200  */ FamilyInvitationResponseDto;
 export type AcceptFamilyInvitationApiArg = {
   id: string;
+  /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
+  'Idempotency-Key'?: string;
 };
 export type RejectFamilyInvitationApiResponse = /** status 200  */ FamilyInvitationResponseDto;
 export type RejectFamilyInvitationApiArg = {
@@ -227,20 +342,29 @@ export type CancelFamilyInvitationApiArg = {
 };
 export type CreateFamilyEventApiResponse = /** status 201  */ FamilyEventResponseDto;
 export type CreateFamilyEventApiArg = {
+  /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
+  'Idempotency-Key'?: string;
   createFamilyEventDto: CreateFamilyEventDto;
 };
 export type FindFamilyEventsApiResponse = /** status 200  */ PaginatedFamilyEventsResponseDto;
 export type FindFamilyEventsApiArg = {
-  /** Start date, inclusive, in APP_TIMEZONE */
+  page?: number;
+  limit?: number;
+  /** Start date, inclusive, in the family timezone */
   dateFrom?: string;
-  /** End date, exclusive, in APP_TIMEZONE */
+  /** End date, exclusive, in the family timezone */
   dateTo?: string;
-  page?: Object;
-  limit?: Object;
 };
 export type FindFamilyEventByIdApiResponse = /** status 200  */ FamilyEventResponseDto;
 export type FindFamilyEventByIdApiArg = {
   id: string;
+};
+export type UpdateFamilyEventApiResponse = /** status 200  */ FamilyEventResponseDto;
+export type UpdateFamilyEventApiArg = {
+  id: string;
+  /** Current resource version. Omit for backward-compatible last-write-wins behavior. */
+  'If-Match'?: string;
+  updateFamilyEventDto: UpdateFamilyEventDto;
 };
 export type RemoveFamilyEventApiResponse = unknown;
 export type RemoveFamilyEventApiArg = {
@@ -256,12 +380,16 @@ export type RejectFamilyEventApiArg = {
 };
 export type CreateFirstDateApiResponse = /** status 201  */ FirstDateResponseDto;
 export type CreateFirstDateApiArg = {
+  /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
+  'Idempotency-Key'?: string;
   createFirstDateDto: CreateFirstDateDto;
 };
 export type FindMyFirstDateApiResponse = /** status 200  */ FirstDateResponseDto;
 export type FindMyFirstDateApiArg = void;
 export type UpdateFirstDateApiResponse = /** status 200  */ FirstDateResponseDto;
 export type UpdateFirstDateApiArg = {
+  /** Current resource version. Omit for backward-compatible last-write-wins behavior. */
+  'If-Match'?: string;
   updateFirstDateDto: UpdateFirstDateDto;
 };
 export type RemoveFirstDateApiResponse = unknown;
@@ -274,9 +402,12 @@ export type UserResponseDto = {
   lastName: string;
   email: string;
   gender: 'MALE' | 'FEMALE' | 'OTHER' | 'NOT_SPECIFIED';
-  description?: object | null;
+  description?: string | null;
   birthDate: string;
-  phone?: object | null;
+  phone?: string | null;
+  locale: string;
+  timeZone: string;
+  version: number;
   createdAt: string;
 };
 export type AuthResponseDto = {
@@ -299,31 +430,44 @@ export type LoginDto = {
   email: string;
   password: string;
 };
+export type UpdateCurrentUserDto = {
+  firstName?: string;
+  lastName?: string;
+  gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'NOT_SPECIFIED';
+  description?: string | null;
+  phone?: string | null;
+  locale?: string;
+  timeZone?: string;
+};
 export type PublicUserResponseDto = {
   id: string;
   firstName: string;
   lastName: string;
   gender: 'MALE' | 'FEMALE' | 'OTHER' | 'NOT_SPECIFIED';
-  description?: object | null;
+  description?: string | null;
   email: string;
   /** Whether the user already belongs to a family */
   hasFamily: boolean;
 };
 export type PaginatedUsersResponseDto = {
-  data: PublicUserResponseDto[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
+  data: PublicUserResponseDto[];
 };
-export type Object = {};
 export type FamilyMemberResponseDto = {
   id: string;
+  role: 'PARTNER' | 'CHILD';
   joinedAt: string;
   user: UserResponseDto;
 };
 export type FamilyResponseDto = {
   id: string;
+  status: 'ACTIVE' | 'ARCHIVED' | 'DISSOLVED';
+  timeZone: string;
+  locale: string;
+  defaultCurrency: string;
   createdAt: string;
   members: FamilyMemberResponseDto[];
 };
@@ -333,23 +477,49 @@ export type FamilyInvitationResponseDto = {
   sender: PublicUserResponseDto;
   recipient: PublicUserResponseDto;
   expiresAt: string;
-  respondedAt?: object | null;
+  respondedAt?: string | null;
   createdAt: string;
 };
 export type CreateFamilyInvitationDto = {
   recipientId: string;
 };
+export type CreatedPrivateFamilyInvitationResponseDto = {
+  id: string;
+  recipientEmail: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED' | 'EXPIRED';
+  expiresAt: string;
+  respondedAt?: string | null;
+  createdAt: string;
+  /** Shown only in the create response. Share it directly with the intended partner. */
+  inviteUrl: string;
+};
+export type CreatePrivateFamilyInvitationDto = {
+  recipientEmail: string;
+};
+export type PrivateFamilyInvitationResponseDto = {
+  id: string;
+  recipientEmail: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED' | 'EXPIRED';
+  expiresAt: string;
+  respondedAt?: string | null;
+  createdAt: string;
+};
+export type AcceptPrivateFamilyInvitationDto = {
+  /** One-time token from the invitation link */
+  token: string;
+};
 export type FamilyEventResponseDto = {
   id: string;
   familyId: string;
   name: string;
-  description?: object | null;
+  description?: string | null;
   scheduledAt: string;
   location: string;
   status: 'PROPOSED' | 'CONFIRMED' | 'REJECTED' | 'EVENT_DAY' | 'COMPLETED';
   proposedBy: UserResponseDto;
   respondedBy?: UserResponseDto | null;
-  respondedAt?: object | null;
+  respondedAt?: string | null;
+  version: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -361,18 +531,26 @@ export type CreateFamilyEventDto = {
   location: string;
 };
 export type PaginatedFamilyEventsResponseDto = {
-  data: FamilyEventResponseDto[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
+  data: FamilyEventResponseDto[];
+};
+export type UpdateFamilyEventDto = {
+  name?: string;
+  description?: string;
+  /** Event date and time in ISO 8601 format */
+  scheduledAt?: string;
+  location?: string;
 };
 export type FirstDateResponseDto = {
   id: string;
   familyId: string;
   name: string;
   date: string;
-  description?: object | null;
+  description?: string | null;
+  version: number;
   createdBy: UserResponseDto;
   createdAt: string;
   updatedAt: string;
@@ -391,10 +569,16 @@ export const {
   useRegisterMutation,
   useLoginMutation,
   useLogoutMutation,
+  useFindCurrentUserQuery,
+  useUpdateCurrentUserMutation,
   useFindUsersQuery,
   useFindUserByIdQuery,
   useFindMyFamilyQuery,
   useCreateFamilyInvitationMutation,
+  useCreatePrivateFamilyInvitationMutation,
+  useFindOutgoingPrivateFamilyInvitationsQuery,
+  useAcceptPrivateFamilyInvitationMutation,
+  useRevokePrivateFamilyInvitationMutation,
   useFindIncomingInvitationsQuery,
   useFindOutgoingInvitationsQuery,
   useAcceptFamilyInvitationMutation,
@@ -403,6 +587,7 @@ export const {
   useCreateFamilyEventMutation,
   useFindFamilyEventsQuery,
   useFindFamilyEventByIdQuery,
+  useUpdateFamilyEventMutation,
   useRemoveFamilyEventMutation,
   useConfirmFamilyEventMutation,
   useRejectFamilyEventMutation,

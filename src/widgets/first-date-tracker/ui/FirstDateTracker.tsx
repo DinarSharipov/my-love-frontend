@@ -1,9 +1,27 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
-import { Heart, Sparkles } from 'lucide-react';
-import { motion } from 'motion/react';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Heart,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Sparkles,
+  Trash2,
+  X,
+} from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 
-import { useFindMyFirstDateQuery } from '@/shared/api';
+import {
+  FirstDateForm,
+  useFindMyFirstDateQuery,
+  useRemoveFirstDateMutation,
+} from '@/features/first-date';
+import type { FirstDateResponseDto } from '@/shared/api';
+import { getApiErrorMessage } from '@/shared/api';
+import { Button } from '@/shared/ui';
 
 const milestones = [
   { label: '1 месяц', months: 1 },
@@ -15,8 +33,11 @@ const milestones = [
   { label: '30 лет', months: 360 },
 ] as const;
 
-const isNotFoundError = (error: unknown) =>
-  typeof error === 'object' && error !== null && 'status' in error && error.status === 404;
+type FormMode = 'create' | 'edit' | 'view';
+type Notice = { message: string; type: 'error' | 'success' };
+
+const isApiErrorStatus = (error: unknown, status: number) =>
+  typeof error === 'object' && error !== null && 'status' in error && error.status === status;
 
 const getTimelineProgress = (firstDate: dayjs.Dayjs, today: dayjs.Dayjs) => {
   if (today.isBefore(firstDate, 'day')) return 0;
@@ -40,7 +61,11 @@ const getTimelineProgress = (firstDate: dayjs.Dayjs, today: dayjs.Dayjs) => {
 };
 
 const TrackerSkeleton = () => (
-  <div className="border-border bg-surface/65 relative min-h-52 overflow-hidden rounded-3xl border p-5 backdrop-blur-xl">
+  <div
+    aria-label="Загрузка даты первой встречи"
+    className="border-border bg-surface/65 relative min-h-52 overflow-hidden rounded-3xl border p-5 backdrop-blur-xl"
+    role="status"
+  >
     <motion.div
       animate={{ x: ['-120%', '220%'] }}
       className="via-primary-neon/10 absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent to-transparent blur-xl"
@@ -52,53 +77,277 @@ const TrackerSkeleton = () => (
   </div>
 );
 
+const NoticeBanner = ({ notice }: { notice: Notice | null }) => (
+  <AnimatePresence mode="wait">
+    {notice && (
+      <motion.p
+        animate={{ opacity: 1, y: 0 }}
+        className={`relative mb-4 rounded-xl border px-4 py-2.5 text-sm ${
+          notice.type === 'success'
+            ? 'border-acid-green/35 bg-acid-green/10 text-acid-green'
+            : 'border-neon-pink/35 bg-neon-pink/10 text-neon-pink'
+        }`}
+        exit={{ opacity: 0, y: -6 }}
+        initial={{ opacity: 0, y: -6 }}
+        key={notice.message}
+        role="status"
+      >
+        {notice.message}
+      </motion.p>
+    )}
+  </AnimatePresence>
+);
+
+type EmptyFirstDateProps = {
+  canCreate: boolean;
+  notice: Notice | null;
+  onCreate: () => void;
+  onRetry: () => void;
+};
+
+const EmptyFirstDate = ({ canCreate, notice, onCreate, onRetry }: EmptyFirstDateProps) => (
+  <section className="border-border bg-surface/70 relative grid min-h-64 place-items-center overflow-hidden rounded-3xl border p-6 text-center backdrop-blur-xl">
+    <div className="bg-primary-neon/10 absolute h-36 w-36 rounded-full blur-3xl" />
+    <div className="relative w-full max-w-lg">
+      <NoticeBanner notice={notice} />
+      <Heart className="text-primary-neon mx-auto mb-3 h-8 w-8" strokeWidth={1.5} />
+      <p className="text-text text-sm font-medium">
+        {canCreate
+          ? 'Дата первой встречи пока не добавлена'
+          : 'Не удалось загрузить историю вашей встречи'}
+      </p>
+      <p className="text-muted-text mt-1 text-xs">
+        {canCreate
+          ? 'Сохраните момент, с которого началась ваша общая история'
+          : 'Попробуйте запросить данные ещё раз'}
+      </p>
+      <div className="mt-5 flex justify-center">
+        {canCreate ? (
+          <Button onClick={onCreate} size="s">
+            <span className="flex items-center gap-1.5">
+              <Plus aria-hidden="true" className="h-4 w-4" />
+              Добавить встречу
+            </span>
+          </Button>
+        ) : (
+          <Button onClick={onRetry} size="s">
+            <span className="flex items-center gap-1.5">
+              <RefreshCw aria-hidden="true" className="h-4 w-4" />
+              Повторить
+            </span>
+          </Button>
+        )}
+      </div>
+    </div>
+  </section>
+);
+
 export const FirstDateTracker = () => {
-  const { data, error, isLoading } = useFindMyFirstDateQuery();
+  const { data, error, isLoading, refetch } = useFindMyFirstDateQuery();
+  const [removeFirstDate, removeState] = useRemoveFirstDateMutation();
+  const [mode, setMode] = useState<FormMode>('view');
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [isLocallyRemoved, setIsLocallyRemoved] = useState(false);
+  const [savedValue, setSavedValue] = useState<FirstDateResponseDto>();
+  const [notice, setNotice] = useState<Notice | null>(null);
+  const firstDateData = isLocallyRemoved ? undefined : (savedValue ?? data);
 
-  if (isLoading) return <TrackerSkeleton />;
+  useEffect(() => {
+    if (savedValue && data?.updatedAt === savedValue.updatedAt) {
+      setSavedValue(undefined);
+    }
+  }, [data?.updatedAt, savedValue]);
 
-  if (!data) {
+  if (isLoading && !data && !isLocallyRemoved) return <TrackerSkeleton />;
+
+  const openForm = (nextMode: Exclude<FormMode, 'view'>) => {
+    setMode(nextMode);
+    setNotice(null);
+    setIsConfirmingDelete(false);
+  };
+
+  const handleFormSuccess = (
+    completedMode: Exclude<FormMode, 'view'>,
+    value: FirstDateResponseDto,
+  ) => {
+    setSavedValue(value);
+    setIsLocallyRemoved(false);
+    setMode('view');
+    setNotice({
+      message:
+        completedMode === 'create'
+          ? 'Дата первой встречи добавлена'
+          : 'История первой встречи обновлена',
+      type: 'success',
+    });
+  };
+
+  const handleDelete = async () => {
+    setNotice(null);
+
+    try {
+      await removeFirstDate().unwrap();
+      setSavedValue(undefined);
+      setIsLocallyRemoved(true);
+      setIsConfirmingDelete(false);
+      setNotice({ message: 'Дата первой встречи удалена', type: 'success' });
+    } catch (deleteError) {
+      setNotice({
+        message: isApiErrorStatus(deleteError, 403)
+          ? 'Удалить запись может только участник, который её создал'
+          : getApiErrorMessage(deleteError, 'Не удалось удалить дату первой встречи'),
+        type: 'error',
+      });
+    }
+  };
+
+  if (mode === 'create') {
     return (
-      <section className="border-border bg-surface/70 relative grid min-h-52 place-items-center overflow-hidden rounded-3xl border p-6 text-center backdrop-blur-xl">
-        <div className="bg-primary-neon/10 absolute h-36 w-36 rounded-full blur-3xl" />
-        <div className="relative">
-          <Heart className="text-primary-neon mx-auto mb-3 h-8 w-8" strokeWidth={1.5} />
-          <p className="text-text text-sm font-medium">
-            {isNotFoundError(error)
-              ? 'Дата первой встречи пока не добавлена'
-              : 'Не удалось загрузить историю вашей встречи'}
-          </p>
-          <p className="text-muted-text mt-1 text-xs">Здесь появится ваш общий путь во времени</p>
-        </div>
+      <section className="border-border bg-surface/70 relative overflow-hidden rounded-3xl border p-4 shadow-[0_0_45px_rgba(176,38,255,0.1)] backdrop-blur-xl sm:p-6">
+        <div className="bg-primary-neon/10 pointer-events-none absolute -left-16 -top-20 h-52 w-52 rounded-full blur-3xl" />
+        <FirstDateForm
+          mode="create"
+          onCancel={() => setMode('view')}
+          onSuccess={handleFormSuccess}
+        />
       </section>
     );
   }
 
-  const firstDate = dayjs(data.date).startOf('day');
+  if (!firstDateData) {
+    return (
+      <EmptyFirstDate
+        canCreate={isLocallyRemoved || isApiErrorStatus(error, 404)}
+        notice={notice}
+        onCreate={() => openForm('create')}
+        onRetry={() => {
+          refetch();
+        }}
+      />
+    );
+  }
+
+  if (mode === 'edit') {
+    return (
+      <section className="border-border bg-surface/70 relative overflow-hidden rounded-3xl border p-4 shadow-[0_0_45px_rgba(176,38,255,0.1)] backdrop-blur-xl sm:p-6">
+        <div className="bg-primary-neon/10 pointer-events-none absolute -left-16 -top-20 h-52 w-52 rounded-full blur-3xl" />
+        <FirstDateForm
+          initialValue={firstDateData}
+          mode="edit"
+          onCancel={() => setMode('view')}
+          onSuccess={handleFormSuccess}
+        />
+      </section>
+    );
+  }
+
+  const firstDate = dayjs(firstDateData.date).startOf('day');
   const today = dayjs().startOf('day');
   const daysPassed = Math.max(0, today.diff(firstDate, 'day'));
   const progress = getTimelineProgress(firstDate, today);
   const nextMilestone = milestones.find(({ months }) =>
     today.isBefore(firstDate.add(months, 'month'), 'day'),
   );
+  const description =
+    typeof firstDateData.description === 'string' ? firstDateData.description : null;
 
   return (
     <section className="border-border bg-surface/70 relative min-h-52 overflow-hidden rounded-3xl border p-4 shadow-[0_0_45px_rgba(176,38,255,0.1)] backdrop-blur-xl sm:p-6">
       <div className="bg-primary-neon/10 pointer-events-none absolute -left-16 -top-20 h-52 w-52 rounded-full blur-3xl" />
       <div className="bg-cyber-cyan/5 pointer-events-none absolute -bottom-24 right-0 h-48 w-48 rounded-full blur-3xl" />
 
+      <NoticeBanner notice={notice} />
+
       <div className="relative flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="text-primary-neon mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em]">
-            <Sparkles className="h-4 w-4" />
+            <Sparkles aria-hidden="true" className="h-4 w-4" />
             Наша история
           </div>
-          <h2 className="text-text text-lg font-semibold sm:text-xl">{data.name}</h2>
+          <h2 className="text-text text-lg font-semibold sm:text-xl">{firstDateData.name}</h2>
           <p className="text-muted-text mt-1 text-xs">
             Всё началось {firstDate.locale('ru').format('D MMMM YYYY')}
           </p>
+          {description && (
+            <p className="text-muted-text mt-3 max-w-2xl whitespace-pre-wrap text-sm leading-relaxed">
+              {description}
+            </p>
+          )}
         </div>
 
+        <div className="flex flex-wrap items-start justify-end gap-2">
+          <Button onClick={() => openForm('edit')} size="s">
+            <span className="flex items-center gap-1.5">
+              <Pencil aria-hidden="true" className="h-4 w-4" />
+              Изменить
+            </span>
+          </Button>
+          <Button
+            className="border-neon-pink/60 text-neon-pink hover:bg-neon-pink/10"
+            onClick={() => {
+              setNotice(null);
+              setIsConfirmingDelete(true);
+            }}
+            size="s"
+          >
+            <span className="flex items-center gap-1.5">
+              <Trash2 aria-hidden="true" className="h-4 w-4" />
+              Удалить
+            </span>
+          </Button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isConfirmingDelete && (
+          <motion.div
+            animate={{ opacity: 1, y: 0 }}
+            className="border-neon-pink/35 bg-neon-pink/5 relative mt-5 rounded-2xl border p-4"
+            exit={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -8 }}
+          >
+            <div className="flex gap-3">
+              <AlertTriangle
+                aria-hidden="true"
+                className="text-neon-pink mt-0.5 h-5 w-5 shrink-0"
+              />
+              <div>
+                <h3 className="text-text text-sm font-semibold">Удалить первую встречу?</h3>
+                <p className="text-muted-text mt-1 text-xs leading-relaxed">
+                  Это действие нельзя отменить. Backend разрешает удаление только участнику,
+                  создавшему запись — {firstDateData.createdBy.firstName}{' '}
+                  {firstDateData.createdBy.lastName}.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button
+                    className="border-neon-pink/70 text-neon-pink hover:bg-neon-pink/10"
+                    disabled={removeState.isLoading}
+                    onClick={handleDelete}
+                    size="s"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Trash2 aria-hidden="true" className="h-4 w-4" />
+                      {removeState.isLoading ? 'Удаляем…' : 'Да, удалить'}
+                    </span>
+                  </Button>
+                  <Button
+                    disabled={removeState.isLoading}
+                    onClick={() => setIsConfirmingDelete(false)}
+                    size="s"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <X aria-hidden="true" className="h-4 w-4" />
+                      Отмена
+                    </span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="relative mt-6 flex justify-end">
         <motion.div
           animate={{ opacity: 1, scale: 1 }}
           className="border-primary-neon/35 bg-primary-neon/10 rounded-2xl border px-4 py-3 text-right shadow-[inset_0_0_18px_rgba(176,38,255,0.08)]"
@@ -153,7 +402,8 @@ export const FirstDateTracker = () => {
         </div>
       </div>
 
-      <p className="text-muted-text relative mt-4 text-xs">
+      <p className="text-muted-text relative mt-4 flex items-center gap-1.5 text-xs">
+        <CheckCircle2 aria-hidden="true" className="text-acid-green h-3.5 w-3.5" />
         {nextMilestone
           ? `Следующая важная дата — ${firstDate
               .add(nextMilestone.months, 'month')

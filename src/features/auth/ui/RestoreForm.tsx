@@ -4,11 +4,11 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
 import { useRestorePasswordMutation } from '@/features/auth/api';
-import { getApiErrorMessage } from '@/features/auth/lib/getApiErrorMessage';
 import { restoreSchema, type RestoreFormValues } from '@/features/auth/model/schemas';
 import { AuthFormLayout } from '@/features/auth/ui/AuthFormLayout';
 import { FormStatus } from '@/features/auth/ui/FormStatus';
 import { Button, Input } from '@/shared/ui';
+import { getApiErrorMessage } from '@/shared/api';
 
 export const RestoreForm = () => {
   const navigate = useNavigate();

@@ -3,6 +3,7 @@ export {
   removeStoredAccessToken,
   storeAccessToken,
 } from '@/entities/user/lib/authTokenStorage';
+export { getAccessTokenSubject } from '@/entities/user/lib/getAccessTokenSubject';
 export {
   clearCredentials,
   selectAccessToken,

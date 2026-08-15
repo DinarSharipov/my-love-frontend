@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useState } from 'react';
@@ -16,17 +18,28 @@ export type CalendarPeriod = {
   readonly to: Date;
 };
 
+export type CalendarVisiblePeriod = {
+  readonly from: Date;
+  readonly toExclusive: Date;
+};
+
 type CalendarProps = {
   className?: string;
   onChangePeriod?: (period: CalendarPeriod) => void;
   onClickDay?: (day: Date, item?: PlannedItem) => void;
+  onVisiblePeriodChange?: (period: CalendarVisiblePeriod) => void;
   plannedItems?: readonly PlannedItem[];
+  selectionMode?: 'range' | 'single';
   selectedPeriod?: CalendarPeriod;
+  timeZone?: string;
 };
 
 const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'] as const;
 const visibleDaysCount = 42;
 const yearsPerPage = 12;
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const copyDate = (date: Date) => new Date(date.getTime());
 
@@ -94,8 +107,11 @@ export const Calendar = ({
   className = '',
   onChangePeriod,
   onClickDay,
+  onVisiblePeriodChange,
   plannedItems = [],
+  selectionMode = 'range',
   selectedPeriod,
+  timeZone,
 }: CalendarProps) => {
   const initialDate = selectedPeriod?.from ?? new Date();
   const [visibleMonth, setVisibleMonth] = useState(() => dayjs(initialDate).startOf('month'));
@@ -129,6 +145,15 @@ export const Calendar = ({
 
     return Array.from({ length: visibleDaysCount }, (_, index) => gridStart.add(index, 'day'));
   }, [visibleMonth]);
+  const visibleFromTimestamp = calendarDays[0].valueOf();
+  const visibleToTimestamp = calendarDays[calendarDays.length - 1].add(1, 'day').valueOf();
+
+  useEffect(() => {
+    onVisiblePeriodChange?.({
+      from: new Date(visibleFromTimestamp),
+      toExclusive: new Date(visibleToTimestamp),
+    });
+  }, [onVisiblePeriodChange, visibleFromTimestamp, visibleToTimestamp]);
 
   const itemsByDay = useMemo(() => {
     const result = new Map<string, PlannedItem[]>();
@@ -138,7 +163,8 @@ export const Calendar = ({
       .slice()
       .sort((left, right) => left.date.getTime() - right.date.getTime())
       .forEach((item) => {
-        const dateKey = dayjs(item.date).format('YYYY-MM-DD');
+        const itemDate = timeZone ? dayjs(item.date).tz(timeZone) : dayjs(item.date);
+        const dateKey = itemDate.format('YYYY-MM-DD');
         const items = result.get(dateKey) ?? [];
 
         items.push(item);
@@ -146,7 +172,7 @@ export const Calendar = ({
       });
 
     return result;
-  }, [plannedItems]);
+  }, [plannedItems, timeZone]);
 
   const visibleYears = useMemo(
     () => Array.from({ length: yearsPerPage }, (_, index) => yearPageStart + index),
@@ -173,6 +199,15 @@ export const Calendar = ({
     const normalizedDay = day.startOf('day').toDate();
 
     onClickDay?.(copyDate(normalizedDay));
+
+    if (selectionMode === 'single') {
+      const nextPeriod = { from: normalizedDay, to: normalizedDay };
+
+      setDraftPeriod(nextPeriod);
+      setRangeStart(null);
+      onChangePeriod?.({ from: copyDate(normalizedDay), to: copyDate(normalizedDay) });
+      return;
+    }
 
     if (!rangeStart) {
       setRangeStart(normalizedDay);
@@ -348,7 +383,8 @@ export const Calendar = ({
           const dateKey = day.format('YYYY-MM-DD');
           const dayItems = itemsByDay.get(dateKey) ?? [];
           const isCurrentMonth = day.month() === visibleMonth.month();
-          const isToday = day.isSame(dayjs(), 'day');
+          const today = timeZone ? dayjs().tz(timeZone) : dayjs();
+          const isToday = day.isSame(today, 'day');
           const isRangeStart = Boolean(activePeriod && day.isSame(activePeriod.from, 'day'));
           const isRangeEnd = Boolean(activePeriod && day.isSame(activePeriod.to, 'day'));
           const isInRange = Boolean(
@@ -405,17 +441,19 @@ export const Calendar = ({
                 <div className="flex min-h-0 min-w-0 flex-col gap-0.5 overflow-hidden">
                   {dayItems.slice(0, 2).map((item) => (
                     <motion.button
-                      aria-label={`${item.name}, ${dayjs(item.date).locale('ru').format('HH:mm')}`}
+                      aria-label={`${item.name}, ${(timeZone ? dayjs(item.date).tz(timeZone) : dayjs(item.date)).locale('ru').format('HH:mm')}`}
                       className="border-primary-neon/30 bg-primary-neon/10 text-text pointer-events-auto min-w-0 cursor-pointer truncate rounded border-l-2 px-1 py-0.5 text-left text-[8px] leading-tight outline-none hover:border-neon-pink hover:bg-primary-neon/20 focus-visible:border-cyber-cyan sm:px-1.5 sm:py-1 sm:text-[11px]"
                       key={item.id}
                       onClick={(event) => handleItemClick(event, day, item)}
-                      title={`${dayjs(item.date).format('HH:mm')} · ${item.name}`}
+                      title={`${(timeZone ? dayjs(item.date).tz(timeZone) : dayjs(item.date)).format('HH:mm')} · ${item.name}`}
                       type="button"
                       whileHover={{ x: 2 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       <span className="text-cyber-cyan mr-1 hidden font-medium sm:inline">
-                        {dayjs(item.date).format('HH:mm')}
+                        {(timeZone ? dayjs(item.date).tz(timeZone) : dayjs(item.date)).format(
+                          'HH:mm',
+                        )}
                       </span>
                       {item.name}
                     </motion.button>

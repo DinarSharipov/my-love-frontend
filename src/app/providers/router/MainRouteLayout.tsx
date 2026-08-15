@@ -1,4 +1,12 @@
-import { House, LogOut, UserRound, UsersIcon, DogIcon } from 'lucide-react';
+import {
+  CalendarDays,
+  DogIcon,
+  House,
+  LogOut,
+  MailCheck,
+  UserRound,
+  UsersIcon,
+} from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom';
@@ -43,6 +51,10 @@ export const MainRouteLayout = () => {
         to: '/all_users',
       },
       {
+        children: [
+          { icon: CalendarDays, label: 'Календарь', to: '/family-calendar' },
+          { icon: MailCheck, label: 'Приглашения', to: '/family-invitations' },
+        ],
         label: 'Моя семья',
         icon: DogIcon,
         to: '/my_family',

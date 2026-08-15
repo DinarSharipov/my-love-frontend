@@ -1,17 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useLoginMutation } from '@/features/auth/api';
-import { getApiErrorMessage } from '@/features/auth/lib/getApiErrorMessage';
 import { loginSchema, type LoginFormValues } from '@/features/auth/model/schemas';
+import { getAuthRedirect } from '@/features/auth/lib/getAuthRedirect';
 import { AuthFormLayout } from '@/features/auth/ui/AuthFormLayout';
 import { FormStatus } from '@/features/auth/ui/FormStatus';
+import { getApiErrorMessage } from '@/shared/api';
 import { Button, Input } from '@/shared/ui';
 
 export const LoginForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [login, { isLoading }] = useLoginMutation();
   const [requestError, setRequestError] = useState<string>();
   const {
@@ -25,7 +27,7 @@ export const LoginForm = () => {
 
     try {
       await login({ loginDto: values }).unwrap();
-      navigate('/main');
+      navigate(getAuthRedirect(location.search), { replace: true });
     } catch (error) {
       setRequestError(getApiErrorMessage(error, 'Не удалось войти. Проверьте данные.'));
     }
@@ -61,7 +63,7 @@ export const LoginForm = () => {
           {isLoading ? 'Входим…' : 'Войти'}
         </Button>
         <div className="flex items-center justify-between gap-3 w-full">
-          <Button onClick={() => navigate('/auth')}>Регистрация</Button>
+          <Button onClick={() => navigate(`/auth${location.search}`)}>Регистрация</Button>
           <Button onClick={() => navigate('/restore')}>Забыли пароль?</Button>
         </div>
       </form>

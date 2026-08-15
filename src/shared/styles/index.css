@@ -16,6 +16,34 @@
 }
 
 @layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-electric-purple) var(--color-surface);
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: var(--color-surface);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border: 1px solid var(--color-surface);
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--color-primary-neon), var(--color-electric-blue));
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--color-neon-pink);
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: var(--color-surface);
+  }
+
   html {
     font-family:
       Inter,

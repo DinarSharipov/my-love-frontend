@@ -1,14 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useRegisterMutation } from '@/features/auth/api';
-import { getApiErrorMessage } from '@/features/auth/lib/getApiErrorMessage';
 import { registerSchema, type RegisterFormValues } from '@/features/auth/model/schemas';
+import { getAuthRedirect } from '@/features/auth/lib/getAuthRedirect';
 import { AuthFormLayout } from '@/features/auth/ui/AuthFormLayout';
 import { FormStatus } from '@/features/auth/ui/FormStatus';
 import { Button, Input, Select } from '@/shared/ui';
+import { getApiErrorMessage } from '@/shared/api';
 import type { SelectOption } from '@/shared/ui';
 
 const genderOptions = [
@@ -20,6 +21,7 @@ const genderOptions = [
 
 export const RegisterForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [registerUser, { isLoading }] = useRegisterMutation();
   const [requestError, setRequestError] = useState<string>();
   const {
@@ -47,7 +49,7 @@ export const RegisterForm = () => {
           phone: values.phone,
         },
       }).unwrap();
-      navigate('/main');
+      navigate(getAuthRedirect(location.search), { replace: true });
     } catch (error) {
       setRequestError(
         getApiErrorMessage(error, 'Не удалось зарегистрироваться. Попробуйте ещё раз.'),
@@ -136,7 +138,7 @@ export const RegisterForm = () => {
         <FormStatus message={requestError} />
 
         <div className="flex justify-between gap-2">
-          <Button onClick={() => navigate('/login')}>Войти</Button>
+          <Button onClick={() => navigate(`/login${location.search}`)}>Войти</Button>
           <Button animateVariant="magnetic" disabled={isLoading} type="submit">
             {isLoading ? 'Создаём профиль…' : 'Зарегистрироваться'}
           </Button>

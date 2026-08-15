@@ -3,7 +3,11 @@ import { MoreHorizontal, Search, Send, UsersRound } from 'lucide-react';
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 
 import type { PublicUserResponseDto } from '@/shared/api';
-import { useCreateFamilyInvitationMutation, useFindUsersQuery } from '@/shared/api';
+import {
+  getApiErrorMessage,
+  useCreateFamilyInvitationMutation,
+  useFindUsersQuery,
+} from '@/shared/api';
 import { Input, Table } from '@/shared/ui';
 import type { TableColumn } from '@/shared/ui';
 
@@ -14,21 +18,6 @@ const genderLabels: Record<PublicUserResponseDto['gender'], string> = {
   MALE: 'Мужчина',
   NOT_SPECIFIED: 'Не указан',
   OTHER: 'Другой',
-};
-
-const getErrorMessage = (error: unknown) => {
-  if (typeof error !== 'object' || error === null || !('data' in error)) {
-    return 'Не удалось отправить приглашение';
-  }
-
-  const { data } = error;
-
-  if (typeof data === 'object' && data !== null && 'message' in data) {
-    const { message } = data;
-    return Array.isArray(message) ? message.join(', ') : String(message);
-  }
-
-  return 'Не удалось отправить приглашение';
 };
 
 type UserActionsProps = {
@@ -118,7 +107,10 @@ export const AllUsersPage = () => {
           type: 'success',
         });
       } catch (invitationError) {
-        setNotice({ message: getErrorMessage(invitationError), type: 'error' });
+        setNotice({
+          message: getApiErrorMessage(invitationError, 'Не удалось отправить приглашение'),
+          type: 'error',
+        });
       } finally {
         setActiveUserId(null);
       }

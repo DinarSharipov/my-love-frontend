@@ -6,8 +6,11 @@ import { useFindMyFamilyQuery } from '@/shared/api';
 import { Button } from '@/shared/ui';
 import { FirstDateTracker } from '@/widgets/first-date-tracker';
 
-const isNotFoundError = (error: unknown) =>
-  typeof error === 'object' && error !== null && 'status' in error && error.status === 404;
+const isMissingActiveFamilyError = (error: unknown) =>
+  typeof error === 'object' &&
+  error !== null &&
+  'status' in error &&
+  (error.status === 403 || error.status === 404);
 
 const formatDate = (date: string) =>
   new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format(
@@ -30,7 +33,7 @@ export const MyFamilyPage = () => {
     );
   }
 
-  if (!data && isNotFoundError(error)) {
+  if (!data && isMissingActiveFamilyError(error)) {
     return (
       <main className="grid h-full place-items-center pb-24">
         <motion.section
