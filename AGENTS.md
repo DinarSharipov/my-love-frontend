@@ -31,6 +31,7 @@ Cyberpunk web app for creating a family and managing family life: household task
 
 - Keep changes scoped and reuse existing patterns before adding abstractions or dependencies.
 - Before completion run the relevant checks; for normal code changes use `npm run typecheck`, `npm run lint`, and `npm run build` when practical.
+- After every implementation slice, run the frontend in the browser and verify every affected route visually: page layout, loading/error/empty states, visible buttons, inputs, keyboard access, and primary interactions. Use Playwright when available; do not consider a slice complete until the affected controls are reachable and work.
 
 ## Continuity
 

@@ -201,7 +201,7 @@ const DockItem = ({
         {isOpen && children && (
           <motion.div
             animate="opened"
-            className="absolute bottom-[calc(100%+24px)] left-1/2 z-30 flex -translate-x-1/2 flex-col-reverse gap-2"
+            className="absolute bottom-[calc(100%+24px)] left-1/2 z-30 flex -translate-x-1/2 flex-col items-center gap-2"
             exit="closed"
             id={submenuId}
             initial="closed"
@@ -209,6 +209,9 @@ const DockItem = ({
             variants={submenuVariants}
           >
             <span aria-hidden="true" className="absolute -bottom-6 left-0 h-6 w-full" />
+            <span className="border-border bg-surface/95 text-text whitespace-nowrap rounded-lg border px-3 py-1.5 text-xs font-semibold shadow-[0_0_18px_rgba(176,38,255,0.2)] backdrop-blur-xl">
+              {label}
+            </span>
             {children.map(
               ({ callback: childCallback, icon: ChildIcon, label: childLabel, to: childTo }) => {
                 const content = (

@@ -29,8 +29,8 @@ import {
   useRemoveFamilyEventMutation,
 } from '@/features/family-events';
 import type { FamilyEventResponseDto } from '@/shared/api';
-import { getApiErrorMessage, useFindMyFamilyQuery } from '@/shared/api';
-import { Button, Calendar } from '@/shared/ui';
+import { getApiErrorMessage, useFindMyFamilyQuery, useListQuery } from '@/shared/api';
+import { AsyncState, Button, Calendar } from '@/shared/ui';
 import type { CalendarVisiblePeriod, PlannedItem } from '@/shared/ui';
 
 type Notice = { message: string; type: 'error' | 'success' };
@@ -366,10 +366,15 @@ export const FamilyCalendar = () => {
     },
     { skip: !family },
   );
+  const tasksQuery = useListQuery({ page: 1, limit: 100 }, { skip: !family });
   const [confirmFamilyEvent, confirmState] = useConfirmFamilyEventMutation();
   const [rejectFamilyEvent, rejectState] = useRejectFamilyEventMutation();
   const [removeFamilyEvent, removeState] = useRemoveFamilyEventMutation();
   const events = useMemo(() => eventsQuery.data?.data ?? [], [eventsQuery.data?.data]);
+  const tasks = useMemo(() => {
+    const payload = tasksQuery.data as unknown as { data?: Array<{ id: string; title: string; dueAt?: object | null; status: string }> } | undefined;
+    return (payload?.data ?? []).filter((task) => task.status !== 'ARCHIVED' && typeof task.dueAt === 'string');
+  }, [tasksQuery.data]);
   const isResponding = confirmState.isLoading || rejectState.isLoading;
 
   useEffect(() => {
@@ -388,13 +393,19 @@ export const FamilyCalendar = () => {
   }, [events, focusedEvent]);
 
   const plannedItems = useMemo<PlannedItem[]>(
-    () =>
-      events.map((event) => ({
+    () => [
+      ...events.map((event) => ({
         date: new Date(event.scheduledAt),
-        id: event.id,
+        id: `event:${event.id}`,
         name: event.name,
       })),
-    [events],
+      ...tasks.map((task) => ({
+        date: new Date(task.dueAt as unknown as string),
+        id: `task:${task.id}`,
+        name: `Задача: ${task.title}`,
+      })),
+    ],
+    [events, tasks],
   );
   const selectedDayEvents = useMemo(
     () => events.filter((event) => getFamilyDateKey(event.scheduledAt, timeZone) === selectedDate),
@@ -453,7 +464,13 @@ export const FamilyCalendar = () => {
     }
   };
 
-  if (familyQuery.isLoading) return <CalendarSkeleton />;
+  if (familyQuery.isLoading) {
+    return (
+      <AsyncState hasData={false} isLoading loading={<CalendarSkeleton />}>
+        <div />
+      </AsyncState>
+    );
+  }
 
   if (!family && isFamilyMissingError(familyQuery.error)) {
     return (
@@ -476,14 +493,15 @@ export const FamilyCalendar = () => {
 
   if (!family) {
     return (
-      <section className="border-neon-pink/30 bg-neon-pink/5 grid min-h-[420px] place-items-center rounded-3xl border p-8 text-center">
-        <div>
-          <p className="text-neon-pink">Не удалось загрузить настройки семьи</p>
-          <Button className="mt-4" onClick={() => familyQuery.refetch()} size="s">
-            Повторить
-          </Button>
-        </div>
-      </section>
+      <AsyncState
+        error={familyQuery.error}
+        errorMessage="Не удалось загрузить настройки семьи"
+        hasData={false}
+        loading={<CalendarSkeleton />}
+        onRetry={familyQuery.refetch}
+      >
+        <div />
+      </AsyncState>
     );
   }
 
@@ -608,8 +626,13 @@ export const FamilyCalendar = () => {
               className="min-h-[560px]"
               onClickDay={(day, item) => {
                 if (item) {
-                  const event = events.find((candidate) => candidate.id === item.id);
-                  if (event) openEvent(event);
+                  const [kind, id] = String(item.id).split(':');
+                  if (kind === 'event') {
+                    const event = events.find((candidate) => candidate.id === id);
+                    if (event) openEvent(event);
+                  } else if (kind === 'task') {
+                    navigate('/tasks');
+                  }
                   return;
                 }
 

@@ -3,6 +3,8 @@ import {
   DogIcon,
   House,
   LogOut,
+  ListChecks,
+  Repeat2,
   MailCheck,
   UserRound,
   UsersIcon,
@@ -53,6 +55,8 @@ export const MainRouteLayout = () => {
       {
         children: [
           { icon: CalendarDays, label: 'Календарь', to: '/family-calendar' },
+          { icon: ListChecks, label: 'Задачи', to: '/tasks' },
+          { icon: Repeat2, label: 'Регулярные задачи', to: '/task-routines' },
           { icon: MailCheck, label: 'Приглашения', to: '/family-invitations' },
         ],
         label: 'Моя семья',

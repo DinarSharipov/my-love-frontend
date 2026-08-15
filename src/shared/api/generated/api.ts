@@ -1,5 +1,9 @@
 import { baseApi as api } from '@/shared/api/baseApi';
 export const addTagTypes = [
+  'tasks',
+  'task-routines',
+  'shopping',
+  'notifications',
   'auth',
   'users',
   'families',
@@ -14,6 +18,144 @@ const injectedRtkApi = api
   })
   .injectEndpoints({
     endpoints: (build) => ({
+      create: build.mutation<CreateApiResponse, CreateApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/tasks`,
+          method: 'POST',
+          body: queryArg.createTaskDto,
+        }),
+        invalidatesTags: ['tasks'],
+      }),
+      list: build.query<ListApiResponse, ListApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/tasks`,
+          params: {
+            page: queryArg.page,
+            limit: queryArg.limit,
+          },
+        }),
+        providesTags: ['tasks'],
+      }),
+      update: build.mutation<UpdateApiResponse, UpdateApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/tasks/${queryArg.id}`,
+          method: 'PATCH',
+          body: queryArg.updateTaskDto,
+          headers: {
+            'if-match': queryArg['if-match'],
+          },
+        }),
+        invalidatesTags: ['tasks'],
+      }),
+      archive: build.mutation<ArchiveApiResponse, ArchiveApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/tasks/${queryArg.id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['tasks'],
+      }),
+      complete: build.mutation<CompleteApiResponse, CompleteApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/tasks/${queryArg.id}/complete`,
+          method: 'POST',
+          headers: {
+            'if-match': queryArg['if-match'],
+          },
+        }),
+        invalidatesTags: ['tasks'],
+      }),
+      reopen: build.mutation<ReopenApiResponse, ReopenApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/tasks/${queryArg.id}/reopen`,
+          method: 'POST',
+          headers: {
+            'if-match': queryArg['if-match'],
+          },
+        }),
+        invalidatesTags: ['tasks'],
+      }),
+      create2: build.mutation<Create2ApiResponse, Create2ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/task-routines`,
+          method: 'POST',
+          body: queryArg.createTaskRoutineDto,
+        }),
+        invalidatesTags: ['task-routines'],
+      }),
+      list2: build.query<List2ApiResponse, List2ApiArg>({
+        query: () => ({ url: `/api/v1/families/me/task-routines` }),
+        providesTags: ['task-routines'],
+      }),
+      generate: build.mutation<GenerateApiResponse, GenerateApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/task-routines/${queryArg.id}/generate`,
+          method: 'POST',
+        }),
+        invalidatesTags: ['task-routines'],
+      }),
+      archive2: build.mutation<Archive2ApiResponse, Archive2ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/task-routines/${queryArg.id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['task-routines'],
+      }),
+      lists: build.query<ListsApiResponse, ListsApiArg>({
+        query: () => ({ url: `/api/v1/families/me/shopping-lists` }),
+        providesTags: ['shopping'],
+      }),
+      create3: build.mutation<Create3ApiResponse, Create3ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/shopping-lists`,
+          method: 'POST',
+          body: queryArg.createShoppingListDto,
+        }),
+        invalidatesTags: ['shopping'],
+      }),
+      add: build.mutation<AddApiResponse, AddApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/shopping-lists/${queryArg.listId}/items`,
+          method: 'POST',
+          body: queryArg.createShoppingItemDto,
+        }),
+        invalidatesTags: ['shopping'],
+      }),
+      check: build.mutation<CheckApiResponse, CheckApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/shopping-lists/${queryArg.listId}/items/${queryArg.itemId}/check`,
+          method: 'POST',
+        }),
+        invalidatesTags: ['shopping'],
+      }),
+      uncheck: build.mutation<UncheckApiResponse, UncheckApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/shopping-lists/${queryArg.listId}/items/${queryArg.itemId}/uncheck`,
+          method: 'POST',
+        }),
+        invalidatesTags: ['shopping'],
+      }),
+      archive3: build.mutation<Archive3ApiResponse, Archive3ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/shopping-lists/${queryArg.listId}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['shopping'],
+      }),
+      list3: build.query<List3ApiResponse, List3ApiArg>({
+        query: () => ({ url: `/api/v1/notifications` }),
+        providesTags: ['notifications'],
+      }),
+      read: build.mutation<ReadApiResponse, ReadApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/notifications/${queryArg.id}/read`,
+          method: 'PATCH',
+        }),
+        invalidatesTags: ['notifications'],
+      }),
+      readAll: build.mutation<ReadAllApiResponse, ReadAllApiArg>({
+        query: () => ({ url: `/api/v1/notifications/read-all`, method: 'PATCH' }),
+        invalidatesTags: ['notifications'],
+      }),
       register: build.mutation<RegisterApiResponse, RegisterApiArg>({
         query: (queryArg) => ({
           url: `/api/v1/auth/register`,
@@ -50,6 +192,44 @@ const injectedRtkApi = api
           url: `/api/v1/auth/password-reset/confirm`,
           method: 'POST',
           body: queryArg.resetPasswordDto,
+        }),
+        invalidatesTags: ['auth'],
+      }),
+      requestEmailChange: build.mutation<RequestEmailChangeApiResponse, RequestEmailChangeApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/auth/email-change/request`,
+          method: 'POST',
+          body: queryArg.requestEmailChangeDto,
+        }),
+        invalidatesTags: ['auth'],
+      }),
+      confirmEmailChange: build.mutation<ConfirmEmailChangeApiResponse, ConfirmEmailChangeApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/auth/email-change/confirm`,
+          method: 'POST',
+          body: queryArg.confirmEmailChangeDto,
+        }),
+        invalidatesTags: ['auth'],
+      }),
+      requestAccountDeletion: build.mutation<
+        RequestAccountDeletionApiResponse,
+        RequestAccountDeletionApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/auth/account-deletion/request`,
+          method: 'POST',
+          body: queryArg.requestAccountDeletionDto,
+        }),
+        invalidatesTags: ['auth'],
+      }),
+      cancelAccountDeletion: build.mutation<
+        CancelAccountDeletionApiResponse,
+        CancelAccountDeletionApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/auth/account-deletion/cancel`,
+          method: 'POST',
+          body: queryArg.cancelAccountDeletionDto,
         }),
         invalidatesTags: ['auth'],
       }),
@@ -91,6 +271,10 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['users'],
       }),
+      exportCurrentUser: build.query<ExportCurrentUserApiResponse, ExportCurrentUserApiArg>({
+        query: () => ({ url: `/api/v1/users/me/export` }),
+        providesTags: ['users'],
+      }),
       findUsers: build.query<FindUsersApiResponse, FindUsersApiArg>({
         query: (queryArg) => ({
           url: `/api/v1/users`,
@@ -109,6 +293,42 @@ const injectedRtkApi = api
       findMyFamily: build.query<FindMyFamilyApiResponse, FindMyFamilyApiArg>({
         query: () => ({ url: `/api/v1/families/me` }),
         providesTags: ['families'],
+      }),
+      listAuditEvents: build.query<ListAuditEventsApiResponse, ListAuditEventsApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/audit-events`,
+          params: {
+            page: queryArg.page,
+            limit: queryArg.limit,
+            action: queryArg.action,
+            resourceType: queryArg.resourceType,
+          },
+        }),
+        providesTags: ['families'],
+      }),
+      leaveFamily: build.mutation<LeaveFamilyApiResponse, LeaveFamilyApiArg>({
+        query: () => ({ url: `/api/v1/families/me/membership`, method: 'DELETE' }),
+        invalidatesTags: ['families'],
+      }),
+      archiveFamily: build.mutation<ArchiveFamilyApiResponse, ArchiveFamilyApiArg>({
+        query: () => ({ url: `/api/v1/families/me/archive`, method: 'POST' }),
+        invalidatesTags: ['families'],
+      }),
+      restoreFamily: build.mutation<RestoreFamilyApiResponse, RestoreFamilyApiArg>({
+        query: () => ({ url: `/api/v1/families/me/restore`, method: 'POST' }),
+        invalidatesTags: ['families'],
+      }),
+      requestDissolution: build.mutation<RequestDissolutionApiResponse, RequestDissolutionApiArg>({
+        query: () => ({ url: `/api/v1/families/me/dissolution/request`, method: 'POST' }),
+        invalidatesTags: ['families'],
+      }),
+      confirmDissolution: build.mutation<ConfirmDissolutionApiResponse, ConfirmDissolutionApiArg>({
+        query: () => ({ url: `/api/v1/families/me/dissolution/confirm`, method: 'POST' }),
+        invalidatesTags: ['families'],
+      }),
+      cancelDissolution: build.mutation<CancelDissolutionApiResponse, CancelDissolutionApiArg>({
+        query: () => ({ url: `/api/v1/families/me/dissolution`, method: 'DELETE' }),
+        invalidatesTags: ['families'],
       }),
       createFamilyInvitation: build.mutation<
         CreateFamilyInvitationApiResponse,
@@ -307,6 +527,82 @@ const injectedRtkApi = api
     overrideExisting: false,
   });
 export { injectedRtkApi as generatedApi };
+export type CreateApiResponse = /** status 200  */ TaskResponseDto;
+export type CreateApiArg = {
+  createTaskDto: CreateTaskDto;
+};
+export type ListApiResponse = unknown;
+export type ListApiArg = {
+  page?: number;
+  limit?: number;
+};
+export type UpdateApiResponse = /** status 200  */ TaskResponseDto;
+export type UpdateApiArg = {
+  id: string;
+  'if-match': string;
+  updateTaskDto: UpdateTaskDto;
+};
+export type ArchiveApiResponse = unknown;
+export type ArchiveApiArg = {
+  id: string;
+};
+export type CompleteApiResponse = /** status 200  */ TaskResponseDto;
+export type CompleteApiArg = {
+  id: string;
+  'if-match': string;
+};
+export type ReopenApiResponse = /** status 200  */ TaskResponseDto;
+export type ReopenApiArg = {
+  id: string;
+  'if-match': string;
+};
+export type Create2ApiResponse = /** status 200  */ TaskRoutineResponseDto;
+export type Create2ApiArg = {
+  createTaskRoutineDto: CreateTaskRoutineDto;
+};
+export type List2ApiResponse = /** status 200  */ TaskRoutineResponseDto[];
+export type List2ApiArg = void;
+export type GenerateApiResponse = /** status 200  */ TaskRoutineResponseDto;
+export type GenerateApiArg = {
+  id: string;
+};
+export type Archive2ApiResponse = unknown;
+export type Archive2ApiArg = {
+  id: string;
+};
+export type ListsApiResponse = unknown;
+export type ListsApiArg = void;
+export type Create3ApiResponse = unknown;
+export type Create3ApiArg = {
+  createShoppingListDto: CreateShoppingListDto;
+};
+export type AddApiResponse = unknown;
+export type AddApiArg = {
+  listId: string;
+  createShoppingItemDto: CreateShoppingItemDto;
+};
+export type CheckApiResponse = unknown;
+export type CheckApiArg = {
+  itemId: string;
+  listId: string;
+};
+export type UncheckApiResponse = unknown;
+export type UncheckApiArg = {
+  itemId: string;
+  listId: string;
+};
+export type Archive3ApiResponse = unknown;
+export type Archive3ApiArg = {
+  listId: string;
+};
+export type List3ApiResponse = unknown;
+export type List3ApiArg = void;
+export type ReadApiResponse = unknown;
+export type ReadApiArg = {
+  id: string;
+};
+export type ReadAllApiResponse = unknown;
+export type ReadAllApiArg = void;
 export type RegisterApiResponse = /** status 201  */ AuthResponseDto;
 export type RegisterApiArg = {
   registerDto: RegisterDto;
@@ -324,6 +620,23 @@ export type RequestPasswordResetApiArg = {
 export type ResetPasswordApiResponse = unknown;
 export type ResetPasswordApiArg = {
   resetPasswordDto: ResetPasswordDto;
+};
+export type RequestEmailChangeApiResponse = unknown;
+export type RequestEmailChangeApiArg = {
+  requestEmailChangeDto: RequestEmailChangeDto;
+};
+export type ConfirmEmailChangeApiResponse = unknown;
+export type ConfirmEmailChangeApiArg = {
+  confirmEmailChangeDto: ConfirmEmailChangeDto;
+};
+export type RequestAccountDeletionApiResponse =
+  /** status 202  */ AccountDeletionRequestResponseDto;
+export type RequestAccountDeletionApiArg = {
+  requestAccountDeletionDto: RequestAccountDeletionDto;
+};
+export type CancelAccountDeletionApiResponse = unknown;
+export type CancelAccountDeletionApiArg = {
+  cancelAccountDeletionDto: CancelAccountDeletionDto;
 };
 export type ListSessionsApiResponse = /** status 200  */ AuthSessionResponseDto[];
 export type ListSessionsApiArg = void;
@@ -345,6 +658,8 @@ export type UpdateCurrentUserApiArg = {
   'If-Match'?: string;
   updateCurrentUserDto: UpdateCurrentUserDto;
 };
+export type ExportCurrentUserApiResponse = /** status 200  */ AccountExportResponseDto;
+export type ExportCurrentUserApiArg = void;
 export type FindUsersApiResponse = /** status 200  */ PaginatedUsersResponseDto;
 export type FindUsersApiArg = {
   page?: number;
@@ -358,6 +673,25 @@ export type FindUserByIdApiArg = {
 };
 export type FindMyFamilyApiResponse = /** status 200  */ FamilyResponseDto;
 export type FindMyFamilyApiArg = void;
+export type ListAuditEventsApiResponse = /** status 200  */ PaginatedAuditEventsResponseDto;
+export type ListAuditEventsApiArg = {
+  page?: number;
+  limit?: number;
+  action?: string;
+  resourceType?: string;
+};
+export type LeaveFamilyApiResponse = unknown;
+export type LeaveFamilyApiArg = void;
+export type ArchiveFamilyApiResponse = unknown;
+export type ArchiveFamilyApiArg = void;
+export type RestoreFamilyApiResponse = unknown;
+export type RestoreFamilyApiArg = void;
+export type RequestDissolutionApiResponse = /** status 200  */ DissolutionResponseDto;
+export type RequestDissolutionApiArg = void;
+export type ConfirmDissolutionApiResponse = unknown;
+export type ConfirmDissolutionApiArg = void;
+export type CancelDissolutionApiResponse = unknown;
+export type CancelDissolutionApiArg = void;
 export type CreateFamilyInvitationApiResponse = /** status 201  */ FamilyInvitationResponseDto;
 export type CreateFamilyInvitationApiArg = {
   /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
@@ -458,6 +792,68 @@ export type RemoveFirstDateApiResponse = unknown;
 export type RemoveFirstDateApiArg = void;
 export type CheckHealthApiResponse = /** status 200  */ any;
 export type CheckHealthApiArg = void;
+export type TaskResponseDto = {
+  id: string;
+  familyId: string;
+  createdById: string;
+  assignedToId?: object | null;
+  completedById?: object | null;
+  title: string;
+  description?: object | null;
+  dueAt?: object | null;
+  priority: 'LOW' | 'NORMAL' | 'HIGH';
+  status: 'OPEN' | 'COMPLETED' | 'ARCHIVED';
+  version: number;
+  completedAt?: object | null;
+  createdAt: string;
+  updatedAt: string;
+};
+export type CreateTaskDto = {
+  title: string;
+  description?: string;
+  dueAt?: string;
+  priority?: 'LOW' | 'NORMAL' | 'HIGH';
+  assignedToId?: string | null;
+};
+export type UpdateTaskDto = {
+  title?: string;
+  description?: string;
+  dueAt?: string;
+  priority?: 'LOW' | 'NORMAL' | 'HIGH';
+  assignedToId?: string | null;
+};
+export type TaskRoutineResponseDto = {
+  id: string;
+  familyId: string;
+  createdById: string;
+  assignedToId?: object | null;
+  title: string;
+  description?: object | null;
+  priority: 'LOW' | 'NORMAL' | 'HIGH';
+  frequency: 'DAILY' | 'WEEKLY';
+  interval: number;
+  nextRunAt: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+};
+export type CreateTaskRoutineDto = {
+  title: string;
+  description?: string;
+  priority?: 'LOW' | 'NORMAL' | 'HIGH';
+  frequency: 'DAILY' | 'WEEKLY';
+  interval: number;
+  nextRunAt: string;
+  assignedToId?: string | null;
+};
+export type CreateShoppingListDto = {
+  name: string;
+};
+export type CreateShoppingItemDto = {
+  name: string;
+  quantity?: string;
+};
 export type UserResponseDto = {
   id: string;
   firstName: string;
@@ -503,6 +899,24 @@ export type ResetPasswordDto = {
   token: string;
   newPassword: string;
 };
+export type RequestEmailChangeDto = {
+  email: string;
+  currentPassword: string;
+};
+export type ConfirmEmailChangeDto = {
+  /** One-time email change token */
+  token: string;
+};
+export type AccountDeletionRequestResponseDto = {
+  scheduledFor: string;
+};
+export type RequestAccountDeletionDto = {
+  currentPassword: string;
+};
+export type CancelAccountDeletionDto = {
+  /** One-time account recovery token */
+  token: string;
+};
 export type AuthSessionResponseDto = {
   id: string;
   ipAddress?: string | null;
@@ -524,6 +938,29 @@ export type UpdateCurrentUserDto = {
   phone?: string | null;
   locale?: string;
   timeZone?: string;
+};
+export type ExportMemberDto = {
+  id: string;
+  role: string;
+  joinedAt: string;
+  userId: string;
+};
+export type ExportFamilyDto = {
+  id: string;
+  status: string;
+  timeZone: string;
+  locale: string;
+  defaultCurrency: string;
+  members: ExportMemberDto[];
+  events: object[];
+  firstDate: object | null;
+};
+export type AccountExportResponseDto = {
+  format: string;
+  exportedAt: string;
+  profile: object;
+  families: ExportFamilyDto[];
+  invitations: object[];
 };
 export type PublicUserResponseDto = {
   id: string;
@@ -556,6 +993,32 @@ export type FamilyResponseDto = {
   defaultCurrency: string;
   createdAt: string;
   members: FamilyMemberResponseDto[];
+};
+export type AuditEventResponseDto = {
+  id: string;
+  actorId?: object | null;
+  familyId: string;
+  action: string;
+  resourceType: string;
+  resourceId?: object | null;
+  metadata?: object | null;
+  createdAt: string;
+};
+export type PaginatedAuditEventsResponseDto = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  data: AuditEventResponseDto[];
+};
+export type DissolutionResponseDto = {
+  id: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  familyId: string;
+  requestedById: string;
+  confirmedById?: object | null;
+  requestedAt: string;
+  confirmedAt?: object | null;
 };
 export type FamilyInvitationResponseDto = {
   id: string;
@@ -652,20 +1115,51 @@ export type UpdateFirstDateDto = {
   description?: string;
 };
 export const {
+  useCreateMutation,
+  useListQuery,
+  useUpdateMutation,
+  useArchiveMutation,
+  useCompleteMutation,
+  useReopenMutation,
+  useCreate2Mutation,
+  useList2Query,
+  useGenerateMutation,
+  useArchive2Mutation,
+  useListsQuery,
+  useCreate3Mutation,
+  useAddMutation,
+  useCheckMutation,
+  useUncheckMutation,
+  useArchive3Mutation,
+  useList3Query,
+  useReadMutation,
+  useReadAllMutation,
   useRegisterMutation,
   useLoginMutation,
   useLogoutMutation,
   useRequestPasswordResetMutation,
   useResetPasswordMutation,
+  useRequestEmailChangeMutation,
+  useConfirmEmailChangeMutation,
+  useRequestAccountDeletionMutation,
+  useCancelAccountDeletionMutation,
   useListSessionsQuery,
   useRevokeOtherSessionsMutation,
   useRevokeSessionMutation,
   useChangePasswordMutation,
   useFindCurrentUserQuery,
   useUpdateCurrentUserMutation,
+  useExportCurrentUserQuery,
   useFindUsersQuery,
   useFindUserByIdQuery,
   useFindMyFamilyQuery,
+  useListAuditEventsQuery,
+  useLeaveFamilyMutation,
+  useArchiveFamilyMutation,
+  useRestoreFamilyMutation,
+  useRequestDissolutionMutation,
+  useConfirmDissolutionMutation,
+  useCancelDissolutionMutation,
   useCreateFamilyInvitationMutation,
   useCreatePrivateFamilyInvitationMutation,
   useFindOutgoingPrivateFamilyInvitationsQuery,

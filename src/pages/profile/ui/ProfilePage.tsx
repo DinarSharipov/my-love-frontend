@@ -1,9 +1,9 @@
-import { motion } from 'motion/react';
 import { AtSign, CalendarDays, Globe2, MapPin, UserRound } from 'lucide-react';
 
 import { AccountSecurityPanel } from '@/features/account-security';
+import { FamilyActivityPanel } from '@/features/family-activity';
 import { ProfileForm, useFindCurrentUserQuery } from '@/features/profile';
-import { Button } from '@/shared/ui';
+import { AnimatedPanel, AsyncState } from '@/shared/ui';
 
 const formatBirthDate = (value: string) =>
   new Intl.DateTimeFormat('ru-RU', {
@@ -14,39 +14,36 @@ const formatBirthDate = (value: string) =>
 
 export const ProfilePage = () => {
   const profile = useFindCurrentUserQuery();
-
-  if (profile.isLoading) {
-    return (
-      <main className="h-full overflow-auto pb-24">
-        <div className="mx-auto max-w-4xl space-y-5">
-          <div className="border-border bg-elevated/35 h-32 animate-pulse rounded-3xl border" />
-          <div className="border-border bg-elevated/35 h-[32rem] animate-pulse rounded-3xl border" />
-        </div>
-      </main>
-    );
-  }
-
-  if (profile.error || !profile.data) {
-    return (
-      <main className="grid h-full place-items-center pb-24">
-        <div className="border-neon-pink/30 bg-neon-pink/5 max-w-md rounded-3xl border p-6 text-center">
-          <p className="text-neon-pink text-sm">Не удалось загрузить профиль</p>
-          <Button className="mt-4" onClick={profile.refetch} size="s">
-            Повторить
-          </Button>
-        </div>
-      </main>
-    );
-  }
-
   const user = profile.data;
+
+  if (!user) {
+    return (
+      <AsyncState
+        error={profile.error}
+        errorMessage="Не удалось загрузить профиль"
+        hasData={false}
+        isLoading={profile.isLoading}
+        loading={
+          <main className="h-full overflow-auto pb-24">
+            <div className="mx-auto max-w-4xl space-y-5">
+              <div className="border-border bg-elevated/35 h-32 animate-pulse rounded-3xl border" />
+              <div className="border-border bg-elevated/35 h-[32rem] animate-pulse rounded-3xl border" />
+            </div>
+          </main>
+        }
+        onRetry={profile.refetch}
+      >
+        <div />
+      </AsyncState>
+    );
+  }
 
   return (
     <main className="h-full overflow-auto pb-24">
       <div className="mx-auto w-full max-w-4xl">
-        <motion.header
+        <AnimatedPanel
           animate={{ opacity: 1, y: 0 }}
-          className="border-border bg-surface/70 mb-5 overflow-hidden rounded-3xl border p-5 shadow-[0_0_42px_rgba(176,38,255,0.1)] backdrop-blur-xl sm:p-6"
+          className="mb-5 overflow-hidden p-5 sm:p-6"
           initial={{ opacity: 0, y: 10 }}
         >
           <div className="bg-primary-neon/10 pointer-events-none absolute -right-10 -top-16 h-44 w-44 rounded-full blur-3xl" />
@@ -81,9 +78,9 @@ export const ProfilePage = () => {
               </div>
             </div>
           </div>
-        </motion.header>
+        </AnimatedPanel>
 
-        <section className="border-border bg-surface/70 rounded-3xl border p-5 shadow-[0_0_42px_rgba(0,245,255,0.06)] backdrop-blur-xl sm:p-6">
+        <AnimatedPanel className="p-5 sm:p-6">
           <header className="mb-5">
             <h2 className="text-text text-lg font-semibold">Настройки профиля</h2>
             <p className="text-muted-text mt-1 text-sm">
@@ -91,9 +88,10 @@ export const ProfilePage = () => {
             </p>
           </header>
           <ProfileForm onRefresh={profile.refetch} user={user} />
-        </section>
+        </AnimatedPanel>
 
         <AccountSecurityPanel />
+        <FamilyActivityPanel />
       </div>
     </main>
   );

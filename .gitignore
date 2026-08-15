@@ -5,6 +5,12 @@ dist
 !.env.example
 *.local
 *.log
+.openapi.json
+.playwright-mcp/
+.playwright/
+coverage/
+*.tsbuildinfo
+.eslintcache
 .idea
 .vscode/*
 !.vscode/extensions.json

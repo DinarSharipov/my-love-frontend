@@ -3,6 +3,8 @@ import { createBrowserRouter, Outlet } from 'react-router-dom';
 import { AuthPage } from '@/pages/auth';
 import { FamilyInvitationsPage } from '@/pages/family-invitations';
 import { FamilyCalendarPage } from '@/pages/family-calendar';
+import { TasksPage } from '@/pages/tasks';
+import { TaskRoutinesPage } from '@/pages/task-routines';
 import { HomePage } from '@/pages/home';
 import { LoginPage } from '@/pages/login';
 import { JoinFamilyPage } from '@/pages/join-family';
@@ -47,6 +49,14 @@ export const router = createBrowserRouter([
           {
             path: '/family-calendar',
             element: <FamilyCalendarPage />,
+          },
+          {
+            path: '/tasks',
+            element: <TasksPage />,
+          },
+          {
+            path: '/task-routines',
+            element: <TaskRoutinesPage />,
           },
         ],
       },
