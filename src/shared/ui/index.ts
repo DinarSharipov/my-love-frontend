@@ -1,4 +1,17 @@
 export { AppBackground } from '@/shared/ui/app-background';
-export { BackgroundMusic } from '@/shared/ui/background-music';
+export { MainLayout } from '@/shared/ui/main-layout';
+export { AnimatedPanel } from '@/shared/ui/animated-panel';
 export { Button } from '@/shared/ui/button';
+export { Calendar } from '@/shared/ui/calendar';
+export type { CalendarPeriod, CalendarVisiblePeriod, PlannedItem } from '@/shared/ui/calendar';
+export { Footer } from '@/shared/ui/footer';
+export type { MenuItem } from '@/shared/ui/footer';
 export { Input } from '@/shared/ui/input';
+export { Pagination } from '@/shared/ui/pagination';
+export type { PaginationProps } from '@/shared/ui/pagination';
+export { ScrambleText } from '@/shared/ui/scramble-text';
+export { Select } from '@/shared/ui/select';
+export type { SelectOption } from '@/shared/ui/select';
+export { Table } from '@/shared/ui/table';
+export type { TableColumn } from '@/shared/ui/table';
+export { Textarea } from '@/shared/ui/textarea';

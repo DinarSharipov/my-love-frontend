@@ -22,7 +22,7 @@ module.exports = {
       version: 'detect',
     },
   },
-  ignorePatterns: ['dist', 'vite.config.ts'],
+  ignorePatterns: ['dist', 'src/shared/api/generated', 'vite.config.ts'],
   rules: {
     'import/extensions': [
       'error',
