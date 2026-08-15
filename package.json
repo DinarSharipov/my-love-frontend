@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "api:generate": "rtk-query-codegen-openapi openapi.config.mjs",
+    "api:generate": "node scripts/prepare-openapi.mjs && rtk-query-codegen-openapi openapi.config.mjs",
     "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write .",
@@ -34,6 +34,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/mcp": "^0.0.79",
     "@rtk-query/codegen-openapi": "^2.2.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/lodash": "^4.17.25",
@@ -51,6 +52,7 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
+    "playwright": "^1.62.1",
     "prettier": "^3.9.6",
     "tailwindcss": "^4.3.3",
     "typescript": "~5.9.3",

@@ -18,7 +18,7 @@ const config = {
   hooks: true,
   outputFile: './src/shared/api/generated/api.ts',
   prettierConfigFile: './.prettierrc.json',
-  schemaFile: `${apiTarget}/docs-json`,
+  schemaFile: './.openapi.json',
   tag: true,
 };
 

@@ -203,7 +203,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               transition={{ duration: 0.25 }}
               whileHover={{ opacity: 0.22 }}
             />
-            <span className="relative z-10">{children}</span>
+            <span className="relative z-10 inline-flex items-center justify-center gap-2">{children}</span>
           </motion.button>
 
           <AnimatePresence>

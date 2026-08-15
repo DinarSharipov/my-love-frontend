@@ -19,7 +19,7 @@ import type {
   PrivateFamilyInvitationResponseDto,
 } from '@/shared/api';
 import { getApiErrorMessage } from '@/shared/api';
-import { Button, Input } from '@/shared/ui';
+import { AnimatedPanel, Button, Input } from '@/shared/ui';
 
 type Notice = { message: string; type: 'error' | 'success' };
 
@@ -160,7 +160,7 @@ export const PrivateFamilyInvitationPanel = () => {
   }
 
   return (
-    <section className="border-border bg-surface/70 mb-5 overflow-hidden rounded-3xl border p-4 shadow-[0_0_40px_rgba(0,245,255,0.07)] backdrop-blur-xl sm:p-5">
+    <AnimatedPanel className="mb-5 overflow-hidden p-4 sm:p-5">
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.95fr)]">
         <div>
           <header className="mb-4 flex items-start gap-3">
@@ -253,6 +253,6 @@ export const PrivateFamilyInvitationPanel = () => {
           {outgoingContent}
         </div>
       </div>
-    </section>
+    </AnimatedPanel>
   );
 };

@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { Check, Clock3, Inbox, MailCheck, RefreshCw, Send, UserRound, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -14,7 +13,7 @@ import {
 } from '@/features/family-invitations';
 import type { FamilyInvitationResponseDto } from '@/shared/api';
 import { getApiErrorMessage } from '@/shared/api';
-import { Button } from '@/shared/ui';
+import { AnimatedPanel, AsyncState, Button } from '@/shared/ui';
 
 type InvitationAction = 'accept' | 'cancel' | 'reject';
 type InvitationDirection = 'incoming' | 'outgoing';
@@ -201,57 +200,52 @@ const InvitationColumn = ({
   const isIncoming = direction === 'incoming';
   const sortedInvitations = useMemo(() => sortInvitations(invitations ?? []), [invitations]);
   const titleId = `${direction}-invitations-title`;
-  let content: ReactNode;
 
-  if (isLoading) {
-    content = <InvitationListSkeleton />;
-  } else if (error && !invitations) {
-    content = (
-      <div className="border-neon-pink/30 bg-neon-pink/5 grid min-h-48 place-items-center rounded-2xl border p-5 text-center">
-        <div>
-          <p className="text-neon-pink text-sm">Не удалось загрузить приглашения</p>
-          <Button className="mt-3" onClick={onRetry} size="s">
-            Повторить
-          </Button>
-        </div>
+  const emptyState = (
+    <div className="border-border bg-elevated/25 text-muted-text grid min-h-48 place-items-center rounded-2xl border border-dashed p-5 text-center">
+      <div>
+        {isIncoming ? (
+          <Inbox aria-hidden="true" className="mx-auto mb-2 h-7 w-7" />
+        ) : (
+          <Send aria-hidden="true" className="mx-auto mb-2 h-7 w-7" />
+        )}
+        <p className="text-sm">
+          {isIncoming ? 'Входящих приглашений нет' : 'Вы ещё никого не приглашали'}
+        </p>
       </div>
-    );
-  } else if (sortedInvitations.length === 0) {
-    content = (
-      <div className="border-border bg-elevated/25 text-muted-text grid min-h-48 place-items-center rounded-2xl border border-dashed p-5 text-center">
-        <div>
-          {isIncoming ? (
-            <Inbox aria-hidden="true" className="mx-auto mb-2 h-7 w-7" />
-          ) : (
-            <Send aria-hidden="true" className="mx-auto mb-2 h-7 w-7" />
-          )}
-          <p className="text-sm">
-            {isIncoming ? 'Входящих приглашений нет' : 'Вы ещё никого не приглашали'}
-          </p>
-        </div>
-      </div>
-    );
-  } else {
-    content = (
+    </div>
+  );
+  const content = (
+    <AsyncState
+      empty={emptyState}
+      error={error}
+      errorMessage="Не удалось загрузить приглашения"
+      hasData={Boolean(invitations)}
+      isLoading={isLoading}
+      loading={<InvitationListSkeleton />}
+      onRetry={onRetry}
+    >
       <div className="space-y-3">
-        {sortedInvitations.map((invitation) => (
-          <InvitationCard
-            activeAction={activeAction}
-            direction={direction}
-            invitation={invitation}
-            isMutating={isMutating}
-            key={invitation.id}
-            onAction={onAction}
-          />
-        ))}
+        {sortedInvitations.length > 0
+          ? sortedInvitations.map((invitation) => (
+              <InvitationCard
+                activeAction={activeAction}
+                direction={direction}
+                invitation={invitation}
+                isMutating={isMutating}
+                key={invitation.id}
+                onAction={onAction}
+              />
+            ))
+          : emptyState}
       </div>
-    );
-  }
+    </AsyncState>
+  );
 
   return (
-    <section
+    <AnimatedPanel
       aria-labelledby={titleId}
-      className="border-border bg-surface/65 min-h-0 rounded-3xl border p-4 shadow-[0_0_40px_rgba(176,38,255,0.08)] backdrop-blur-xl sm:p-5"
+      className="min-h-0 p-4 sm:p-5"
     >
       <header className="mb-4 flex items-center gap-3">
         <div className="border-primary-neon/35 bg-primary-neon/10 text-primary-neon grid h-10 w-10 place-items-center rounded-2xl border">
@@ -272,7 +266,7 @@ const InvitationColumn = ({
       </header>
 
       {content}
-    </section>
+    </AnimatedPanel>
   );
 };
 

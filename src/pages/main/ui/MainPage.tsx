@@ -1,10 +1,10 @@
 import { CalendarDays, Heart, ListChecks } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import type { ReactNode } from 'react';
 
 import { AnimatedPanel } from '@/shared/ui';
 import { FamilyCalendar } from '@/widgets/family-calendar';
 import { FirstDateTracker } from '@/widgets/first-date-tracker';
+import { FamilyTasks } from '@/widgets/family-tasks';
 
 const DashboardCard = ({
   icon: Icon,
@@ -26,25 +26,17 @@ const DashboardCard = ({
 
 export const MainPage = () => (
   <main className="text-text flex min-h-0 flex-1 flex-col gap-4 overflow-auto lg:grid lg:grid-cols-[minmax(18rem,0.7fr)_minmax(0,1.5fr)] lg:overflow-hidden">
-    <section className="flex min-h-0 flex-col gap-4 lg:overflow-auto lg:pr-1">
+    <section className="flex min-h-0 flex-col gap-4 lg:-m-2 lg:overflow-auto lg:p-2">
       <DashboardCard icon={Heart} title="Наша история">
         <FirstDateTracker />
       </DashboardCard>
 
       <DashboardCard icon={ListChecks} title="Семейные дела">
-        <p className="text-muted-text text-sm leading-6">
-          Здесь появятся задачи, покупки и общие договорённости семьи.
-        </p>
-        <Link
-          className="border-primary-neon text-text hover:bg-primary-neon/15 mt-4 inline-flex w-full items-center justify-center rounded-lg border px-5 py-2.5 text-sm font-semibold transition-colors"
-          to="/family-calendar"
-        >
-          Открыть семейный календарь
-        </Link>
+        <FamilyTasks />
       </DashboardCard>
     </section>
 
-    <section className="min-h-0 lg:overflow-auto lg:pr-1">
+    <section className="min-h-0 lg:-m-2 lg:overflow-auto lg:p-2">
       <DashboardCard icon={CalendarDays} title="Ближайшие события">
         <FamilyCalendar />
       </DashboardCard>

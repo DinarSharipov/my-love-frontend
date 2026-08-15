@@ -1,19 +1,22 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AnimatePresence, motion } from 'motion/react';
-import { KeyRound, Laptop, LogOut, RefreshCw, ShieldCheck, Trash2 } from 'lucide-react';
+import { KeyRound, Laptop, LogOut, Mail, RefreshCw, ShieldCheck, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import type { ReactNode } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 
 import {
   getApiErrorMessage,
   useChangePasswordMutation,
+  useRequestEmailChangeMutation,
+  useRequestAccountDeletionMutation,
+  useConfirmEmailChangeMutation,
   useListSessionsQuery,
   useRevokeOtherSessionsMutation,
   useRevokeSessionMutation,
 } from '@/shared/api';
 import type { AuthSessionResponseDto } from '@/shared/api';
-import { Button, Input } from '@/shared/ui';
+import { AnimatedPanel, Button, Input } from '@/shared/ui';
 import {
   changePasswordSchema,
   type ChangePasswordFormValues,
@@ -38,6 +41,13 @@ export const AccountSecurityPanel = () => {
   const [changePassword, changePasswordState] = useChangePasswordMutation();
   const [revokeSession, revokeSessionState] = useRevokeSessionMutation();
   const [revokeOtherSessions, revokeOtherSessionsState] = useRevokeOtherSessionsMutation();
+  const [requestEmailChange, requestEmailChangeState] = useRequestEmailChangeMutation();
+  const [confirmEmailChange, confirmEmailChangeState] = useConfirmEmailChangeMutation();
+  const [requestAccountDeletion, requestAccountDeletionState] = useRequestAccountDeletionMutation();
+  const [email, setEmail] = useState('');
+  const [emailPassword, setEmailPassword] = useState('');
+  const [emailToken, setEmailToken] = useState('');
+  const [deletionPassword, setDeletionPassword] = useState('');
   const [notice, setNotice] = useState<Notice | null>(null);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const {
@@ -104,6 +114,58 @@ export const AccountSecurityPanel = () => {
   const nonCurrentSessions = sessions.data?.filter((session) => !session.isCurrent) ?? [];
   const isSessionMutationLoading =
     revokeSessionState.isLoading || revokeOtherSessionsState.isLoading;
+
+  const handleEmailRequest = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setNotice(null);
+    try {
+      await requestEmailChange({
+        requestEmailChangeDto: { email, currentPassword: emailPassword },
+      }).unwrap();
+      setEmailPassword('');
+      setNotice({ message: 'Письмо для подтверждения нового email отправлено.', type: 'success' });
+    } catch (error) {
+      setNotice({
+        message: getApiErrorMessage(error, 'Не удалось запросить смену email'),
+        type: 'error',
+      });
+    }
+  };
+
+  const handleEmailConfirm = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setNotice(null);
+    try {
+      await confirmEmailChange({ confirmEmailChangeDto: { token: emailToken } }).unwrap();
+      setEmailToken('');
+      setNotice({ message: 'Email изменён. Войдите снова с новым адресом.', type: 'success' });
+    } catch (error) {
+      setNotice({
+        message: getApiErrorMessage(error, 'Не удалось подтвердить новый email'),
+        type: 'error',
+      });
+    }
+  };
+
+  const handleAccountDeletion = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setNotice(null);
+    try {
+      const result = await requestAccountDeletion({
+        requestAccountDeletionDto: { currentPassword: deletionPassword },
+      }).unwrap();
+      setDeletionPassword('');
+      setNotice({
+        message: `Удаление аккаунта запланировано на ${formatDateTime(result.scheduledFor)}.`,
+        type: 'success',
+      });
+    } catch (error) {
+      setNotice({
+        message: getApiErrorMessage(error, 'Не удалось запросить удаление аккаунта'),
+        type: 'error',
+      });
+    }
+  };
 
   let sessionsContent: ReactNode;
   if (sessions.isLoading) {
@@ -184,12 +246,12 @@ export const AccountSecurityPanel = () => {
   }
 
   return (
-    <section className="border-border bg-surface/70 mt-5 rounded-3xl border p-5 shadow-[0_0_42px_rgba(255,43,214,0.07)] backdrop-blur-xl sm:p-6">
-      <header className="mb-5 flex items-start gap-3">
+    <AnimatedPanel className="mt-5 p-5 sm:p-6">
+      <header className="mb-5 flex min-w-0 items-start gap-3">
         <div className="border-neon-pink/35 bg-neon-pink/10 text-neon-pink grid h-10 w-10 shrink-0 place-items-center rounded-2xl border">
           <ShieldCheck aria-hidden="true" className="h-5 w-5" />
         </div>
-        <div>
+        <div className="min-w-0">
           <h2 className="text-text text-lg font-semibold">Безопасность</h2>
           <p className="text-muted-text mt-1 text-sm">
             Изменяйте пароль и управляйте устройствами с доступом к аккаунту.
@@ -197,8 +259,8 @@ export const AccountSecurityPanel = () => {
         </div>
       </header>
 
-      <div className="grid gap-7 xl:grid-cols-2">
-        <form className="space-y-4" noValidate onSubmit={handleChangePassword}>
+      <div className="grid min-w-0 gap-7 xl:grid-cols-2">
+        <form className="min-w-0 space-y-4" noValidate onSubmit={handleChangePassword}>
           <div className="flex items-center gap-2">
             <KeyRound aria-hidden="true" className="text-primary-neon h-4 w-4" />
             <h3 className="text-text text-sm font-semibold">Смена пароля</h3>
@@ -230,7 +292,7 @@ export const AccountSecurityPanel = () => {
           </Button>
         </form>
 
-        <div className="border-border/80 bg-elevated/25 rounded-2xl border p-4">
+        <div className="border-border/80 bg-elevated/25 min-w-0 rounded-2xl border p-4">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Laptop aria-hidden="true" className="text-cyber-cyan h-4 w-4" />
@@ -253,6 +315,72 @@ export const AccountSecurityPanel = () => {
         </div>
       </div>
 
+      <div className="border-border/80 bg-elevated/25 mt-7 grid min-w-0 gap-6 rounded-2xl border p-4 xl:grid-cols-2">
+        <div className="min-w-0">
+          <div className="mb-3 flex items-center gap-2">
+            <Mail aria-hidden="true" className="text-cyber-cyan h-4 w-4" />
+            <h3 className="text-text text-sm font-semibold">Смена email</h3>
+          </div>
+          <form className="space-y-3" onSubmit={handleEmailRequest}>
+            <Input
+              label="Новый email"
+              onChange={(event) => setEmail(event.target.value)}
+              type="email"
+              value={email}
+            />
+            <Input
+              label="Текущий пароль"
+              onChange={(event) => setEmailPassword(event.target.value)}
+              type="password"
+              value={emailPassword}
+            />
+            <Button disabled={requestEmailChangeState.isLoading} size="s" type="submit">
+              {requestEmailChangeState.isLoading ? 'Отправляем…' : 'Запросить подтверждение'}
+            </Button>
+          </form>
+          <form className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end" onSubmit={handleEmailConfirm}>
+            <Input
+              className="min-w-0 flex-1"
+              label="Токен из письма"
+              onChange={(event) => setEmailToken(event.target.value)}
+              type="text"
+              value={emailToken}
+            />
+            <Button
+              disabled={confirmEmailChangeState.isLoading || !emailToken}
+              size="s"
+              type="submit"
+            >
+              Подтвердить
+            </Button>
+          </form>
+        </div>
+        <form
+          className="border-neon-pink/20 min-w-0 border-t pt-5 xl:border-l xl:border-t-0 xl:pl-6"
+          onSubmit={handleAccountDeletion}
+        >
+          <h3 className="text-neon-pink text-sm font-semibold">Удаление аккаунта</h3>
+          <p className="text-muted-text mt-2 text-xs">
+            Удаление откладывается на период восстановления. Отменить его можно по ссылке из письма.
+          </p>
+          <Input
+            className="mt-3"
+            label="Текущий пароль"
+            onChange={(event) => setDeletionPassword(event.target.value)}
+            type="password"
+            value={deletionPassword}
+          />
+          <Button
+            className="border-neon-pink/50 text-neon-pink hover:bg-neon-pink/10 mt-3"
+            disabled={requestAccountDeletionState.isLoading}
+            size="s"
+            type="submit"
+          >
+            {requestAccountDeletionState.isLoading ? 'Запрашиваем…' : 'Запросить удаление'}
+          </Button>
+        </form>
+      </div>
+
       <AnimatePresence mode="wait">
         {notice && (
           <motion.p
@@ -271,6 +399,6 @@ export const AccountSecurityPanel = () => {
           </motion.p>
         )}
       </AnimatePresence>
-    </section>
+    </AnimatedPanel>
   );
 };
