@@ -1,4 +1,4 @@
-import { Check, Edit3, ListChecks, Plus, RotateCcw, Trash2, X } from 'lucide-react';
+import { Check, Edit3, ListChecks, Plus, RotateCcw, Trash2, UserRound, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import {
@@ -6,6 +6,7 @@ import {
   useArchiveMutation,
   useCompleteMutation,
   useCreateMutation,
+  useFindMyFamilyQuery,
   useListQuery,
   useReopenMutation,
   useUpdateMutation,
@@ -20,9 +21,14 @@ const options = [
   { label: 'Обычный', value: 'NORMAL' },
   { label: 'Высокий', value: 'HIGH' },
 ];
-const filterLabels: Record<Filter, string> = { ALL: 'Все', OPEN: 'Открытые', COMPLETED: 'Завершённые' };
+const filterLabels: Record<Filter, string> = {
+  ALL: 'Все',
+  OPEN: 'Открытые',
+  COMPLETED: 'Завершённые',
+};
 export const TasksPage = () => {
   const list = useListQuery({ page: 1, limit: 100 });
+  const family = useFindMyFamilyQuery();
   const [createTask, createState] = useCreateMutation();
   const [updateTask, updateState] = useUpdateMutation();
   const [completeTask] = useCompleteMutation();
@@ -34,6 +40,7 @@ export const TasksPage = () => {
   const [description, setDescription] = useState('');
   const [dueAt, setDueAt] = useState('');
   const [priority, setPriority] = useState<'LOW' | 'NORMAL' | 'HIGH'>('NORMAL');
+  const [assignedToId, setAssignedToId] = useState('');
   const [error, setError] = useState<string>();
   const tasks = ((list.data as TaskList | undefined)?.data ?? []).filter(
     (task) => task.status !== 'ARCHIVED',
@@ -42,6 +49,16 @@ export const TasksPage = () => {
     () => (filter === 'ALL' ? tasks : tasks.filter((task) => task.status === filter)),
     [filter, tasks],
   );
+  const assigneeOptions = [
+    { label: 'Свободная задача', value: '' },
+    ...(family.data?.members ?? []).map(({ user }) => ({
+      label: `${user.firstName} ${user.lastName}`,
+      value: user.id,
+    })),
+  ];
+  const assigneeNames = new Map(
+    (family.data?.members ?? []).map(({ user }) => [user.id, `${user.firstName} ${user.lastName}`]),
+  );
   const refresh = () => list.refetch();
   const resetForm = () => {
     setEditing(null);
@@ -49,6 +66,7 @@ export const TasksPage = () => {
     setDescription('');
     setDueAt('');
     setPriority('NORMAL');
+    setAssignedToId('');
   };
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -59,6 +77,7 @@ export const TasksPage = () => {
         description: description.trim() || undefined,
         dueAt: dueAt ? new Date(dueAt).toISOString() : undefined,
         priority,
+        assignedToId: assignedToId || null,
       };
       if (editing)
         await updateTask({
@@ -88,6 +107,7 @@ export const TasksPage = () => {
     setDescription(typeof task.description === 'string' ? task.description : '');
     setDueAt(task.dueAt ? String(task.dueAt).slice(0, 16) : '');
     setPriority(task.priority);
+    setAssignedToId(typeof task.assignedToId === 'string' ? task.assignedToId : '');
   };
   return (
     <main className="h-full overflow-auto pb-24">
@@ -126,7 +146,7 @@ export const TasksPage = () => {
               onChange={(event) => setDescription(event.target.value)}
               value={description}
             />
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-3">
               <Input
                 label="Срок"
                 onChange={(event) => setDueAt(event.target.value)}
@@ -138,6 +158,12 @@ export const TasksPage = () => {
                 onChange={(value) => setPriority(value as typeof priority)}
                 options={options}
                 value={priority}
+              />
+              <Select
+                label="Исполнитель"
+                onChange={setAssignedToId}
+                options={assigneeOptions}
+                value={assignedToId}
               />
             </div>
             {error && (
@@ -220,6 +246,12 @@ export const TasksPage = () => {
                         Срок: {new Date(String(task.dueAt)).toLocaleString('ru-RU')}
                       </p>
                     )}
+                    <p className="text-muted-text mt-1 flex items-center gap-1 text-xs">
+                      <UserRound aria-hidden="true" className="size-3.5" />
+                      {typeof task.assignedToId === 'string'
+                        ? (assigneeNames.get(task.assignedToId) ?? 'Участник семьи')
+                        : 'Свободная задача'}
+                    </p>
                   </div>
                   <Button
                     aria-label="Редактировать задачу"

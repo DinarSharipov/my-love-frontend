@@ -16,3 +16,5 @@ export type { SelectOption } from '@/shared/ui/select';
 export { Table } from '@/shared/ui/table';
 export type { TableColumn } from '@/shared/ui/table';
 export { Textarea } from '@/shared/ui/textarea';
+export { RouteLoading } from '@/shared/ui/route-loading';
+export { Sidebar } from '@/shared/ui/sidebar';

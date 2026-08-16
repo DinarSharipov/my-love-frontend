@@ -1,10 +1,12 @@
 import {
   CalendarDays,
+  Bell,
   DogIcon,
   House,
   LogOut,
   ListChecks,
   Repeat2,
+  ShoppingBasket,
   MailCheck,
   UserRound,
   UsersIcon,
@@ -14,8 +16,9 @@ import { useDispatch } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 import { clearCredentials } from '@/entities/user';
+import type { Notification } from '@/entities/notification';
 import { useLogoutMutation } from '@/features/auth';
-import { baseApi } from '@/shared/api';
+import { baseApi, useList3Query } from '@/shared/api';
 import { MainLayout } from '@/shared/ui';
 import type { MenuItem } from '@/shared/ui';
 import { ProtectedRoute } from '@/app/providers/router/ProtectedRoute';
@@ -25,6 +28,10 @@ export const MainRouteLayout = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [logout] = useLogoutMutation();
+  const notifications = useList3Query();
+  const unreadNotifications = ((notifications.data as Notification[] | undefined) ?? []).filter(
+    (notification) => !notification.readAt,
+  ).length;
 
   const handleLogout = useCallback(async () => {
     try {
@@ -42,6 +49,12 @@ export const MainRouteLayout = () => {
     () => [
       { icon: House, label: 'Главная', to: '/main' },
       {
+        badgeCount: unreadNotifications,
+        icon: Bell,
+        label: 'Уведомления',
+        to: '/notifications',
+      },
+      {
         children: [{ callback: handleLogout, icon: LogOut, label: 'Выйти' }],
         icon: UserRound,
         label: 'Личный кабинет',
@@ -54,17 +67,18 @@ export const MainRouteLayout = () => {
       },
       {
         children: [
-          { icon: CalendarDays, label: 'Календарь', to: '/family-calendar' },
-          { icon: ListChecks, label: 'Задачи', to: '/tasks' },
-          { icon: Repeat2, label: 'Регулярные задачи', to: '/task-routines' },
-          { icon: MailCheck, label: 'Приглашения', to: '/family-invitations' },
+          { icon: CalendarDays, label: 'Календарь', to: '/my_family/calendar' },
+          { icon: ListChecks, label: 'Задачи', to: '/my_family/tasks' },
+          { icon: Repeat2, label: 'Регулярные задачи', to: '/my_family/task-routines' },
+          { icon: ShoppingBasket, label: 'Покупки', to: '/my_family/shopping-lists' },
+          { icon: MailCheck, label: 'Приглашения', to: '/my_family/family-invitations' },
         ],
         label: 'Моя семья',
         icon: DogIcon,
         to: '/my_family',
       },
     ],
-    [handleLogout],
+    [handleLogout, unreadNotifications],
   );
 
   return (

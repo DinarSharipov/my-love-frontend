@@ -1,62 +1,69 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Outlet } from 'react-router-dom';
 
-import { AuthPage } from '@/pages/auth';
-import { FamilyInvitationsPage } from '@/pages/family-invitations';
-import { FamilyCalendarPage } from '@/pages/family-calendar';
-import { TasksPage } from '@/pages/tasks';
-import { TaskRoutinesPage } from '@/pages/task-routines';
-import { HomePage } from '@/pages/home';
-import { LoginPage } from '@/pages/login';
-import { JoinFamilyPage } from '@/pages/join-family';
-import { MainPage } from '@/pages/main';
-import { AllUsersPage } from '@/pages/all-users';
-import { MyFamilyPage } from '@/pages/my-family';
-import { ProfilePage } from '@/pages/profile';
-import { RestorePage } from '@/pages/restore';
-import { ResetPasswordPage } from '@/pages/reset-password';
-import { AppBackground } from '@/shared/ui';
-import { MainRouteLayout } from '@/app/providers/router/MainRouteLayout';
+import { RouteLoading } from '@/shared/ui';
 import { ProtectedRoute } from '@/app/providers/router/ProtectedRoute';
-import { RouteTransition } from '@/app/providers/router/RouteTransition';
+
+type LazyComponent = React.ComponentType<{ children?: React.ReactNode }>;
+
+const lazyPage = (loader: () => Promise<{ [key: string]: LazyComponent }>, name: string) =>
+  lazy(async () => ({ default: (await loader())[name] }));
+const AuthPage = lazyPage(() => import('@/pages/auth'), 'AuthPage');
+const FamilyInvitationsPage = lazyPage(() => import('@/pages/family-invitations'), 'FamilyInvitationsPage');
+const FamilyCalendarPage = lazyPage(() => import('@/pages/family-calendar'), 'FamilyCalendarPage');
+const TasksPage = lazyPage(() => import('@/pages/tasks'), 'TasksPage');
+const TaskRoutinesPage = lazyPage(() => import('@/pages/task-routines'), 'TaskRoutinesPage');
+const ShoppingListsPage = lazyPage(() => import('@/pages/shopping-lists'), 'ShoppingListsPage');
+const NotificationsPage = lazyPage(() => import('@/pages/notifications'), 'NotificationsPage');
+const HomePage = lazyPage(() => import('@/pages/home'), 'HomePage');
+const LoginPage = lazyPage(() => import('@/pages/login'), 'LoginPage');
+const JoinFamilyPage = lazyPage(() => import('@/pages/join-family'), 'JoinFamilyPage');
+const MainPage = lazyPage(() => import('@/pages/main'), 'MainPage');
+const AllUsersPage = lazyPage(() => import('@/pages/all-users'), 'AllUsersPage');
+const MyFamilyPage = lazyPage(() => import('@/pages/my-family'), 'MyFamilyPage');
+const ProfilePage = lazyPage(() => import('@/pages/profile'), 'ProfilePage');
+const RestorePage = lazyPage(() => import('@/pages/restore'), 'RestorePage');
+const ResetPasswordPage = lazyPage(() => import('@/pages/reset-password'), 'ResetPasswordPage');
+const MainRouteLayout = lazyPage(() => import('@/app/providers/router/MainRouteLayout'), 'MainRouteLayout');
+const FamilySectionLayout = lazyPage(() => import('@/app/providers/router/FamilySectionLayout'), 'FamilySectionLayout');
+const RouteTransition = lazyPage(() => import('@/app/providers/router/RouteTransition'), 'RouteTransition');
+const AppBackground = lazyPage(() => import('@/shared/ui/app-background'), 'AppBackground');
+const withSuspense = (element: React.ReactNode) => <Suspense fallback={<RouteLoading />}>{element}</Suspense>;
 
 export const router = createBrowserRouter([
   {
-    element: <RouteTransition />,
+    element: withSuspense(<RouteTransition />),
     children: [
       {
-        element: <MainRouteLayout />,
+        element: withSuspense(<MainRouteLayout />),
         children: [
           {
             path: '/main',
-            element: <MainPage />,
+            element: withSuspense(<MainPage />),
           },
           {
             path: '/main/profile',
-            element: <ProfilePage />,
+            element: withSuspense(<ProfilePage />),
           },
           {
             path: '/all_users',
-            element: <AllUsersPage />,
+            element: withSuspense(<AllUsersPage />),
           },
           {
             path: '/my_family',
-            element: <MyFamilyPage />,
+            element: withSuspense(<FamilySectionLayout />),
+            children: [
+              { index: true, element: withSuspense(<MyFamilyPage />) },
+              { path: 'family-invitations', element: withSuspense(<FamilyInvitationsPage />) },
+              { path: 'calendar', element: withSuspense(<FamilyCalendarPage />) },
+              { path: 'tasks', element: withSuspense(<TasksPage />) },
+              { path: 'task-routines', element: withSuspense(<TaskRoutinesPage />) },
+              { path: 'shopping-lists', element: withSuspense(<ShoppingListsPage />) },
+            ],
           },
           {
-            path: '/family-invitations',
-            element: <FamilyInvitationsPage />,
-          },
-          {
-            path: '/family-calendar',
-            element: <FamilyCalendarPage />,
-          },
-          {
-            path: '/tasks',
-            element: <TasksPage />,
-          },
-          {
-            path: '/task-routines',
-            element: <TaskRoutinesPage />,
+            path: '/notifications',
+            element: withSuspense(<NotificationsPage />),
           },
         ],
       },
@@ -64,7 +71,7 @@ export const router = createBrowserRouter([
         path: '/join-family',
         element: (
           <AppBackground>
-            <JoinFamilyPage />
+            {withSuspense(<JoinFamilyPage />)}
           </AppBackground>
         ),
       },
@@ -72,7 +79,7 @@ export const router = createBrowserRouter([
         path: '/reset-password',
         element: (
           <AppBackground>
-            <ResetPasswordPage />
+            {withSuspense(<ResetPasswordPage />)}
           </AppBackground>
         ),
       },
@@ -87,19 +94,19 @@ export const router = createBrowserRouter([
         children: [
           {
             path: '/',
-            element: <HomePage />,
+            element: withSuspense(<HomePage />),
           },
           {
             path: '/login',
-            element: <LoginPage />,
+            element: withSuspense(<LoginPage />),
           },
           {
             path: '/auth',
-            element: <AuthPage />,
+            element: withSuspense(<AuthPage />),
           },
           {
             path: '/restore',
-            element: <RestorePage />,
+            element: withSuspense(<RestorePage />),
           },
         ],
       },
