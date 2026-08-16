@@ -31,6 +31,8 @@ export const RouteTransition = () => {
   const outlet = useOutlet();
   const shouldReduceMotion = useReducedMotion();
 
+  if (location.pathname.startsWith('/my_family')) return outlet;
+
   if (shouldReduceMotion) {
     return outlet;
   }

@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 export type MenuItem = {
+  badgeCount?: number;
   callback?: () => Promise<void> | void;
   children?: MenuItem[];
   icon: LucideIcon;
@@ -41,6 +42,7 @@ const isMenuItemActive = (item: MenuItem, pathname: string): boolean =>
   Boolean(item.children?.some((child) => isMenuItemActive(child, pathname)));
 
 type DockIconProps = {
+  badgeCount?: number;
   Icon: LucideIcon;
   iconSize: ReturnType<typeof useTransform<number, number>>;
   isActive: boolean;
@@ -48,7 +50,7 @@ type DockIconProps = {
   size: ReturnType<typeof useSpring>;
 };
 
-const DockIcon = ({ Icon, iconSize, isActive, lift, size }: DockIconProps) => (
+const DockIcon = ({ badgeCount, Icon, iconSize, isActive, lift, size }: DockIconProps) => (
   <motion.span
     className={`relative grid place-items-center rounded-2xl border backdrop-blur-xl transition-colors duration-300 ${
       isActive
@@ -73,10 +75,16 @@ const DockIcon = ({ Icon, iconSize, isActive, lift, size }: DockIconProps) => (
         layoutId="footer-active-indicator"
       />
     )}
+    {Boolean(badgeCount) && (
+      <span className="bg-neon-pink text-text absolute -right-1.5 -top-1.5 grid min-h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold shadow-[0_0_12px_var(--color-neon-pink)]">
+        {Math.min(badgeCount ?? 0, 99)}
+      </span>
+    )}
   </motion.span>
 );
 
 const DockItem = ({
+  badgeCount,
   callback,
   children,
   icon: Icon,
@@ -93,7 +101,7 @@ const DockItem = ({
   const submenuId = useId();
   const hasChildren = Boolean(children?.length);
   const isBranchActive = isMenuItemActive(
-    { callback, children, icon: Icon, label, to },
+    { badgeCount, callback, children, icon: Icon, label, to },
     location.pathname,
   );
   const distance = useTransform(mouseX, (pointerX) => {
@@ -123,6 +131,7 @@ const DockItem = ({
         type="button"
       >
         <DockIcon
+          badgeCount={badgeCount}
           Icon={Icon}
           iconSize={iconSize}
           isActive={isBranchActive || isOpen}
@@ -144,7 +153,14 @@ const DockItem = ({
         to={to}
       >
         {({ isActive }) => (
-          <DockIcon Icon={Icon} iconSize={iconSize} isActive={isActive} lift={lift} size={size} />
+          <DockIcon
+            badgeCount={badgeCount}
+            Icon={Icon}
+            iconSize={iconSize}
+            isActive={isActive}
+            lift={lift}
+            size={size}
+          />
         )}
       </NavLink>
     );
@@ -157,7 +173,14 @@ const DockItem = ({
         disabled
         type="button"
       >
-        <DockIcon Icon={Icon} iconSize={iconSize} isActive={false} lift={lift} size={size} />
+        <DockIcon
+          badgeCount={badgeCount}
+          Icon={Icon}
+          iconSize={iconSize}
+          isActive={false}
+          lift={lift}
+          size={size}
+        />
       </button>
     );
   }

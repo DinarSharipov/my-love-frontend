@@ -2,6 +2,7 @@ import { HeartHandshake, Search, UsersRound } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 
+import { FamilyLifecyclePanel } from '@/features/family-lifecycle';
 import { useFindMyFamilyQuery } from '@/shared/api';
 import { AnimatedPanel, AsyncState, Button } from '@/shared/ui';
 import { FirstDateTracker } from '@/widgets/first-date-tracker';
@@ -127,6 +128,7 @@ export const MyFamilyPage = () => {
         </section>
 
         <FirstDateTracker />
+        <FamilyLifecyclePanel status={data.status} />
       </div>
     </main>
   );
