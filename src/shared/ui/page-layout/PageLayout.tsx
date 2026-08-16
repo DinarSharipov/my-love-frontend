@@ -12,9 +12,9 @@ export const PageLayout = ({
   className = '',
   contentClassName = '',
 }: PageLayoutProps) => (
-  <main className={`h-full min-h-0 overflow-auto ${className}`}>
-    <div className={`flex w-full min-w-0 max-w-full flex-col gap-gap ${contentClassName}`}>
-      {children}
+  <main className={`h-full min-h-0 overflow-hidden ${className}`}>
+    <div className={`h-full min-h-0 w-full min-w-0 max-w-full overflow-auto ${contentClassName}`}>
+      <div className="flex min-h-full w-full min-w-0 max-w-full flex-col gap-gap">{children}</div>
     </div>
   </main>
 );

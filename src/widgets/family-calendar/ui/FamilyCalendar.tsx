@@ -517,7 +517,7 @@ export const FamilyCalendar = () => {
 
   return (
     <div className="flex min-h-full flex-col gap-gap">
-      <header className="flex shrink-0 flex-wrap items-end justify-between gap-gap">
+      <header className="page-header flex shrink-0 flex-wrap items-end justify-between gap-gap">
         <div>
           <p className="text-primary-neon flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
             <CalendarDays aria-hidden="true" className="h-4 w-4" />
@@ -556,7 +556,7 @@ export const FamilyCalendar = () => {
         </p>
       )}
 
-      <div className="grid min-h-0 flex-1 gap-gap xl:grid-cols-[minmax(300px,0.42fr)_minmax(620px,1fr)]">
+      <div className="grid min-h-0 flex-1 gap-gap xl:grid-cols-2">
         <motion.aside
           className="border-border bg-surface/75 min-h-[360px] h-full overflow-auto rounded-3xl border p-4 backdrop-blur-xl sm:p-5 xl:min-h-0"
           layout
