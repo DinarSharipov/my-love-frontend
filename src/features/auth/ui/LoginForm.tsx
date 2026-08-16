@@ -62,7 +62,7 @@ export const LoginForm = () => {
         >
           {isLoading ? 'Входим…' : 'Войти'}
         </Button>
-        <div className="flex items-center justify-between gap-3 w-full">
+        <div className="flex items-center justify-between gap-gap w-full">
           <Button onClick={() => navigate(`/auth${location.search}`)}>Регистрация</Button>
           <Button onClick={() => navigate('/restore')}>Забыли пароль?</Button>
         </div>

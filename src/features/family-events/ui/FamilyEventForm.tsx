@@ -23,6 +23,10 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 type FamilyEventFormProps = {
+  familyMembers: Array<{
+    id: string;
+    user: { firstName?: string | null; lastName?: string | null; email: string };
+  }>;
   initialDate?: string;
   initialValue?: FamilyEventResponseDto;
   mode: 'create' | 'edit';
@@ -35,9 +39,10 @@ const getDefaultValues = ({
   initialDate,
   initialValue,
   timeZone,
+  familyMembers,
 }: Pick<
   FamilyEventFormProps,
-  'initialDate' | 'initialValue' | 'timeZone'
+  'initialDate' | 'initialValue' | 'timeZone' | 'familyMembers'
 >): FamilyEventFormValues => {
   const zonedDate = initialValue
     ? dayjs(initialValue.scheduledAt).tz(timeZone)
@@ -49,6 +54,11 @@ const getDefaultValues = ({
     location: initialValue?.location ?? '',
     name: initialValue?.name ?? '',
     time: initialValue ? zonedDate.format('HH:mm') : '18:00',
+    reminderOffsetMinutes: initialValue?.reminderOffsetMinutes ?? null,
+    reminderRecipientIds: initialValue?.reminderRecipientIds ?? familyMembers.map(({ id }) => id),
+    repeatReminderAt: initialValue?.repeatReminderAt
+      ? dayjs(initialValue.repeatReminderAt).tz(timeZone).format('YYYY-MM-DDTHH:mm')
+      : null,
   };
 };
 
@@ -59,14 +69,15 @@ export const FamilyEventForm = ({
   onCancel,
   onSuccess,
   timeZone,
+  familyMembers,
 }: FamilyEventFormProps) => {
   const [createFamilyEvent, createState] = useCreateFamilyEventMutation();
   const [updateFamilyEvent, updateState] = useUpdateFamilyEventMutation();
   const [requestError, setRequestError] = useState<string>();
   const schema = useMemo(() => createFamilyEventSchema(timeZone), [timeZone]);
   const defaultValues = useMemo(
-    () => getDefaultValues({ initialDate, initialValue, timeZone }),
-    [initialDate, initialValue, timeZone],
+    () => getDefaultValues({ familyMembers, initialDate, initialValue, timeZone }),
+    [familyMembers, initialDate, initialValue, timeZone],
   );
   const {
     formState: { errors, isDirty },
@@ -88,6 +99,11 @@ export const FamilyEventForm = ({
       location: values.location.trim(),
       name: values.name.trim(),
       scheduledAt: toFamilyEventInstant(values.date, values.time, timeZone),
+      reminderOffsetMinutes: values.reminderOffsetMinutes || null,
+      reminderRecipientIds: values.reminderRecipientIds,
+      repeatReminderAt: values.repeatReminderAt
+        ? new Date(values.repeatReminderAt).toISOString()
+        : null,
     };
 
     try {
@@ -136,7 +152,7 @@ export const FamilyEventForm = ({
         placeholder="Ужин, прогулка, поездка…"
       />
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-gap sm:grid-cols-2">
         <Input {...register('date')} error={errors.date?.message} label="Дата" type="date" />
         <Input {...register('time')} error={errors.time?.message} label="Время" type="time" />
       </div>
@@ -160,6 +176,51 @@ export const FamilyEventForm = ({
         rows={4}
       />
 
+      <fieldset className="border-border bg-elevated/35 rounded-[var(--radius-panel)] border p-page">
+        <legend className="text-text px-1 text-sm font-semibold">Напоминания</legend>
+        <div className="mt-gap grid gap-gap sm:grid-cols-2">
+          <Input
+            {...register('reminderOffsetMinutes', {
+              setValueAs: (value) => (value === '' ? null : Number(value)),
+            })}
+            hint="За сколько минут до события отправить первое уведомление"
+            label="Первое напоминание, минут"
+            min={1}
+            max={525600}
+            type="number"
+          />
+          <Input
+            {...register('repeatReminderAt')}
+            hint="Необязательно"
+            label="Второе напоминание"
+            type="datetime-local"
+          />
+        </div>
+        <div className="mt-gap">
+          <p className="text-muted-text mb-2 text-sm">Получатели</p>
+          <div className="grid gap-gap sm:grid-cols-2">
+            {familyMembers.map((member) => {
+              const name = [member.user.firstName, member.user.lastName].filter(Boolean).join(' ');
+              return (
+                <label
+                  htmlFor={`reminder-recipient-${member.id}`}
+                  className="border-border bg-surface/60 text-text flex items-center gap-gap rounded-xl border p-2.5 text-sm"
+                  key={member.id}
+                >
+                  <input
+                    {...register('reminderRecipientIds')}
+                    id={`reminder-recipient-${member.id}`}
+                    type="checkbox"
+                    value={member.id}
+                  />
+                  <span>{name || member.user.email}</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      </fieldset>
+
       {requestError && (
         <p
           className="border-neon-pink/35 bg-neon-pink/10 text-neon-pink rounded-xl border px-4 py-2.5 text-sm"
@@ -169,15 +230,15 @@ export const FamilyEventForm = ({
         </p>
       )}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-gap">
         <Button disabled={isSubmitting || (mode === 'edit' && !isDirty)} size="s" type="submit">
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-2.5">
             <Save aria-hidden="true" className="h-4 w-4" />
             {isSubmitting ? 'Сохраняем…' : 'Сохранить'}
           </span>
         </Button>
         <Button disabled={isSubmitting} onClick={onCancel} size="s">
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-2.5">
             <X aria-hidden="true" className="h-4 w-4" />
             Отмена
           </span>

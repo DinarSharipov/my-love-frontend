@@ -1064,6 +1064,9 @@ export type FamilyEventResponseDto = {
   description?: string | null;
   scheduledAt: string;
   location: string;
+  reminderOffsetMinutes?: number | null;
+  reminderRecipientIds: string[];
+  repeatReminderAt?: string | null;
   status: 'PROPOSED' | 'CONFIRMED' | 'REJECTED' | 'EVENT_DAY' | 'COMPLETED';
   proposedBy: UserResponseDto;
   respondedBy?: UserResponseDto | null;
@@ -1078,6 +1081,9 @@ export type CreateFamilyEventDto = {
   /** Event date and time in ISO 8601 format */
   scheduledAt: string;
   location: string;
+  reminderOffsetMinutes?: number | null;
+  reminderRecipientIds?: string[] | null;
+  repeatReminderAt?: string | null;
 };
 export type PaginatedFamilyEventsResponseDto = {
   total: number;
@@ -1092,6 +1098,9 @@ export type UpdateFamilyEventDto = {
   /** Event date and time in ISO 8601 format */
   scheduledAt?: string;
   location?: string;
+  reminderOffsetMinutes?: number | null;
+  reminderRecipientIds?: string[] | null;
+  repeatReminderAt?: string | null;
 };
 export type FirstDateResponseDto = {
   id: string;

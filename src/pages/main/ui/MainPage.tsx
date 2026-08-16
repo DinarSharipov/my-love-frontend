@@ -49,8 +49,8 @@ const DashboardCard = ({
   title: string;
 }) => (
   <AnimatedPanel className="min-w-0 p-5 sm:p-6">
-    <div className="mb-4 flex items-center justify-between gap-3">
-      <div className="flex min-w-0 items-center gap-3">
+    <div className="mb-4 flex items-center justify-between gap-gap">
+      <div className="flex min-w-0 items-center gap-gap">
         <Icon aria-hidden="true" className="text-cyber-cyan size-5 shrink-0" />
         <h2 className="text-text truncate text-lg font-semibold">{title}</h2>
       </div>
@@ -68,7 +68,7 @@ const EntryList = ({ empty, entries }: { empty: string; entries: DashboardEntry[
     <div className="space-y-2">
       {entries.slice(0, 6).map((entry) => (
         <button
-          className="border-border bg-elevated/35 hover:border-primary-neon/60 flex w-full items-center gap-3 rounded-2xl border p-3 text-left outline-none transition-colors focus-visible:border-cyber-cyan"
+          className="border-border bg-elevated/35 hover:border-primary-neon/60 flex w-full items-center gap-gap rounded-2xl border p-3 text-left outline-none transition-colors focus-visible:border-cyber-cyan"
           key={entry.id}
           onClick={() => navigate(entry.to)}
           type="button"
@@ -94,7 +94,7 @@ const QuickActions = () => {
   ];
 
   return (
-    <div className="grid gap-2 sm:grid-cols-3">
+    <div className="grid gap-gap sm:grid-cols-3">
       {actions.map(({ icon: Icon, label, to }) => (
         <Button className="w-full" key={to} onClick={() => navigate(to)} size="s">
           <Icon aria-hidden="true" className="size-4" /> {label}
@@ -201,7 +201,7 @@ export const MainPage = () => {
       id: `notification:${notification.id}`,
       meta: 'Непрочитанное уведомление',
       title: notification.title,
-      to: '/notifications',
+      to: '/settings',
     })),
   ];
   const cockpitError =
@@ -219,19 +219,19 @@ export const MainPage = () => {
   };
 
   return (
-    <main className="text-text h-full overflow-auto pb-24">
-      <div className="mx-auto w-full max-w-6xl space-y-5">
-        <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+    <main className="text-text h-full overflow-auto">
+      <div className="w-full space-y-5">
+        <header className="page-header flex flex-col justify-between gap-gap sm:flex-row sm:items-end">
           <div>
             <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
-              Семейный cockpit
+              Семейный стол
             </p>
             <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">Что важно сейчас</h1>
             <p className="text-muted-text mt-1 text-sm">
               Сегодня, ближайшая неделя и вопросы, которым нужен ответ.
             </p>
           </div>
-          <Button onClick={() => navigate('/notifications')} size="s">
+          <Button onClick={() => navigate('/settings')} size="s">
             <Bell aria-hidden="true" className="size-4" />
             {unreadNotifications.length
               ? formatUnreadCount(unreadNotifications.length)
@@ -253,7 +253,7 @@ export const MainPage = () => {
           loading={<AnimatedPanel className="text-muted-text p-6">Собираем обзор…</AnimatedPanel>}
           onRetry={refreshCockpit}
         >
-          <div className="grid items-start gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="grid items-start gap-gap lg:grid-cols-[1.15fr_0.85fr]">
             <DashboardCard icon={Clock3} title={`Сегодня · ${todayEntries.length}`}>
               <EntryList empty="На сегодня всё спокойно." entries={todayEntries} />
             </DashboardCard>
@@ -266,12 +266,12 @@ export const MainPage = () => {
           </div>
         </AsyncState>
 
-        <div className="grid items-start gap-4 lg:grid-cols-[minmax(18rem,0.7fr)_minmax(0,1.3fr)]">
+        <div className="grid items-start gap-gap lg:grid-cols-[minmax(18rem,0.7fr)_minmax(0,1.3fr)]">
           <DashboardCard icon={Heart} title="Наша история">
             <FirstDateTracker />
           </DashboardCard>
           <DashboardCard icon={MailCheck} title="Семейные разделы">
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-gap sm:grid-cols-2">
               <button
                 className="border-border bg-elevated/35 hover:border-primary-neon/60 rounded-2xl border p-4 text-left outline-none focus-visible:border-cyber-cyan"
                 onClick={() => navigate('/my_family/family-invitations')}

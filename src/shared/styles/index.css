@@ -13,6 +13,25 @@
   --color-acid-green: #39ff88;
   --color-text: #f4f2ff;
   --color-muted-text: #8e8aa3;
+  --spacing-block: 5px;
+  --spacing-gap: 5px;
+  --spacing-page: 10px;
+  --radius-panel: 1.5rem;
+  --text-body: 18px;
+  --text-heading: 24px;
+}
+
+.page-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  backdrop-filter: blur(18px) saturate(1.15);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 24px 50px rgb(0 0 0 / 18%);
+  padding: var(--spacing-page);
 }
 
 @layer base {
@@ -64,5 +83,15 @@
   button,
   input {
     font: inherit;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    border-radius: 1rem;
+    -webkit-text-fill-color: var(--color-text);
+    box-shadow: 0 0 0 1000px var(--color-elevated) inset;
+    transition: background-color 9999s ease-in-out 0s;
   }
 }

@@ -63,7 +63,7 @@ export const ResetPasswordForm = () => {
             Пароль изменён. Все активные сессии отозваны, войдите заново.
           </p>
           <Button className="w-full" containerClassName="w-full" onClick={() => navigate('/login')}>
-            <span className="flex items-center justify-center gap-2">
+            <span className="flex items-center justify-center gap-gap">
               <LogIn aria-hidden="true" className="h-4 w-4" />
               Перейти ко входу
             </span>

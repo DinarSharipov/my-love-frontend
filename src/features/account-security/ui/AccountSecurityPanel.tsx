@@ -16,6 +16,7 @@ import {
   useRevokeSessionMutation,
 } from '@/shared/api';
 import type { AuthSessionResponseDto } from '@/shared/api';
+import { formatDateTime } from '@/shared/lib/date';
 import { AnimatedPanel, Button, Input } from '@/shared/ui';
 import {
   changePasswordSchema,
@@ -23,15 +24,6 @@ import {
 } from '@/features/account-security/model/accountSecuritySchema';
 
 type Notice = { message: string; type: 'error' | 'success' };
-
-const formatDateTime = (value: string) =>
-  new Intl.DateTimeFormat('ru-RU', {
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(value));
 
 const describeSession = (session: AuthSessionResponseDto) =>
   session.userAgent?.trim() || session.ipAddress || 'Неизвестное устройство';
@@ -188,11 +180,11 @@ export const AccountSecurityPanel = () => {
         <div className="max-h-80 space-y-2 overflow-auto pr-1">
           {sessions.data.map((session) => (
             <article
-              className="border-border bg-surface/60 flex items-start justify-between gap-3 rounded-xl border p-3"
+              className="border-border bg-surface/60 flex items-start justify-between gap-gap rounded-xl border p-3"
               key={session.id}
             >
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-gap">
                   <p className="text-text truncate text-xs font-medium">
                     {describeSession(session)}
                   </p>
@@ -231,7 +223,7 @@ export const AccountSecurityPanel = () => {
             onClick={handleRevokeOtherSessions}
             size="s"
           >
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-gap">
               <LogOut aria-hidden="true" className="h-4 w-4" />
               {revokeOtherSessionsState.isLoading ? 'Завершаем…' : 'Завершить все остальные'}
             </span>
@@ -247,7 +239,7 @@ export const AccountSecurityPanel = () => {
 
   return (
     <AnimatedPanel className="mt-5 p-5 sm:p-6">
-      <header className="mb-5 flex min-w-0 items-start gap-3">
+      <header className="mb-5 flex min-w-0 items-start gap-gap">
         <div className="border-neon-pink/35 bg-neon-pink/10 text-neon-pink grid h-10 w-10 shrink-0 place-items-center rounded-2xl border">
           <ShieldCheck aria-hidden="true" className="h-5 w-5" />
         </div>
@@ -259,9 +251,9 @@ export const AccountSecurityPanel = () => {
         </div>
       </header>
 
-      <div className="grid min-w-0 gap-7 xl:grid-cols-2">
+      <div className="grid min-w-0 gap-gap xl:grid-cols-2">
         <form className="min-w-0 space-y-4" noValidate onSubmit={handleChangePassword}>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-gap">
             <KeyRound aria-hidden="true" className="text-primary-neon h-4 w-4" />
             <h3 className="text-text text-sm font-semibold">Смена пароля</h3>
           </div>
@@ -293,8 +285,8 @@ export const AccountSecurityPanel = () => {
         </form>
 
         <div className="border-border/80 bg-elevated/25 min-w-0 rounded-2xl border p-4">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-gap">
+            <div className="flex items-center gap-gap">
               <Laptop aria-hidden="true" className="text-cyber-cyan h-4 w-4" />
               <h3 className="text-text text-sm font-semibold">Активные сессии</h3>
             </div>
@@ -315,9 +307,9 @@ export const AccountSecurityPanel = () => {
         </div>
       </div>
 
-      <div className="border-border/80 bg-elevated/25 mt-7 grid min-w-0 gap-6 rounded-2xl border p-4 xl:grid-cols-2">
+      <div className="border-border/80 bg-elevated/25 mt-7 grid min-w-0 gap-gap rounded-2xl border p-4 xl:grid-cols-2">
         <div className="min-w-0">
-          <div className="mb-3 flex items-center gap-2">
+          <div className="mb-3 flex items-center gap-gap">
             <Mail aria-hidden="true" className="text-cyber-cyan h-4 w-4" />
             <h3 className="text-text text-sm font-semibold">Смена email</h3>
           </div>
@@ -338,7 +330,10 @@ export const AccountSecurityPanel = () => {
               {requestEmailChangeState.isLoading ? 'Отправляем…' : 'Запросить подтверждение'}
             </Button>
           </form>
-          <form className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end" onSubmit={handleEmailConfirm}>
+          <form
+            className="mt-4 flex flex-col gap-gap sm:flex-row sm:items-end"
+            onSubmit={handleEmailConfirm}
+          >
             <Input
               className="min-w-0 flex-1"
               label="Токен из письма"

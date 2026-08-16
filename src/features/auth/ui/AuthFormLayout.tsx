@@ -5,19 +5,13 @@ import { AnimatedPanel } from '@/shared/ui';
 
 type AuthFormLayoutProps = {
   children: ReactNode;
-  isWide?: boolean;
   subtitle: string;
   title: string;
 };
 
-export const AuthFormLayout = ({
-  children,
-  isWide = false,
-  subtitle,
-  title,
-}: AuthFormLayoutProps) => (
+export const AuthFormLayout = ({ children, subtitle, title }: AuthFormLayoutProps) => (
   <main className="text-text flex min-h-screen items-center justify-center px-4 py-8 sm:px-6">
-    <AnimatedPanel className={isWide ? 'max-w-3xl' : 'max-w-lg'}>
+    <AnimatedPanel className="w-full max-w-4xl">
       <motion.header
         animate={{ opacity: 1, y: 0 }}
         className="mb-8 text-center"

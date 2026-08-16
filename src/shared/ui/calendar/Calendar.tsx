@@ -259,7 +259,7 @@ export const Calendar = ({
       aria-label="Календарь мероприятий"
       className={`border-border bg-surface/75 text-text flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border shadow-[0_0_48px_color-mix(in_srgb,var(--color-primary-neon)_12%,transparent)] backdrop-blur-xl sm:rounded-3xl ${className}`}
     >
-      <header className="border-border/80 relative z-30 flex shrink-0 items-center justify-between gap-2 border-b px-2 py-2 sm:px-5 sm:py-3">
+      <header className="border-border/80 relative z-30 flex shrink-0 items-center justify-between gap-gap border-b px-2 py-2 sm:px-5 sm:py-3">
         <motion.button
           aria-label="Предыдущий месяц"
           className="border-border bg-elevated/70 text-muted-text hover:border-primary-neon/70 hover:text-text focus-visible:border-cyber-cyan grid size-9 cursor-pointer place-items-center rounded-xl border outline-none sm:size-10"
@@ -275,7 +275,7 @@ export const Calendar = ({
           <motion.button
             aria-expanded={isYearPickerOpen}
             aria-haspopup="listbox"
-            className="hover:text-primary-neon focus-visible:text-cyber-cyan flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-semibold tracking-wide outline-none sm:text-lg"
+            className="hover:text-primary-neon focus-visible:text-cyber-cyan flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1 text-sm font-semibold tracking-wide outline-none sm:text-lg"
             onClick={openYearPicker}
             type="button"
             whileTap={{ scale: 0.97 }}
@@ -323,7 +323,7 @@ export const Calendar = ({
                     <ChevronRight aria-hidden="true" className="size-4" />
                   </button>
                 </div>
-                <div className="grid grid-cols-3 gap-1">
+                <div className="grid grid-cols-3 gap-gap">
                   {visibleYears.map((year) => {
                     const isSelectedYear = year === visibleMonth.year();
 
@@ -438,7 +438,7 @@ export const Calendar = ({
                   {day.date()}
                 </span>
 
-                <div className="flex min-h-0 min-w-0 flex-col gap-0.5 overflow-hidden">
+                <div className="flex min-h-0 min-w-0 flex-col gap-2.5 overflow-hidden">
                   {dayItems.slice(0, 2).map((item) => (
                     <motion.button
                       aria-label={`${item.name}, ${(timeZone ? dayjs(item.date).tz(timeZone) : dayjs(item.date)).locale('ru').format('HH:mm')}`}
@@ -470,7 +470,7 @@ export const Calendar = ({
         })}
       </div>
 
-      <footer className="border-border/80 text-muted-text flex shrink-0 flex-wrap items-center justify-between gap-1 border-t px-3 py-1.5 text-[9px] sm:px-5 sm:py-2 sm:text-xs">
+      <footer className="border-border/80 text-muted-text flex shrink-0 flex-wrap items-center justify-between gap-gap border-t px-3 py-1.5 text-[9px] sm:px-5 sm:py-2 sm:text-xs">
         <motion.span
           key={periodLabel}
           animate={{ opacity: 1, x: 0 }}

@@ -108,7 +108,7 @@ type EmptyFirstDateProps = {
 const EmptyFirstDate = ({ canCreate, notice, onCreate, onRetry }: EmptyFirstDateProps) => (
   <section className="border-border bg-surface/70 relative grid min-h-64 place-items-center overflow-hidden rounded-3xl border p-6 text-center backdrop-blur-xl">
     <div className="bg-primary-neon/10 absolute h-36 w-36 rounded-full blur-3xl" />
-    <div className="relative w-full max-w-lg">
+    <div className="relative w-full">
       <NoticeBanner notice={notice} />
       <Heart className="text-primary-neon mx-auto mb-3 h-8 w-8" strokeWidth={1.5} />
       <p className="text-text text-sm font-medium">
@@ -124,14 +124,14 @@ const EmptyFirstDate = ({ canCreate, notice, onCreate, onRetry }: EmptyFirstDate
       <div className="mt-5 flex justify-center">
         {canCreate ? (
           <Button onClick={onCreate} size="s">
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-2.5">
               <Plus aria-hidden="true" className="h-4 w-4" />
               Добавить встречу
             </span>
           </Button>
         ) : (
           <Button onClick={onRetry} size="s">
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-2.5">
               <RefreshCw aria-hidden="true" className="h-4 w-4" />
               Повторить
             </span>
@@ -258,9 +258,9 @@ export const FirstDateTracker = () => {
 
       <NoticeBanner notice={notice} />
 
-      <div className="relative flex flex-wrap items-start justify-between gap-4">
+      <div className="relative flex flex-wrap items-start justify-between gap-gap">
         <div>
-          <div className="text-primary-neon mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em]">
+          <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
             <Sparkles aria-hidden="true" className="h-4 w-4" />
             Наша история
           </div>
@@ -269,15 +269,15 @@ export const FirstDateTracker = () => {
             Всё началось {firstDate.locale('ru').format('D MMMM YYYY')}
           </p>
           {description && (
-            <p className="text-muted-text mt-3 max-w-2xl whitespace-pre-wrap text-sm leading-relaxed">
+            <p className="text-muted-text mt-3 whitespace-pre-wrap text-sm leading-relaxed">
               {description}
             </p>
           )}
         </div>
 
-        <div className="flex flex-wrap items-start justify-end gap-2">
+        <div className="flex flex-wrap items-start justify-end gap-gap">
           <Button onClick={() => openForm('edit')} size="s">
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-2.5">
               <Pencil aria-hidden="true" className="h-4 w-4" />
               Изменить
             </span>
@@ -290,7 +290,7 @@ export const FirstDateTracker = () => {
             }}
             size="s"
           >
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-2.5">
               <Trash2 aria-hidden="true" className="h-4 w-4" />
               Удалить
             </span>
@@ -306,7 +306,7 @@ export const FirstDateTracker = () => {
             exit={{ opacity: 0, y: -8 }}
             initial={{ opacity: 0, y: -8 }}
           >
-            <div className="flex gap-3">
+            <div className="flex gap-gap">
               <AlertTriangle
                 aria-hidden="true"
                 className="text-neon-pink mt-0.5 h-5 w-5 shrink-0"
@@ -318,14 +318,14 @@ export const FirstDateTracker = () => {
                   создавшему запись — {firstDateData.createdBy.firstName}{' '}
                   {firstDateData.createdBy.lastName}.
                 </p>
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap gap-gap">
                   <Button
                     className="border-neon-pink/70 text-neon-pink hover:bg-neon-pink/10"
                     disabled={removeState.isLoading}
                     onClick={handleDelete}
                     size="s"
                   >
-                    <span className="flex items-center gap-1.5">
+                    <span className="flex items-center gap-2.5">
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
                       {removeState.isLoading ? 'Удаляем…' : 'Да, удалить'}
                     </span>
@@ -335,7 +335,7 @@ export const FirstDateTracker = () => {
                     onClick={() => setIsConfirmingDelete(false)}
                     size="s"
                   >
-                    <span className="flex items-center gap-1.5">
+                    <span className="flex items-center gap-2.5">
                       <X aria-hidden="true" className="h-4 w-4" />
                       Отмена
                     </span>
@@ -402,7 +402,7 @@ export const FirstDateTracker = () => {
         </div>
       </div>
 
-      <p className="text-muted-text relative mt-4 flex items-center gap-1.5 text-xs">
+      <p className="text-muted-text relative mt-4 flex items-center gap-2.5 text-xs">
         <CheckCircle2 aria-hidden="true" className="text-acid-green h-3.5 w-3.5" />
         {nextMilestone
           ? `Следующая важная дата — ${firstDate

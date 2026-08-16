@@ -16,6 +16,9 @@ const familyEventBaseSchema = z.object({
   location: z.string().trim().min(1, 'Укажите место').max(500, 'Максимум 500 символов'),
   name: z.string().trim().min(1, 'Введите название').max(200, 'Максимум 200 символов'),
   time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Укажите корректное время'),
+  reminderOffsetMinutes: z.number().int().min(1).max(525600).nullable(),
+  reminderRecipientIds: z.array(z.string().uuid()),
+  repeatReminderAt: z.string().nullable(),
 });
 
 export const createFamilyEventSchema = (timeZone: string) =>

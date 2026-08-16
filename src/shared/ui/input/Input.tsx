@@ -82,7 +82,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className={`w-full ${containerClassName}`}>
         {label && (
-          <div className="mb-2 flex h-5 items-center justify-between gap-3">
+          <div className="mb-2 flex h-5 items-center justify-between gap-gap">
             <motion.label
               animate={{
                 color: isFocused ? 'var(--color-text)' : 'var(--color-muted-text)',

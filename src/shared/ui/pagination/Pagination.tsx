@@ -31,7 +31,7 @@ export const Pagination = ({ disabled = false, onChange, page, totalPages }: Pag
   const items = getPaginationItems(safePage, safeTotalPages);
 
   return (
-    <nav aria-label="Пагинация" className="flex items-center justify-center gap-1.5">
+    <nav aria-label="Пагинация" className="flex items-center justify-center gap-2.5">
       <motion.button
         aria-label="Предыдущая страница"
         className="border-border bg-elevated/80 text-muted-text hover:border-primary-neon/60 hover:text-text grid h-9 w-9 place-items-center rounded-xl border outline-none transition-colors focus-visible:border-cyber-cyan disabled:cursor-not-allowed disabled:opacity-35"

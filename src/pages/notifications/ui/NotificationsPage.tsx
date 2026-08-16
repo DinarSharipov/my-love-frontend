@@ -40,7 +40,7 @@ const PreferenceToggle = ({
 
   return (
     <label
-      className="border-border bg-elevated/35 flex cursor-pointer items-start gap-3 rounded-2xl border p-3"
+      className="border-border bg-elevated/35 flex cursor-pointer items-start gap-gap rounded-2xl border p-3"
       htmlFor={inputId}
     >
       <input
@@ -102,10 +102,10 @@ export const NotificationsPage = () => {
   ) => setPreferences((current) => (current ? { ...current, [key]: value } : current));
 
   return (
-    <main className="h-full overflow-auto pb-24">
-      <div className="mx-auto grid w-full max-w-5xl items-start gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
+    <main className="h-full overflow-auto">
+      <div className="mx-auto grid w-full items-start gap-gap lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
         <section className="space-y-5">
-          <header>
+          <header className="page-header">
             <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
               Семейный inbox
             </p>
@@ -122,9 +122,9 @@ export const NotificationsPage = () => {
           )}
 
           <AnimatedPanel className="p-5 sm:p-6">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-gap">
               <div>
-                <h2 className="text-text flex items-center gap-2 font-semibold">
+                <h2 className="text-text flex items-center gap-gap font-semibold">
                   <Bell className="text-cyber-cyan size-5" /> Входящие
                 </h2>
                 <p className="text-muted-text mt-1 text-xs">Непрочитанных: {unread.length}</p>
@@ -156,7 +156,7 @@ export const NotificationsPage = () => {
                     className={`border-border rounded-2xl border p-4 ${notification.readAt ? 'bg-elevated/25' : 'bg-primary-neon/10'}`}
                     key={notification.id}
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-gap">
                       <span
                         aria-hidden="true"
                         className={`mt-1 size-2 shrink-0 rounded-full ${notification.readAt ? 'bg-muted-text/40' : 'bg-primary-neon shadow-[0_0_10px_var(--color-primary-neon)]'}`}
@@ -202,60 +202,60 @@ export const NotificationsPage = () => {
           {preferences && (
             <div className="space-y-5">
               <AnimatedPanel className="p-5 sm:p-6">
-              <h2 className="text-text font-semibold">Каналы и тишина</h2>
-              <div className="mt-4 space-y-3">
-                <PreferenceToggle
-                  checked={preferences.inAppEnabled}
-                  description="Показывать события внутри приложения"
-                  disabled={updateState.isLoading}
-                  label="В приложении"
-                  onChange={(value) => updatePreference('inAppEnabled', value)}
-                />
-                <PreferenceToggle
-                  checked={preferences.emailEnabled}
-                  description="Получать поддержанные системой письма"
-                  disabled={updateState.isLoading}
-                  label="Email"
-                  onChange={(value) => updatePreference('emailEnabled', value)}
-                />
-                <PreferenceToggle
-                  checked={preferences.telegramEnabled}
-                  description="Использовать подключённый Telegram"
-                  disabled={updateState.isLoading}
-                  label="Telegram"
-                  onChange={(value) => updatePreference('telegramEnabled', value)}
-                />
-                <PreferenceToggle
-                  checked={preferences.quietHoursEnabled}
-                  description="Не отправлять внешние уведомления в выбранное время"
-                  disabled={updateState.isLoading}
-                  label="Тихие часы"
-                  onChange={(value) => updatePreference('quietHoursEnabled', value)}
-                />
-              </div>
-              {preferences.quietHoursEnabled && (
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                  <Input
-                    label="Начало"
-                    onChange={(event) => updatePreference('quietHoursStart', event.target.value)}
-                    type="time"
-                    value={preferences.quietHoursStart ?? ''}
+                <h2 className="text-text font-semibold">Каналы и тишина</h2>
+                <div className="mt-4 space-y-3">
+                  <PreferenceToggle
+                    checked={preferences.inAppEnabled}
+                    description="Показывать события внутри приложения"
+                    disabled={updateState.isLoading}
+                    label="В приложении"
+                    onChange={(value) => updatePreference('inAppEnabled', value)}
                   />
-                  <Input
-                    label="Окончание"
-                    onChange={(event) => updatePreference('quietHoursEnd', event.target.value)}
-                    type="time"
-                    value={preferences.quietHoursEnd ?? ''}
+                  <PreferenceToggle
+                    checked={preferences.emailEnabled}
+                    description="Получать поддержанные системой письма"
+                    disabled={updateState.isLoading}
+                    label="Email"
+                    onChange={(value) => updatePreference('emailEnabled', value)}
+                  />
+                  <PreferenceToggle
+                    checked={preferences.telegramEnabled}
+                    description="Использовать подключённый Telegram"
+                    disabled={updateState.isLoading}
+                    label="Telegram"
+                    onChange={(value) => updatePreference('telegramEnabled', value)}
+                  />
+                  <PreferenceToggle
+                    checked={preferences.quietHoursEnabled}
+                    description="Не отправлять внешние уведомления в выбранное время"
+                    disabled={updateState.isLoading}
+                    label="Тихие часы"
+                    onChange={(value) => updatePreference('quietHoursEnabled', value)}
                   />
                 </div>
-              )}
-              <Button className="mt-4" disabled={updateState.isLoading} onClick={savePreferences}>
-                <Mail className="size-4" /> Сохранить настройки
-              </Button>
-              <p className="text-muted-text mt-3 flex items-start gap-2 text-xs">
-                <Send className="mt-0.5 size-3.5 shrink-0" />
-                Канал сработает только после подключения соответствующего провайдера.
-              </p>
+                {preferences.quietHoursEnabled && (
+                  <div className="mt-4 grid gap-gap sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                    <Input
+                      label="Начало"
+                      onChange={(event) => updatePreference('quietHoursStart', event.target.value)}
+                      type="time"
+                      value={preferences.quietHoursStart ?? ''}
+                    />
+                    <Input
+                      label="Окончание"
+                      onChange={(event) => updatePreference('quietHoursEnd', event.target.value)}
+                      type="time"
+                      value={preferences.quietHoursEnd ?? ''}
+                    />
+                  </div>
+                )}
+                <Button className="mt-4" disabled={updateState.isLoading} onClick={savePreferences}>
+                  <Mail className="size-4" /> Сохранить настройки
+                </Button>
+                <p className="text-muted-text mt-3 flex items-start gap-gap text-xs">
+                  <Send className="mt-0.5 size-3.5 shrink-0" />
+                  Канал сработает только после подключения соответствующего провайдера.
+                </p>
               </AnimatedPanel>
               <TelegramConnectionPanel />
             </div>

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter, Outlet } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 
 import { RouteLoading } from '@/shared/ui';
 import { ProtectedRoute } from '@/app/providers/router/ProtectedRoute';
@@ -9,26 +9,46 @@ type LazyComponent = React.ComponentType<{ children?: React.ReactNode }>;
 const lazyPage = (loader: () => Promise<{ [key: string]: LazyComponent }>, name: string) =>
   lazy(async () => ({ default: (await loader())[name] }));
 const AuthPage = lazyPage(() => import('@/pages/auth'), 'AuthPage');
-const FamilyInvitationsPage = lazyPage(() => import('@/pages/family-invitations'), 'FamilyInvitationsPage');
+const FamilyInvitationsPage = lazyPage(
+  () => import('@/pages/family-invitations'),
+  'FamilyInvitationsPage',
+);
 const FamilyCalendarPage = lazyPage(() => import('@/pages/family-calendar'), 'FamilyCalendarPage');
 const TasksPage = lazyPage(() => import('@/pages/tasks'), 'TasksPage');
 const TaskRoutinesPage = lazyPage(() => import('@/pages/task-routines'), 'TaskRoutinesPage');
 const ShoppingListsPage = lazyPage(() => import('@/pages/shopping-lists'), 'ShoppingListsPage');
-const NotificationsPage = lazyPage(() => import('@/pages/notifications'), 'NotificationsPage');
+const SettingsPage = lazyPage(() => import('@/pages/settings'), 'SettingsPage');
 const HomePage = lazyPage(() => import('@/pages/home'), 'HomePage');
 const LoginPage = lazyPage(() => import('@/pages/login'), 'LoginPage');
 const JoinFamilyPage = lazyPage(() => import('@/pages/join-family'), 'JoinFamilyPage');
 const MainPage = lazyPage(() => import('@/pages/main'), 'MainPage');
 const AllUsersPage = lazyPage(() => import('@/pages/all-users'), 'AllUsersPage');
 const MyFamilyPage = lazyPage(() => import('@/pages/my-family'), 'MyFamilyPage');
-const ProfilePage = lazyPage(() => import('@/pages/profile'), 'ProfilePage');
 const RestorePage = lazyPage(() => import('@/pages/restore'), 'RestorePage');
 const ResetPasswordPage = lazyPage(() => import('@/pages/reset-password'), 'ResetPasswordPage');
-const MainRouteLayout = lazyPage(() => import('@/app/providers/router/MainRouteLayout'), 'MainRouteLayout');
-const FamilySectionLayout = lazyPage(() => import('@/app/providers/router/FamilySectionLayout'), 'FamilySectionLayout');
-const RouteTransition = lazyPage(() => import('@/app/providers/router/RouteTransition'), 'RouteTransition');
-const AppBackground = lazyPage(() => import('@/shared/ui/app-background'), 'AppBackground');
-const withSuspense = (element: React.ReactNode) => <Suspense fallback={<RouteLoading />}>{element}</Suspense>;
+const MainRouteLayout = lazyPage(
+  () => import('@/app/providers/router/MainRouteLayout'),
+  'MainRouteLayout',
+);
+const FamilySectionLayout = lazyPage(
+  () => import('@/app/providers/router/FamilySectionLayout'),
+  'FamilySectionLayout',
+);
+const RouteTransition = lazyPage(
+  () => import('@/app/providers/router/RouteTransition'),
+  'RouteTransition',
+);
+const AppBackground = lazyPage(
+  () => import('@/shared/ui/app-background'),
+  'AppBackground',
+) as React.ComponentType<React.PropsWithChildren<{ useDefaultImage?: boolean }>>;
+const GuestRouteLayout = lazyPage(
+  () => import('@/app/providers/router/GuestRouteLayout'),
+  'GuestRouteLayout',
+);
+const withSuspense = (element: React.ReactNode) => (
+  <Suspense fallback={<RouteLoading />}>{element}</Suspense>
+);
 
 export const router = createBrowserRouter([
   {
@@ -40,10 +60,6 @@ export const router = createBrowserRouter([
           {
             path: '/main',
             element: withSuspense(<MainPage />),
-          },
-          {
-            path: '/main/profile',
-            element: withSuspense(<ProfilePage />),
           },
           {
             path: '/all_users',
@@ -61,36 +77,19 @@ export const router = createBrowserRouter([
               { path: 'shopping-lists', element: withSuspense(<ShoppingListsPage />) },
             ],
           },
-          {
-            path: '/notifications',
-            element: withSuspense(<NotificationsPage />),
-          },
+          { path: '/settings', element: withSuspense(<SettingsPage />) },
         ],
       },
       {
         path: '/join-family',
-        element: (
-          <AppBackground>
-            {withSuspense(<JoinFamilyPage />)}
-          </AppBackground>
-        ),
+        element: <AppBackground>{withSuspense(<JoinFamilyPage />)}</AppBackground>,
       },
       {
         path: '/reset-password',
-        element: (
-          <AppBackground>
-            {withSuspense(<ResetPasswordPage />)}
-          </AppBackground>
-        ),
+        element: <AppBackground>{withSuspense(<ResetPasswordPage />)}</AppBackground>,
       },
       {
-        element: (
-          <ProtectedRoute mode="guest">
-            <AppBackground>
-              <Outlet />
-            </AppBackground>
-          </ProtectedRoute>
-        ),
+        element: <ProtectedRoute mode="guest">{withSuspense(<GuestRouteLayout />)}</ProtectedRoute>,
         children: [
           {
             path: '/',

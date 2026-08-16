@@ -53,7 +53,7 @@ export const JoinFamilyPage = () => {
   } else if (isAuthenticated) {
     actionContent = (
       <div className="mt-6 text-center">
-        <div className="border-acid-green/25 bg-acid-green/5 text-muted-text mb-4 flex items-start gap-3 rounded-2xl border p-4 text-left text-xs leading-relaxed">
+        <div className="border-acid-green/25 bg-acid-green/5 text-muted-text mb-4 flex items-start gap-gap rounded-2xl border p-4 text-left text-xs leading-relaxed">
           <ShieldCheck aria-hidden="true" className="text-acid-green mt-0.5 h-4 w-4 shrink-0" />
           После подтверждения будет создано общее семейное пространство для двух партнёров. Ссылка
           сразу перестанет действовать.
@@ -77,15 +77,15 @@ export const JoinFamilyPage = () => {
         <p className="text-muted-text mb-4 text-center text-sm">
           Сначала войдите в аккаунт с нужным email или зарегистрируйтесь.
         </p>
-        <div className="flex flex-col justify-center gap-3 sm:flex-row">
+        <div className="flex flex-col justify-center gap-gap sm:flex-row">
           <Button onClick={() => navigate(`/login${authQuery}`)}>
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-gap">
               <LogIn aria-hidden="true" className="h-4 w-4" />
               Войти
             </span>
           </Button>
           <Button onClick={() => navigate(`/auth${authQuery}`)}>
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-gap">
               <UserPlus aria-hidden="true" className="h-4 w-4" />
               Зарегистрироваться
             </span>
@@ -97,7 +97,7 @@ export const JoinFamilyPage = () => {
 
   return (
     <main className="grid min-h-screen place-items-center px-4 py-10">
-      <AnimatedPanel className="w-full max-w-xl p-6 sm:p-8">
+      <AnimatedPanel className="w-full p-6 sm:p-8">
         <motion.div
           animate={{ opacity: 1, y: 0 }}
           initial={{ opacity: 0, y: 10 }}
@@ -113,7 +113,7 @@ export const JoinFamilyPage = () => {
             <h1 className="text-text mt-2 text-2xl font-semibold sm:text-3xl">
               Приглашение в семью
             </h1>
-            <p className="text-muted-text mx-auto mt-3 max-w-md text-sm leading-relaxed">
+            <p className="text-muted-text mx-auto mt-3 text-sm leading-relaxed">
               Принять приглашение сможет только аккаунт с email, для которого была создана эта
               одноразовая ссылка.
             </p>

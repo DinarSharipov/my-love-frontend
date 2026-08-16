@@ -32,18 +32,18 @@ export const FamilyLifecyclePanel = ({ status }: FamilyLifecyclePanelProps) => {
 
   return (
     <AnimatedPanel className="mt-5 p-5 sm:p-6">
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-gap">
         <ShieldAlert aria-hidden="true" className="text-cyber-cyan mt-0.5 h-5 w-5 shrink-0" />
         <div>
           <h2 className="text-text text-lg font-semibold">Доступ и состояние семьи</h2>
           <p className="text-muted-text mt-1 text-sm">
-            Общие данные сохраняются при выходе или архивации. Удаление чужих семейных данных
-            одним участником не выполняется.
+            Общие данные сохраняются при выходе или архивации. Удаление чужих семейных данных одним
+            участником не выполняется.
           </p>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap gap-gap">
         {status === 'ACTIVE' && (
           <>
             <Button
@@ -81,7 +81,11 @@ export const FamilyLifecyclePanel = ({ status }: FamilyLifecyclePanelProps) => {
           </Button>
         )}
       </div>
-      {error && <p className="text-neon-pink mt-3 text-xs" role="alert">{error}</p>}
+      {error && (
+        <p className="text-neon-pink mt-3 text-xs" role="alert">
+          {error}
+        </p>
+      )}
     </AnimatedPanel>
   );
 };

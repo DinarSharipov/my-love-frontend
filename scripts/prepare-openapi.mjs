@@ -1,7 +1,12 @@
 import { writeFile } from 'node:fs/promises';
 
-const configuredTarget = (process.env.VITE_API_PROXY_TARGET || 'http://127.0.0.1:5000').replace(/\/$/, '');
-const targets = [configuredTarget, 'http://127.0.0.1:5001'].filter((value, index, all) => all.indexOf(value) === index);
+const configuredTarget = (process.env.VITE_API_PROXY_TARGET || 'http://127.0.0.1:5000').replace(
+  /\/$/,
+  '',
+);
+const targets = [configuredTarget, 'http://127.0.0.1:5001'].filter(
+  (value, index, all) => all.indexOf(value) === index,
+);
 let document;
 for (const target of targets) {
   try {
@@ -33,7 +38,11 @@ for (const [route, pathItem] of Object.entries(document.paths ?? {})) {
     if (!operation || typeof operation !== 'object' || !operation.operationId) continue;
     operation.parameters ??= [];
     for (const name of names) {
-      if (!operation.parameters.some((parameter) => parameter.in === 'path' && parameter.name === name)) {
+      if (
+        !operation.parameters.some(
+          (parameter) => parameter.in === 'path' && parameter.name === name,
+        )
+      ) {
         operation.parameters.push({ name, in: 'path', required: true, schema: { type: 'string' } });
       }
     }

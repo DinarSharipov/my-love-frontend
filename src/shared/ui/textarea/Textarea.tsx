@@ -53,7 +53,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className={`w-full ${containerClassName}`}>
         {label && (
-          <div className="mb-2 flex min-h-5 items-center justify-between gap-3">
+          <div className="mb-2 flex min-h-5 items-center justify-between gap-gap">
             <motion.label
               animate={{ color: isFocused ? 'var(--color-text)' : 'var(--color-muted-text)' }}
               className="shrink-0 text-sm font-medium"

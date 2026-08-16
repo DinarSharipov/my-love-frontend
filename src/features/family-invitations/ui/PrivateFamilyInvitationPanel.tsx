@@ -126,7 +126,7 @@ export const PrivateFamilyInvitationPanel = () => {
       <div className="max-h-52 space-y-2 overflow-auto pr-1">
         {outgoing.data.map((invitation) => (
           <article
-            className="border-border bg-surface/65 flex items-center justify-between gap-3 rounded-xl border p-3"
+            className="border-border bg-surface/65 flex items-center justify-between gap-gap rounded-xl border p-3"
             key={invitation.id}
           >
             <div className="min-w-0">
@@ -161,9 +161,9 @@ export const PrivateFamilyInvitationPanel = () => {
 
   return (
     <AnimatedPanel className="mb-5 overflow-hidden p-4 sm:p-5">
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.95fr)]">
+      <div className="grid gap-gap lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.95fr)]">
         <div>
-          <header className="mb-4 flex items-start gap-3">
+          <header className="mb-4 flex items-start gap-gap">
             <div className="border-cyber-cyan/35 bg-cyber-cyan/10 text-cyber-cyan grid h-10 w-10 shrink-0 place-items-center rounded-2xl border">
               <ShieldCheck aria-hidden="true" className="h-5 w-5" />
             </div>
@@ -176,7 +176,7 @@ export const PrivateFamilyInvitationPanel = () => {
           </header>
 
           <form
-            className="flex flex-col gap-3 sm:flex-row sm:items-end"
+            className="flex flex-col gap-gap sm:flex-row sm:items-end"
             noValidate
             onSubmit={onSubmit}
           >
@@ -195,7 +195,7 @@ export const PrivateFamilyInvitationPanel = () => {
               disabled={createState.isLoading}
               type="submit"
             >
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-gap">
                 <Link2 aria-hidden="true" className="h-4 w-4" />
                 {createState.isLoading ? 'Создаём…' : 'Создать ссылку'}
               </span>
@@ -226,7 +226,7 @@ export const PrivateFamilyInvitationPanel = () => {
               <p className="text-muted-text mb-2 text-xs">
                 Сохраните ссылку сейчас: позднее полный токен не показывается.
               </p>
-              <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="flex flex-col gap-gap sm:flex-row">
                 <Input
                   aria-label="Одноразовая ссылка приглашения"
                   className="text-xs"
@@ -234,7 +234,7 @@ export const PrivateFamilyInvitationPanel = () => {
                   value={createdInvitation.inviteUrl}
                 />
                 <Button onClick={handleCopy} size="s">
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-gap">
                     {copied ? (
                       <Check aria-hidden="true" className="h-4 w-4" />
                     ) : (

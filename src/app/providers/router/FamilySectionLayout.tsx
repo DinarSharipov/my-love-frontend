@@ -1,10 +1,11 @@
-import { CalendarDays, ListChecks, MailCheck, Repeat2, ShoppingBasket, UsersRound } from 'lucide-react';
+import { CalendarDays, ListChecks, MailCheck, Repeat2, ShoppingBasket } from 'lucide-react';
 import { Outlet } from 'react-router-dom';
 
 import { Sidebar, type MenuItem } from '@/shared/ui';
+import { LogoIcon } from '@/shared/ui/logo/LogoIcon';
 
 const familyMenuItems: readonly MenuItem[] = [
-  { icon: UsersRound, label: 'Общие', to: '/my_family' },
+  { icon: LogoIcon, label: 'Общие', to: '/my_family' },
   { icon: CalendarDays, label: 'Календарь', to: '/my_family/calendar' },
   { icon: ListChecks, label: 'Задачи', to: '/my_family/tasks' },
   { icon: Repeat2, label: 'Регулярные задачи', to: '/my_family/task-routines' },
@@ -13,9 +14,9 @@ const familyMenuItems: readonly MenuItem[] = [
 ];
 
 export const FamilySectionLayout = () => (
-  <div className="flex h-full min-h-0 gap-4">
+  <div className="flex h-full min-h-0 min-w-0 max-w-full gap-gap">
     <Sidebar items={familyMenuItems} />
-    <div className="min-w-0 flex-1">
+    <div className="h-full min-h-0 min-w-0 flex-1 overflow-hidden">
       <Outlet />
     </div>
   </div>

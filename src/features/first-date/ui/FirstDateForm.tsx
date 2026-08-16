@@ -84,7 +84,7 @@ export const FirstDateForm = ({ initialValue, mode, onCancel, onSuccess }: First
         </h2>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-[1fr_220px]">
+      <div className="grid gap-gap sm:grid-cols-[1fr_220px]">
         <Input
           {...register('name')}
           autoComplete="off"
@@ -115,15 +115,15 @@ export const FirstDateForm = ({ initialValue, mode, onCancel, onSuccess }: First
         </p>
       )}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-gap">
         <Button disabled={isSubmitting || (mode === 'edit' && !isDirty)} size="s" type="submit">
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-2.5">
             <Save aria-hidden="true" className="h-4 w-4" />
             {isSubmitting ? 'Сохраняем…' : 'Сохранить'}
           </span>
         </Button>
         <Button disabled={isSubmitting} onClick={onCancel} size="s">
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-2.5">
             <X aria-hidden="true" className="h-4 w-4" />
             Отмена
           </span>

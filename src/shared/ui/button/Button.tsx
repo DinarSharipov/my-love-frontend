@@ -187,7 +187,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           <motion.button
             {...buttonProps}
             ref={buttonRef}
-            className={`border-primary-neon cursor-pointer bg-surface/20 text-text group relative isolate overflow-hidden rounded-xl border font-semibold shadow-[0_0_10px_color-mix(in_srgb,var(--color-primary-neon)_55%,transparent),0_0_28px_color-mix(in_srgb,var(--color-primary-neon)_22%,transparent),inset_0_0_16px_color-mix(in_srgb,var(--color-primary-neon)_10%,transparent)] outline-none backdrop-blur-xl transition-[color,background-color,border-color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 ${sizeClassNames[size]} ${className}`}
+            className={`border-primary-neon cursor-pointer bg-surface/20 text-text group relative isolate inline-flex items-center justify-center overflow-hidden rounded-xl border font-semibold leading-none shadow-[0_0_10px_color-mix(in_srgb,var(--color-primary-neon)_55%,transparent),0_0_28px_color-mix(in_srgb,var(--color-primary-neon)_22%,transparent),inset_0_0_16px_color-mix(in_srgb,var(--color-primary-neon)_10%,transparent)] outline-none backdrop-blur-xl transition-[color,background-color,border-color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 ${sizeClassNames[size]} ${className}`}
             disabled={disabled}
             onClick={handleClick}
             transition={{ duration: 0.18, ease: 'easeOut' }}
@@ -203,7 +203,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               transition={{ duration: 0.25 }}
               whileHover={{ opacity: 0.22 }}
             />
-            <span className="relative z-10 inline-flex items-center justify-center gap-2">{children}</span>
+            <span className="relative z-10 inline-flex items-center justify-center gap-gap">
+              {children}
+            </span>
           </motion.button>
 
           <AnimatePresence>

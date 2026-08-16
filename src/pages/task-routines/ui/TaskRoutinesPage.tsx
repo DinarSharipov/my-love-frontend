@@ -84,9 +84,9 @@ export const TaskRoutinesPage = () => {
     }
   };
   return (
-    <main className="h-full overflow-auto pb-24">
-      <div className="mx-auto w-full max-w-4xl space-y-5">
-        <header>
+    <main className="h-full overflow-auto">
+      <div className="mx-auto w-full space-y-5">
+        <header className="page-header">
           <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
             Автоматизация быта
           </p>
@@ -96,7 +96,7 @@ export const TaskRoutinesPage = () => {
           </p>
         </header>
         <AnimatedPanel className="p-5">
-          <form className="grid gap-4 md:grid-cols-2" onSubmit={submit}>
+          <form className="grid gap-gap md:grid-cols-2" onSubmit={submit}>
             <Input
               label="Название"
               onChange={(event) => setTitle(event.target.value)}
@@ -171,10 +171,10 @@ export const TaskRoutinesPage = () => {
             ) : undefined
           }
         >
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-gap md:grid-cols-2">
             {routines.map((routine) => (
               <AnimatedPanel className="p-5" key={routine.id}>
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start justify-between gap-gap">
                   <div className="min-w-0">
                     <h2 className="text-text truncate font-semibold">{routine.title}</h2>
                     <p className="text-muted-text mt-1 text-xs">
@@ -190,13 +190,13 @@ export const TaskRoutinesPage = () => {
                 <p className="text-muted-text mt-3 text-xs">
                   Следующий запуск: {new Date(routine.nextRunAt).toLocaleString('ru-RU')}
                 </p>
-                <p className="text-muted-text mt-2 flex items-center gap-1 text-xs">
+                <p className="text-muted-text mt-2 flex items-center gap-gap text-xs">
                   <UserRound aria-hidden="true" className="size-3.5" />
                   {typeof routine.assignedToId === 'string'
                     ? (assigneeNames.get(routine.assignedToId) ?? 'Участник семьи')
                     : 'Свободная задача'}
                 </p>
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-gap">
                   <Button
                     onClick={() =>
                       action(
@@ -231,7 +231,7 @@ export const TaskRoutinesPage = () => {
           </div>
         </AsyncState>
         {list.isFetching && !list.isLoading && (
-          <p className="text-muted-text flex items-center gap-2 text-xs">
+          <p className="text-muted-text flex items-center gap-gap text-xs">
             <RefreshCw className="size-3.5 animate-spin" />
             Обновление…
           </p>

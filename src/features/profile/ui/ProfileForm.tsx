@@ -98,7 +98,7 @@ export const ProfileForm = ({ onRefresh, user }: ProfileFormProps) => {
 
   return (
     <form className="space-y-5" noValidate onSubmit={onSubmit}>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-gap sm:grid-cols-2">
         <Input {...register('firstName')} error={errors.firstName?.message} label="Имя" />
         <Input {...register('lastName')} error={errors.lastName?.message} label="Фамилия" />
         <Controller
@@ -170,13 +170,13 @@ export const ProfileForm = ({ onRefresh, user }: ProfileFormProps) => {
         )}
       </AnimatePresence>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-gap">
         <Button
           animateVariant="magnetic"
           disabled={updateState.isLoading || !isDirty}
           type="submit"
         >
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-gap">
             <Save aria-hidden="true" className="h-4 w-4" />
             {updateState.isLoading ? 'Сохраняем…' : 'Сохранить изменения'}
           </span>
@@ -186,7 +186,7 @@ export const ProfileForm = ({ onRefresh, user }: ProfileFormProps) => {
           onClick={() => reset(toFormValues(user))}
           size="s"
         >
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-gap">
             <RefreshCw aria-hidden="true" className="h-4 w-4" />
             Сбросить
           </span>

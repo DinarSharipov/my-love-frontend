@@ -24,8 +24,8 @@ export const ProfilePage = () => {
         hasData={false}
         isLoading={profile.isLoading}
         loading={
-          <main className="h-full overflow-auto pb-24">
-            <div className="mx-auto max-w-4xl space-y-5">
+          <main className="h-full overflow-auto">
+            <div className="mx-auto w-full space-y-5">
               <div className="border-border bg-elevated/35 h-32 animate-pulse rounded-3xl border" />
               <div className="border-border bg-elevated/35 h-[32rem] animate-pulse rounded-3xl border" />
             </div>
@@ -39,15 +39,15 @@ export const ProfilePage = () => {
   }
 
   return (
-    <main className="h-full overflow-auto pb-24">
-      <div className="mx-auto w-full max-w-4xl">
+    <main className="h-full overflow-auto">
+      <div className="mx-auto w-full">
         <AnimatedPanel
           animate={{ opacity: 1, y: 0 }}
           className="mb-5 overflow-hidden p-5 sm:p-6"
           initial={{ opacity: 0, y: 10 }}
         >
           <div className="bg-primary-neon/10 pointer-events-none absolute -right-10 -top-16 h-44 w-44 rounded-full blur-3xl" />
-          <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center">
+          <div className="relative flex flex-col gap-gap sm:flex-row sm:items-center">
             <div className="border-primary-neon/40 bg-primary-neon/10 text-primary-neon grid h-16 w-16 shrink-0 place-items-center rounded-3xl border shadow-[0_0_24px_rgba(176,38,255,0.2)]">
               <UserRound aria-hidden="true" className="h-8 w-8" />
             </div>
@@ -58,20 +58,20 @@ export const ProfilePage = () => {
               <h1 className="text-text mt-1 truncate text-2xl font-semibold sm:text-3xl">
                 {user.firstName} {user.lastName}
               </h1>
-              <div className="text-muted-text mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs">
-                <span className="inline-flex items-center gap-1.5">
+              <div className="text-muted-text mt-3 flex flex-wrap gap-gap text-xs">
+                <span className="inline-flex items-center gap-2.5">
                   <AtSign aria-hidden="true" className="h-3.5 w-3.5" />
                   {user.email}
                 </span>
-                <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-2.5">
                   <CalendarDays aria-hidden="true" className="h-3.5 w-3.5" />
                   {formatBirthDate(user.birthDate)}
                 </span>
-                <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-2.5">
                   <Globe2 aria-hidden="true" className="h-3.5 w-3.5" />
                   {user.locale}
                 </span>
-                <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-2.5">
                   <MapPin aria-hidden="true" className="h-3.5 w-3.5" />
                   {user.timeZone}
                 </span>

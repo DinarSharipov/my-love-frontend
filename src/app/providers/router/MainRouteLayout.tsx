@@ -1,17 +1,16 @@
 import {
   CalendarDays,
-  Bell,
-  DogIcon,
   House,
   LogOut,
   ListChecks,
   Repeat2,
   ShoppingBasket,
   MailCheck,
-  UserRound,
+  Settings,
   UsersIcon,
 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
+import type { ComponentProps } from 'react';
 import { useDispatch } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom';
 
@@ -19,10 +18,18 @@ import { clearCredentials } from '@/entities/user';
 import type { Notification } from '@/entities/notification';
 import { useLogoutMutation } from '@/features/auth';
 import { baseApi, useList3Query } from '@/shared/api';
-import { MainLayout } from '@/shared/ui';
+import { AppBackground, MainLayout } from '@/shared/ui';
+import { LogoIcon } from '@/shared/ui/logo/LogoIcon';
 import type { MenuItem } from '@/shared/ui';
 import { ProtectedRoute } from '@/app/providers/router/ProtectedRoute';
 import type { AppDispatch } from '@/app/providers/store';
+
+const SettingsMenuIcon = ({ className, ...props }: ComponentProps<typeof Settings>) => (
+  <Settings
+    {...props}
+    className={`${className ?? ''} transition-transform duration-500 ease-out group-hover:rotate-180`}
+  />
+);
 
 export const MainRouteLayout = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -50,15 +57,10 @@ export const MainRouteLayout = () => {
       { icon: House, label: 'Главная', to: '/main' },
       {
         badgeCount: unreadNotifications,
-        icon: Bell,
-        label: 'Уведомления',
-        to: '/notifications',
-      },
-      {
+        icon: SettingsMenuIcon,
+        label: 'Настройки',
+        to: '/settings',
         children: [{ callback: handleLogout, icon: LogOut, label: 'Выйти' }],
-        icon: UserRound,
-        label: 'Личный кабинет',
-        to: '/main/profile',
       },
       {
         label: 'Поиск партнера',
@@ -74,7 +76,7 @@ export const MainRouteLayout = () => {
           { icon: MailCheck, label: 'Приглашения', to: '/my_family/family-invitations' },
         ],
         label: 'Моя семья',
-        icon: DogIcon,
+        icon: LogoIcon,
         to: '/my_family',
       },
     ],
@@ -83,9 +85,11 @@ export const MainRouteLayout = () => {
 
   return (
     <ProtectedRoute>
-      <MainLayout footerItems={footerItems}>
-        <Outlet />
-      </MainLayout>
+      <AppBackground>
+        <MainLayout footerItems={footerItems}>
+          <Outlet />
+        </MainLayout>
+      </AppBackground>
     </ProtectedRoute>
   );
 };

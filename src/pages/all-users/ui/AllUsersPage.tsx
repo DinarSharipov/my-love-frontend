@@ -60,7 +60,7 @@ const UserActions = ({ disabled, isLoading, onInvite, userName }: UserActionsPro
             transition={{ duration: 0.16 }}
           >
             <button
-              className="text-text hover:bg-primary-neon/10 hover:text-primary-neon flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm outline-none transition-colors focus-visible:bg-primary-neon/10 disabled:cursor-not-allowed disabled:opacity-40"
+              className="text-text hover:bg-primary-neon/10 hover:text-primary-neon flex w-full items-center gap-gap rounded-xl px-3 py-2.5 text-left text-sm outline-none transition-colors focus-visible:bg-primary-neon/10 disabled:cursor-not-allowed disabled:opacity-40"
               disabled={disabled || isLoading}
               onClick={() => {
                 setIsOpen(false);
@@ -166,10 +166,10 @@ export const AllUsersPage = () => {
   );
 
   return (
-    <main className="flex h-full min-h-0 flex-col gap-4 pb-24">
-      <header className="flex shrink-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <main className="flex h-full min-h-0 flex-col gap-gap">
+      <header className="page-header flex shrink-0 flex-col gap-gap sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="text-primary-neon mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em]">
+          <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
             <UsersRound aria-hidden="true" className="h-4 w-4" />
             Поиск партнёра
           </div>
@@ -181,7 +181,7 @@ export const AllUsersPage = () => {
           </p>
         </div>
 
-        <div className="relative w-full sm:max-w-sm">
+        <div className="relative w-full">
           <Search
             aria-hidden="true"
             className="text-muted-text pointer-events-none absolute left-4 top-1/2 z-20 h-4 w-4 -translate-y-1/2"

@@ -59,12 +59,11 @@ export const RegisterForm = () => {
 
   return (
     <AuthFormLayout
-      isWide
       subtitle="Создай профиль — остальное начнётся после первого шага"
       title="Регистрация"
     >
       <form className="space-y-5" noValidate onSubmit={onSubmit}>
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-gap md:grid-cols-2">
           <Input
             {...register('firstName')}
             autoComplete="given-name"
@@ -137,7 +136,7 @@ export const RegisterForm = () => {
 
         <FormStatus message={requestError} />
 
-        <div className="flex justify-between gap-2">
+        <div className="flex justify-between gap-gap">
           <Button onClick={() => navigate(`/login${location.search}`)}>Войти</Button>
           <Button animateVariant="magnetic" disabled={isLoading} type="submit">
             {isLoading ? 'Создаём профиль…' : 'Зарегистрироваться'}

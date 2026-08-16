@@ -19,6 +19,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import { getAccessTokenSubject, selectAccessToken, selectCurrentUser } from '@/entities/user';
+import { getCalendarTasks } from '@/entities/task';
 import {
   FamilyEventForm,
   formatFamilyEventTime,
@@ -110,7 +111,7 @@ type DayAgendaProps = {
 
 const DayAgenda = ({ events, onCreate, onOpen, selectedDate, timeZone }: DayAgendaProps) => (
   <div className="flex h-full min-h-0 flex-col">
-    <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="flex flex-wrap items-start justify-between gap-gap">
       <div>
         <p className="text-primary-neon text-xs font-semibold uppercase tracking-[0.18em]">
           План дня
@@ -120,7 +121,7 @@ const DayAgenda = ({ events, onCreate, onOpen, selectedDate, timeZone }: DayAgen
         </h2>
       </div>
       <Button onClick={onCreate} size="s">
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-2.5">
           <Plus aria-hidden="true" className="h-4 w-4" />
           Событие
         </span>
@@ -148,10 +149,10 @@ const DayAgenda = ({ events, onCreate, onOpen, selectedDate, timeZone }: DayAgen
               whileHover={{ x: 3 }}
               whileTap={{ scale: 0.99 }}
             >
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start justify-between gap-gap">
                 <div className="min-w-0">
                   <p className="text-text truncate text-sm font-semibold">{event.name}</p>
-                  <p className="text-muted-text mt-1 flex items-center gap-1.5 text-xs">
+                  <p className="text-muted-text mt-1 flex items-center gap-2.5 text-xs">
                     <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
                     {formatFamilyEventTime(event.scheduledAt, timeZone)}
                   </p>
@@ -162,7 +163,7 @@ const DayAgenda = ({ events, onCreate, onOpen, selectedDate, timeZone }: DayAgen
                   {meta.label}
                 </span>
               </div>
-              <p className="text-muted-text mt-3 flex items-center gap-1.5 truncate text-xs">
+              <p className="text-muted-text mt-3 flex items-center gap-2.5 truncate text-xs">
                 <MapPin aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
                 {event.location}
               </p>
@@ -219,7 +220,7 @@ const EventDetails = ({
         ← Вернуться к плану дня
       </button>
 
-      <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
+      <div className="mt-4 flex flex-wrap items-start justify-between gap-gap">
         <div className="min-w-0">
           <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs ${meta.className}`}>
             {meta.label}
@@ -229,20 +230,32 @@ const EventDetails = ({
       </div>
 
       <div className="border-border bg-elevated/35 mt-5 space-y-3 rounded-2xl border p-4 text-sm">
-        <p className="text-muted-text flex items-start gap-2">
+        <p className="text-muted-text flex items-start gap-gap">
           <Clock3 aria-hidden="true" className="text-cyber-cyan mt-0.5 h-4 w-4 shrink-0" />
           <span>{formatEventDateTime(event.scheduledAt, timeZone, locale)}</span>
         </p>
-        <p className="text-muted-text flex items-start gap-2">
+        <p className="text-muted-text flex items-start gap-gap">
           <MapPin aria-hidden="true" className="text-neon-pink mt-0.5 h-4 w-4 shrink-0" />
           <span>{event.location}</span>
         </p>
-        <p className="text-muted-text flex items-start gap-2">
+        <p className="text-muted-text flex items-start gap-gap">
           <UserRound aria-hidden="true" className="text-primary-neon mt-0.5 h-4 w-4 shrink-0" />
           <span>
             Предложил: {event.proposedBy.firstName} {event.proposedBy.lastName}
           </span>
         </p>
+        {(event.reminderOffsetMinutes || event.repeatReminderAt) && (
+          <p className="text-muted-text flex items-start gap-gap">
+            <Clock3 aria-hidden="true" className="text-acid-green mt-0.5 h-4 w-4 shrink-0" />
+            <span>
+              Напоминания:{' '}
+              {event.reminderOffsetMinutes ? `за ${event.reminderOffsetMinutes} мин` : ''}
+              {event.repeatReminderAt
+                ? ` и ${formatEventDateTime(event.repeatReminderAt, timeZone, locale)}`
+                : ''}
+            </span>
+          </p>
+        )}
       </div>
 
       {event.description && (
@@ -264,11 +277,11 @@ const EventDetails = ({
         </p>
       )}
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-6 flex flex-wrap gap-gap">
         {canRespond && (
           <>
             <Button disabled={isResponding} onClick={onConfirm} size="s">
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-2.5">
                 <Check aria-hidden="true" className="h-4 w-4" />
                 Подтвердить
               </span>
@@ -279,7 +292,7 @@ const EventDetails = ({
               onClick={onReject}
               size="s"
             >
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-2.5">
                 <X aria-hidden="true" className="h-4 w-4" />
                 Отклонить
               </span>
@@ -288,7 +301,7 @@ const EventDetails = ({
         )}
         {canEdit && (
           <Button onClick={onEdit} size="s">
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-2.5">
               <Pencil aria-hidden="true" className="h-4 w-4" />
               Изменить
             </span>
@@ -300,7 +313,7 @@ const EventDetails = ({
             onClick={() => setIsConfirmingDelete(true)}
             size="s"
           >
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-2.5">
               <Trash2 aria-hidden="true" className="h-4 w-4" />
               Удалить
             </span>
@@ -316,14 +329,14 @@ const EventDetails = ({
             exit={{ opacity: 0, y: -6 }}
             initial={{ opacity: 0, y: -6 }}
           >
-            <div className="flex gap-3">
+            <div className="flex gap-gap">
               <AlertTriangle className="text-neon-pink h-5 w-5 shrink-0" />
               <div>
                 <p className="text-text text-sm font-semibold">Удалить событие?</p>
                 <p className="text-muted-text mt-1 text-xs">Оно исчезнет из семейного календаря.</p>
               </div>
             </div>
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4 flex gap-gap">
               <Button
                 className="border-neon-pink/70 text-neon-pink"
                 disabled={isDeleting}
@@ -371,10 +384,7 @@ export const FamilyCalendar = () => {
   const [rejectFamilyEvent, rejectState] = useRejectFamilyEventMutation();
   const [removeFamilyEvent, removeState] = useRemoveFamilyEventMutation();
   const events = useMemo(() => eventsQuery.data?.data ?? [], [eventsQuery.data?.data]);
-  const tasks = useMemo(() => {
-    const payload = tasksQuery.data as unknown as { data?: Array<{ id: string; title: string; dueAt?: object | null; status: string }> } | undefined;
-    return (payload?.data ?? []).filter((task) => task.status !== 'ARCHIVED' && typeof task.dueAt === 'string');
-  }, [tasksQuery.data]);
+  const tasks = useMemo(() => getCalendarTasks(tasksQuery.data), [tasksQuery.data]);
   const isResponding = confirmState.isLoading || rejectState.isLoading;
 
   useEffect(() => {
@@ -400,7 +410,7 @@ export const FamilyCalendar = () => {
         name: event.name,
       })),
       ...tasks.map((task) => ({
-        date: new Date(task.dueAt as unknown as string),
+        date: new Date(task.dueAt),
         id: `task:${task.id}`,
         name: `Задача: ${task.title}`,
       })),
@@ -475,7 +485,7 @@ export const FamilyCalendar = () => {
   if (!family && isFamilyMissingError(familyQuery.error)) {
     return (
       <section className="border-border bg-surface/70 grid min-h-[520px] place-items-center rounded-3xl border p-8 text-center">
-        <div className="max-w-md">
+        <div className="w-full">
           <CalendarDays className="text-primary-neon mx-auto h-11 w-11" strokeWidth={1.4} />
           <h1 className="text-text mt-5 text-2xl font-semibold">
             Календарь появится вместе с семьёй
@@ -506,10 +516,10 @@ export const FamilyCalendar = () => {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4 pb-24">
-      <header className="flex shrink-0 flex-wrap items-end justify-between gap-4">
+    <div className="flex min-h-full flex-col gap-gap">
+      <header className="flex shrink-0 flex-wrap items-end justify-between gap-gap">
         <div>
-          <p className="text-primary-neon flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em]">
+          <p className="text-primary-neon flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
             <CalendarDays aria-hidden="true" className="h-4 w-4" />
             Семейный календарь
           </p>
@@ -526,7 +536,7 @@ export const FamilyCalendar = () => {
           }}
           size="s"
         >
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-2.5">
             <Plus aria-hidden="true" className="h-4 w-4" />
             Добавить событие
           </span>
@@ -546,13 +556,14 @@ export const FamilyCalendar = () => {
         </p>
       )}
 
-      <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(300px,0.42fr)_minmax(620px,1fr)]">
+      <div className="grid min-h-0 flex-1 gap-gap xl:grid-cols-[minmax(300px,0.42fr)_minmax(620px,1fr)]">
         <motion.aside
           className="border-border bg-surface/75 min-h-[360px] h-full overflow-auto rounded-3xl border p-4 backdrop-blur-xl sm:p-5 xl:min-h-0"
           layout
         >
           {mode === 'create' && (
             <FamilyEventForm
+              familyMembers={family?.members ?? []}
               initialDate={selectedDate}
               mode="create"
               onCancel={() => setMode('agenda')}
@@ -568,6 +579,7 @@ export const FamilyCalendar = () => {
 
           {mode === 'edit' && focusedEvent && (
             <FamilyEventForm
+              familyMembers={family?.members ?? []}
               initialValue={focusedEvent}
               mode="edit"
               onCancel={() => setMode('details')}
@@ -653,7 +665,7 @@ export const FamilyCalendar = () => {
               <div>
                 <p className="text-neon-pink">Не удалось загрузить события</p>
                 <Button className="mt-4" onClick={() => eventsQuery.refetch()} size="s">
-                  <span className="flex items-center gap-1.5">
+                  <span className="flex items-center gap-2.5">
                     <RefreshCw aria-hidden="true" className="h-4 w-4" />
                     Повторить
                   </span>

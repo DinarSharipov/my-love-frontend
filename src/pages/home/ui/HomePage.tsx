@@ -64,7 +64,7 @@ export const HomePage = () => {
 
   return (
     <main className="text-text flex min-h-screen items-center justify-center px-6 py-16">
-      <div className="mx-auto flex w-full max-w-5xl -translate-y-8 flex-col items-center text-center md:-translate-y-12">
+      <div className="flex w-full -translate-y-8 flex-col items-center text-center md:-translate-y-12">
         <motion.h1
           animate="visible"
           aria-label="Привет! My love!"
@@ -89,7 +89,7 @@ export const HomePage = () => {
         <motion.p
           animate="visible"
           aria-label="Если ты находишься здесь, значит тебе не нужно ничего объяснять. Выбирай действие"
-          className="text-muted-text mt-6 flex max-w-3xl flex-wrap justify-center gap-x-[0.3em] py-2 text-lg font-medium leading-[1.65] md:text-xl"
+          className="text-muted-text mt-6 flex w-full flex-wrap justify-center gap-x-[0.3em] py-2 text-lg font-medium leading-[1.65] md:text-xl"
           initial="hidden"
           variants={textContainerVariants}
         >
@@ -102,7 +102,7 @@ export const HomePage = () => {
         <motion.p
           animate="visible"
           aria-label="Если ты находишься здесь, значит тебе не нужно ничего объяснять. Выбирай действие"
-          className="text-muted-text flex max-w-3xl flex-wrap justify-center gap-x-[0.3em] py-2 text-lg font-medium leading-[1.65] md:text-xl"
+          className="text-muted-text flex w-full flex-wrap justify-center gap-x-[0.3em] py-2 text-lg font-medium leading-[1.65] md:text-xl"
           initial="hidden"
           variants={textContainerVariants}
         >
@@ -115,7 +115,7 @@ export const HomePage = () => {
 
         <motion.div
           animate="visible"
-          className="mt-12 gap-40 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row"
+          className="mt-12 flex w-full flex-col items-center justify-center gap-gap sm:w-auto sm:flex-row"
           initial="hidden"
           variants={controlsVariants}
         >

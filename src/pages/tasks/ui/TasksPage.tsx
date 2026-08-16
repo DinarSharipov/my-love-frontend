@@ -12,7 +12,15 @@ import {
   useUpdateMutation,
 } from '@/shared/api';
 import type { TaskResponseDto } from '@/shared/api';
-import { AnimatedPanel, AsyncState, Button, Input, Select, Textarea } from '@/shared/ui';
+import {
+  AnimatedPanel,
+  AsyncState,
+  Button,
+  Input,
+  PageLayout,
+  Select,
+  Textarea,
+} from '@/shared/ui';
 
 type Filter = 'ALL' | 'OPEN' | 'COMPLETED';
 type TaskList = { data?: TaskResponseDto[] };
@@ -110,21 +118,21 @@ export const TasksPage = () => {
     setAssignedToId(typeof task.assignedToId === 'string' ? task.assignedToId : '');
   };
   return (
-    <main className="h-full overflow-auto pb-24">
-      <div className="mx-auto w-full max-w-4xl space-y-5">
-        <header>
-          <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
-            Семейный cockpit
-          </p>
-          <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">Задачи и дела</h1>
-          <p className="text-muted-text mt-1 text-sm">
-            Собирайте бытовые дела в одном понятном списке.
-          </p>
-        </header>
+    <PageLayout>
+      <header className="page-header">
+        <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
+          Семейный стол
+        </p>
+        <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">Задачи и дела</h1>
+        <p className="text-muted-text mt-1 text-sm">
+          Собирайте бытовые дела в одном понятном списке.
+        </p>
+      </header>
+      <div className="grid items-start gap-gap lg:grid-cols-[minmax(20rem,1.5fr)_minmax(0,1fr)]">
         <AnimatedPanel className="p-5 sm:p-6">
           <form className="space-y-4" onSubmit={submit}>
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-text flex items-center gap-2 font-semibold">
+            <div className="flex items-center justify-between gap-gap">
+              <h2 className="text-text flex items-center gap-gap font-semibold">
                 <ListChecks className="text-cyber-cyan h-5 w-5" />
                 {editing ? 'Редактирование задачи' : 'Новая задача'}
               </h2>
@@ -146,7 +154,7 @@ export const TasksPage = () => {
               onChange={(event) => setDescription(event.target.value)}
               value={description}
             />
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-gap sm:grid-cols-3">
               <Input
                 label="Срок"
                 onChange={(event) => setDueAt(event.target.value)}
@@ -181,9 +189,9 @@ export const TasksPage = () => {
           </form>
         </AnimatedPanel>
         <AnimatedPanel className="p-5 sm:p-6">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-gap">
             <h2 className="text-text font-semibold">Список задач</h2>
-            <div className="flex gap-2">
+            <div className="flex gap-gap">
               {(['ALL', 'OPEN', 'COMPLETED'] as Filter[]).map((value) => (
                 <Button
                   key={value}
@@ -207,7 +215,7 @@ export const TasksPage = () => {
             <div className="space-y-2">
               {visible.map((task) => (
                 <article
-                  className="border-border bg-elevated/35 flex flex-wrap items-center gap-3 rounded-2xl border p-3"
+                  className="border-border bg-elevated/35 flex items-center gap-gap rounded-2xl border p-3"
                   key={task.id}
                 >
                   <button
@@ -233,6 +241,7 @@ export const TasksPage = () => {
                   </button>
                   <div className="min-w-0 flex-1">
                     <p
+                      title={task.title}
                       className={
                         task.status === 'COMPLETED'
                           ? 'text-muted-text truncate text-sm line-through'
@@ -241,17 +250,19 @@ export const TasksPage = () => {
                     >
                       {task.title}
                     </p>
-                    {task.dueAt && (
-                      <p className="text-muted-text mt-1 text-xs">
-                        Срок: {new Date(String(task.dueAt)).toLocaleString('ru-RU')}
+                    <div className="mt-1 flex min-w-0 items-center gap-gap">
+                      {task.dueAt && (
+                        <p className="text-muted-text min-w-0 truncate text-xs">
+                          Срок: {new Date(String(task.dueAt)).toLocaleString('ru-RU')}
+                        </p>
+                      )}
+                      <p className="text-muted-text flex min-w-0 items-center gap-gap truncate text-xs">
+                        <UserRound aria-hidden="true" className="size-3.5" />
+                        {typeof task.assignedToId === 'string'
+                          ? (assigneeNames.get(task.assignedToId) ?? 'Участник семьи')
+                          : 'Свободная задача'}
                       </p>
-                    )}
-                    <p className="text-muted-text mt-1 flex items-center gap-1 text-xs">
-                      <UserRound aria-hidden="true" className="size-3.5" />
-                      {typeof task.assignedToId === 'string'
-                        ? (assigneeNames.get(task.assignedToId) ?? 'Участник семьи')
-                        : 'Свободная задача'}
-                    </p>
+                    </div>
                   </div>
                   <Button
                     aria-label="Редактировать задачу"
@@ -279,6 +290,6 @@ export const TasksPage = () => {
           </AsyncState>
         </AnimatedPanel>
       </div>
-    </main>
+    </PageLayout>
   );
 };

@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
+import { createPortal } from 'react-dom';
 import { forwardRef, useEffect, useId, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 
@@ -40,8 +41,10 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
   ) => {
     const generatedId = useId();
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const menuRef = useRef<HTMLDivElement | null>(null);
     const [isFocused, setIsFocused] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [menuPosition, setMenuPosition] = useState({ left: 0, top: 0, width: 0 });
     const selectId = `${generatedId}-select`;
     const labelId = `${generatedId}-label`;
     const errorId = `${generatedId}-error`;
@@ -64,7 +67,10 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
       }
 
       const handlePointerDown = (event: PointerEvent) => {
-        if (!containerRef.current?.contains(event.target as Node)) {
+        if (
+          !containerRef.current?.contains(event.target as Node) &&
+          !menuRef.current?.contains(event.target as Node)
+        ) {
           setIsOpen(false);
           onBlur?.();
         }
@@ -74,6 +80,24 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
 
       return () => document.removeEventListener('pointerdown', handlePointerDown);
     }, [isOpen, onBlur]);
+
+    useEffect(() => {
+      if (!isOpen) return undefined;
+
+      const updatePosition = () => {
+        const bounds = containerRef.current?.getBoundingClientRect();
+        if (!bounds) return;
+        setMenuPosition({ left: bounds.left, top: bounds.bottom + 8, width: bounds.width });
+      };
+
+      updatePosition();
+      window.addEventListener('resize', updatePosition);
+      window.addEventListener('scroll', updatePosition, true);
+      return () => {
+        window.removeEventListener('resize', updatePosition);
+        window.removeEventListener('scroll', updatePosition, true);
+      };
+    }, [isOpen]);
 
     const closeMenu = () => {
       setIsOpen(false);
@@ -100,7 +124,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
     return (
       <div ref={containerRef} className={`relative w-full ${containerClassName}`}>
         {label && (
-          <div className="mb-2 flex h-5 items-center justify-between gap-3">
+          <div className="mb-2 flex h-5 items-center justify-between gap-gap">
             <motion.label
               animate={{ color: isActive ? 'var(--color-text)' : 'var(--color-muted-text)' }}
               className="shrink-0 text-sm font-medium"
@@ -173,16 +197,18 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
           </motion.svg>
         </motion.button>
 
-        <AnimatePresence>
-          {isOpen && (
+        {isOpen &&
+          createPortal(
             <motion.div
+              ref={menuRef}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               aria-labelledby={label ? labelId : undefined}
-              className="border-primary-neon/60 bg-elevated/95 absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-2xl border p-1.5 shadow-[0_0_32px_color-mix(in_srgb,var(--color-primary-neon)_28%,transparent)] backdrop-blur-xl"
+              className="border-primary-neon/60 bg-elevated/95 fixed z-[1000] max-h-60 overflow-y-auto rounded-2xl border p-1.5 shadow-[0_0_32px_color-mix(in_srgb,var(--color-primary-neon)_28%,transparent)] backdrop-blur-xl"
               exit={{ opacity: 0, scale: 0.98, y: -8 }}
               id={listboxId}
               initial={{ opacity: 0, scale: 0.98, y: -8 }}
               role="listbox"
+              style={menuPosition}
               transition={{ duration: 0.18, ease: 'easeOut' }}
             >
               {options.map((option) => {
@@ -214,9 +240,9 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
                   </motion.button>
                 );
               })}
-            </motion.div>
+            </motion.div>,
+            document.body,
           )}
-        </AnimatePresence>
       </div>
     );
   },

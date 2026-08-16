@@ -13,7 +13,7 @@ import {
 } from '@/features/family-invitations';
 import type { FamilyInvitationResponseDto } from '@/shared/api';
 import { getApiErrorMessage } from '@/shared/api';
-import { AnimatedPanel, AsyncState, Button } from '@/shared/ui';
+import { AnimatedPanel, AsyncState, Button, PageLayout } from '@/shared/ui';
 
 type InvitationAction = 'accept' | 'cancel' | 'reject';
 type InvitationDirection = 'incoming' | 'outgoing';
@@ -94,8 +94,8 @@ const InvitationCard = ({
       layout
     >
       <div className="bg-primary-neon/5 pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl" />
-      <div className="relative flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
+      <div className="relative flex flex-wrap items-start justify-between gap-gap">
+        <div className="flex min-w-0 items-center gap-gap">
           <div className="border-primary-neon/35 bg-primary-neon/10 text-primary-neon grid h-11 w-11 shrink-0 place-items-center rounded-2xl border">
             <UserRound aria-hidden="true" className="h-5 w-5" />
           </div>
@@ -111,13 +111,13 @@ const InvitationCard = ({
         </span>
       </div>
 
-      <div className="text-muted-text relative mt-4 flex flex-wrap gap-x-5 gap-y-1 text-xs">
-        <span className="inline-flex items-center gap-1.5">
+      <div className="text-muted-text relative mt-4 flex flex-wrap gap-gap text-xs">
+        <span className="inline-flex items-center gap-2.5">
           <Send aria-hidden="true" className="h-3.5 w-3.5" />
           <time dateTime={invitation.createdAt}>{formatDateTime(invitation.createdAt)}</time>
         </span>
         {invitation.status === 'PENDING' && (
-          <span className="inline-flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-2.5">
             <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
             до <time dateTime={invitation.expiresAt}>{formatDateTime(invitation.expiresAt)}</time>
           </span>
@@ -125,11 +125,11 @@ const InvitationCard = ({
       </div>
 
       {invitation.status === 'PENDING' && (
-        <div className="relative mt-4 flex flex-wrap gap-2">
+        <div className="relative mt-4 flex flex-wrap gap-gap">
           {direction === 'incoming' ? (
             <>
               <Button disabled={isMutating} onClick={() => onAction(invitation, 'accept')} size="s">
-                <span className="flex items-center gap-1.5">
+                <span className="flex items-center gap-2.5">
                   <Check aria-hidden="true" className="h-4 w-4" />
                   {activeActionType === 'accept' ? actionLabels.accept.loading : 'Принять'}
                 </span>
@@ -140,7 +140,7 @@ const InvitationCard = ({
                 onClick={() => onAction(invitation, 'reject')}
                 size="s"
               >
-                <span className="flex items-center gap-1.5">
+                <span className="flex items-center gap-2.5">
                   <X aria-hidden="true" className="h-4 w-4" />
                   {activeActionType === 'reject' ? actionLabels.reject.loading : 'Отклонить'}
                 </span>
@@ -153,7 +153,7 @@ const InvitationCard = ({
               onClick={() => onAction(invitation, 'cancel')}
               size="s"
             >
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-2.5">
                 <X aria-hidden="true" className="h-4 w-4" />
                 {activeActionType === 'cancel' ? actionLabels.cancel.loading : 'Отменить'}
               </span>
@@ -243,11 +243,8 @@ const InvitationColumn = ({
   );
 
   return (
-    <AnimatedPanel
-      aria-labelledby={titleId}
-      className="min-h-0 p-4 sm:p-5"
-    >
-      <header className="mb-4 flex items-center gap-3">
+    <AnimatedPanel aria-labelledby={titleId} className="min-h-0 p-4 sm:p-5">
+      <header className="mb-4 flex items-center gap-gap">
         <div className="border-primary-neon/35 bg-primary-neon/10 text-primary-neon grid h-10 w-10 place-items-center rounded-2xl border">
           {isIncoming ? (
             <Inbox aria-hidden="true" className="h-5 w-5" />
@@ -318,16 +315,16 @@ export const FamilyInvitationsPage = () => {
   };
 
   return (
-    <main className="h-full overflow-auto pb-24">
-      <div className="mx-auto w-full max-w-6xl">
-        <header className="mb-5 flex flex-wrap items-end justify-between gap-4">
+    <PageLayout>
+      <div className="w-full">
+        <header className="page-header mb-5 flex flex-wrap items-end justify-between gap-gap">
           <div>
-            <div className="text-primary-neon mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em]">
+            <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
               <MailCheck aria-hidden="true" className="h-4 w-4" />
               Создание семьи
             </div>
             <h1 className="text-text text-2xl font-semibold sm:text-3xl">Приглашения</h1>
-            <p className="text-muted-text mt-1 max-w-2xl text-sm">
+            <p className="text-muted-text mt-1 text-sm">
               Управляйте приглашениями и решениями о создании общего семейного пространства.
             </p>
           </div>
@@ -336,7 +333,7 @@ export const FamilyInvitationsPage = () => {
             onClick={handleRefresh}
             size="s"
           >
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-gap">
               <RefreshCw
                 aria-hidden="true"
                 className={`h-4 w-4 ${incoming.isFetching || outgoing.isFetching ? 'animate-spin' : ''}`}
@@ -367,7 +364,7 @@ export const FamilyInvitationsPage = () => {
 
         <PrivateFamilyInvitationPanel />
 
-        <div className="grid items-start gap-4 lg:grid-cols-2">
+        <div className="grid items-start gap-gap lg:grid-cols-2">
           <InvitationColumn
             activeAction={activeAction}
             direction="incoming"
@@ -394,6 +391,6 @@ export const FamilyInvitationsPage = () => {
           />
         </div>
       </div>
-    </main>
+    </PageLayout>
   );
 };
