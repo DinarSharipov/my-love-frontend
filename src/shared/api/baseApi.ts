@@ -8,6 +8,7 @@ type StateWithAccessToken = {
 
 export const baseApi = createApi({
   reducerPath: 'api',
+  tagTypes: ['finance-wallets', 'finance-ledger', 'finance-categories', 'finance-summary'],
   baseQuery: fetchBaseQuery({
     baseUrl: '/',
     prepareHeaders: (headers, { getState }) => {
