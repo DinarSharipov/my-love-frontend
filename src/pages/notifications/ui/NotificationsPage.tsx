@@ -251,7 +251,12 @@ export const NotificationsPage = () => {
                     />
                   </div>
                 )}
-                <Button className="mt-4" disabled={updateState.isLoading} icon={<Mail className="size-4" />} onClick={savePreferences}>
+                <Button
+                  className="mt-4"
+                  disabled={updateState.isLoading}
+                  icon={<Mail className="size-4" />}
+                  onClick={savePreferences}
+                >
                   Сохранить настройки
                 </Button>
                 <p className="text-muted-text mt-3 flex items-start gap-gap text-xs">

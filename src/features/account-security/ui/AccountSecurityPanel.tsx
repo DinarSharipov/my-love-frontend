@@ -291,7 +291,12 @@ export const AccountSecurityPanel = () => {
             <Button
               aria-label="Обновить список сессий"
               disabled={sessions.isFetching}
-              icon={<RefreshCw aria-hidden="true" className={`h-4 w-4 ${sessions.isFetching ? 'animate-spin' : ''}`} />}
+              icon={
+                <RefreshCw
+                  aria-hidden="true"
+                  className={`h-4 w-4 ${sessions.isFetching ? 'animate-spin' : ''}`}
+                />
+              }
               onClick={refreshSessions}
               size="s"
             />

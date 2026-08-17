@@ -123,16 +123,20 @@ const EmptyFirstDate = ({ canCreate, notice, onCreate, onRetry }: EmptyFirstDate
       </p>
       <div className="mt-5 flex justify-center">
         {canCreate ? (
-          <Button icon={<Plus aria-hidden="true" className="h-4 w-4" />} onClick={onCreate} size="s">
-            <span>
-              Добавить встречу
-            </span>
+          <Button
+            icon={<Plus aria-hidden="true" className="h-4 w-4" />}
+            onClick={onCreate}
+            size="s"
+          >
+            <span>Добавить встречу</span>
           </Button>
         ) : (
-          <Button icon={<RefreshCw aria-hidden="true" className="h-4 w-4" />} onClick={onRetry} size="s">
-            <span>
-              Повторить
-            </span>
+          <Button
+            icon={<RefreshCw aria-hidden="true" className="h-4 w-4" />}
+            onClick={onRetry}
+            size="s"
+          >
+            <span>Повторить</span>
           </Button>
         )}
       </div>
@@ -274,10 +278,12 @@ export const FirstDateTracker = () => {
         </div>
 
         <div className="flex flex-wrap items-start justify-end gap-gap">
-          <Button icon={<Pencil aria-hidden="true" className="h-4 w-4" />} onClick={() => openForm('edit')} size="s">
-            <span>
-              Изменить
-            </span>
+          <Button
+            icon={<Pencil aria-hidden="true" className="h-4 w-4" />}
+            onClick={() => openForm('edit')}
+            size="s"
+          >
+            <span>Изменить</span>
           </Button>
           <Button
             className="border-neon-pink/60 text-neon-pink hover:bg-neon-pink/10"
@@ -288,9 +294,7 @@ export const FirstDateTracker = () => {
             }}
             size="s"
           >
-            <span>
-              Удалить
-            </span>
+            <span>Удалить</span>
           </Button>
         </div>
       </div>
@@ -323,9 +327,7 @@ export const FirstDateTracker = () => {
                     onClick={handleDelete}
                     size="s"
                   >
-                    <span>
-                      {removeState.isLoading ? 'Удаляем…' : 'Да, удалить'}
-                    </span>
+                    <span>{removeState.isLoading ? 'Удаляем…' : 'Да, удалить'}</span>
                   </Button>
                   <Button
                     disabled={removeState.isLoading}
@@ -333,9 +335,7 @@ export const FirstDateTracker = () => {
                     onClick={() => setIsConfirmingDelete(false)}
                     size="s"
                   >
-                    <span>
-                      Отмена
-                    </span>
+                    <span>Отмена</span>
                   </Button>
                 </div>
               </div>

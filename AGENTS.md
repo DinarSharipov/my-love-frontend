@@ -30,7 +30,10 @@ Cyberpunk web app for creating a family and managing family life: household task
 ## Validation
 
 - Keep changes scoped and reuse existing patterns before adding abstractions or dependencies.
-- Before completion run the relevant checks; for normal code changes use `npm run typecheck`, `npm run lint`, and `npm run build` when practical.
+- Format all project files according to the repository's Prettier configuration; run `npm run format` after code changes and confirm with `npm run format:check`.
+- Do not write unit or end-to-end tests for this project.
+- When backend contracts change, regenerate frontend API types through the repository scripts from `package.json`, using `npm run api:generate` before adapting the UI.
+- Run `npm run lint`, TypeScript checks, and import-direction checks only when the project fails to start, shows errors during development, or reports errors during the production build. They are not required as a routine step when dev startup and build complete without errors.
 - After every implementation slice, run the frontend in the browser and verify every affected route visually: page layout, loading/error/empty states, visible buttons, inputs, keyboard access, and primary interactions. Use Playwright when available; do not consider a slice complete until the affected controls are reachable and work.
 
 ## Continuity

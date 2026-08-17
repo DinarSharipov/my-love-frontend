@@ -185,7 +185,9 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
             transition={{ duration: 0.3 }}
           />
           <Tooltip content={selectedOption?.label ?? placeholder}>
-            <span className={`min-w-0 truncate ${selectedOption ? 'text-text' : 'text-muted-text'}`}>
+            <span
+              className={`min-w-0 truncate ${selectedOption ? 'text-text' : 'text-muted-text'}`}
+            >
               {selectedOption?.label ?? placeholder}
             </span>
           </Tooltip>

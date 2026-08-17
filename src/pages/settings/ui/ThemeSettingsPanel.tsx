@@ -62,7 +62,12 @@ export const ThemeSettingsPanel = () => {
               Настройте акценты интерфейса. Изменения сохраняются только на этом устройстве.
             </p>
           </div>
-          <Button className="opacity-80" icon={<RotateCcw className="size-4" />} onClick={reset} size="s">
+          <Button
+            className="opacity-80"
+            icon={<RotateCcw className="size-4" />}
+            onClick={reset}
+            size="s"
+          >
             Сбросить
           </Button>
         </div>
@@ -97,7 +102,11 @@ export const ThemeSettingsPanel = () => {
               Выберите изображение для фоновой сцены. Оно хранится локально.
             </p>
           </div>
-          <Button icon={<Upload className="size-4" />} onClick={() => fileInputRef.current?.click()} size="s">
+          <Button
+            icon={<Upload className="size-4" />}
+            onClick={() => fileInputRef.current?.click()}
+            size="s"
+          >
             Выбрать изображение
           </Button>
         </div>

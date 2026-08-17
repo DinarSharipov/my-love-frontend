@@ -7,7 +7,7 @@ type AsyncStateProps = {
   error?: unknown;
   hasData?: boolean;
   onRetry?: () => void;
-  loading: ReactNode;
+  loading?: ReactNode;
   children: ReactNode;
   empty?: ReactNode;
   errorMessage?: string;
@@ -23,7 +23,7 @@ export const AsyncState = ({
   empty,
   errorMessage = 'Не удалось загрузить данные',
 }: AsyncStateProps) => {
-  if (isLoading && !hasData) return loading;
+  if (isLoading && !hasData) return loading ?? null;
 
   if (error && !hasData) {
     return (

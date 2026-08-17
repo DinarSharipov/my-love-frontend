@@ -86,7 +86,70 @@ export type FinancialGoal = {
   version: number;
   envelope: { walletId: string; type: 'PERSONAL' | 'FAMILY'; visibility: string };
 };
-export type FinancialBudget = { id: string; categoryId: string; periodStart: string; limitMinor: string; version: number };
+export type FinancialBudget = {
+  id: string;
+  categoryId: string;
+  periodStart: string;
+  limitMinor: string;
+  version: number;
+};
+export type RecurringPayment = {
+  id: string;
+  walletId: string;
+  categoryId: string | null;
+  type: 'INCOME' | 'EXPENSE';
+  title: string;
+  note: string | null;
+  amountMinor: string;
+  frequency: 'WEEKLY' | 'MONTHLY';
+  interval: number;
+  nextDueAt: string;
+  active: boolean;
+  version: number;
+};
+export type FinancialAnalytics = {
+  periodStart: string;
+  months: number;
+  cashFlow: Array<{
+    periodStart: string;
+    actual: Array<{
+      currency: string;
+      incomeMinor: string;
+      expenseMinor: string;
+      netMinor: string;
+    }>;
+    mandatory: Array<{
+      currency: string;
+      incomeMinor: string;
+      expenseMinor: string;
+      netMinor: string;
+    }>;
+  }>;
+  forecastAsOf: string;
+  forecastThrough: string;
+  balanceForecast: Array<{
+    currency: string;
+    currentBalanceMinor: string;
+    plannedIncomeMinor: string;
+    plannedExpenseMinor: string;
+    projectedBalanceMinor: string;
+  }>;
+};
+export type FinancialMeeting = {
+  id: string;
+  title: string;
+  scheduledAt: string;
+  notes: string | null;
+  status: string;
+  version: number;
+  decisions: Array<{
+    id: string;
+    title: string;
+    description: string | null;
+    status: string;
+    version: number;
+  }>;
+};
 
 const financeApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -99,6 +162,26 @@ const financeApi = baseApi.injectEndpoints({
       { name: string; type: 'PERSONAL' | 'FAMILY'; currency: string; visibility?: string }
     >({
       query: (body) => ({ url: '/api/v1/families/me/wallets', method: 'POST', body }),
+      invalidatesTags: ['finance-wallets'],
+    }),
+    updateFinanceWallet: build.mutation<
+      Wallet,
+      { id: string; name?: string; visibility?: string; version?: number }
+    >({
+      query: ({ id, version, ...body }) => ({
+        url: `/api/v1/families/me/wallets/${id}`,
+        method: 'PATCH',
+        body,
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-wallets'],
+    }),
+    archiveFinanceWallet: build.mutation<void, { id: string; version?: number }>({
+      query: ({ id, version }) => ({
+        url: `/api/v1/families/me/wallets/${id}`,
+        method: 'DELETE',
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
       invalidatesTags: ['finance-wallets'],
     }),
     listLedger: build.query<LedgerPage, { page?: number; limit?: number; walletId?: string }>({
@@ -162,21 +245,218 @@ const financeApi = baseApi.injectEndpoints({
       query: () => '/api/v1/families/me/financial-goals',
       providesTags: ['finance-goals'],
     }),
-    createFinancialGoal: build.mutation<FinancialGoal, { title: string; targetAmountMinor: string; type: 'PERSONAL' | 'FAMILY'; currency?: string; targetDate?: string }>({
+    createFinancialGoal: build.mutation<
+      FinancialGoal,
+      {
+        title: string;
+        targetAmountMinor: string;
+        type: 'PERSONAL' | 'FAMILY';
+        currency?: string;
+        targetDate?: string;
+      }
+    >({
       query: (body) => ({ url: '/api/v1/families/me/financial-goals', method: 'POST', body }),
       invalidatesTags: ['finance-goals', 'finance-wallets'],
     }),
-    contributeFinancialGoal: build.mutation<unknown, { id: string; fromWalletId: string; amountMinor: string; key: string; occurredAt?: string; note?: string }>({
-      query: ({ id, key, ...body }) => ({ url: `/api/v1/families/me/financial-goals/${id}/contributions`, method: 'POST', body, headers: { 'Idempotency-Key': key } }),
+    contributeFinancialGoal: build.mutation<
+      unknown,
+      {
+        id: string;
+        fromWalletId: string;
+        amountMinor: string;
+        key: string;
+        occurredAt?: string;
+        note?: string;
+      }
+    >({
+      query: ({ id, key, ...body }) => ({
+        url: `/api/v1/families/me/financial-goals/${id}/contributions`,
+        method: 'POST',
+        body,
+        headers: { 'Idempotency-Key': key },
+      }),
       invalidatesTags: ['finance-goals', 'finance-wallets', 'finance-ledger'],
     }),
+    updateFinancialGoal: build.mutation<
+      FinancialGoal,
+      {
+        id: string;
+        title?: string;
+        targetAmountMinor?: string;
+        targetDate?: string | null;
+        version?: number;
+      }
+    >({
+      query: ({ id, version, ...body }) => ({
+        url: `/api/v1/families/me/financial-goals/${id}`,
+        method: 'PATCH',
+        body,
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-goals'],
+    }),
+    archiveFinancialGoal: build.mutation<void, { id: string; version?: number }>({
+      query: ({ id, version }) => ({
+        url: `/api/v1/families/me/financial-goals/${id}`,
+        method: 'DELETE',
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-goals', 'finance-wallets'],
+    }),
     listFinancialBudgets: build.query<FinancialBudget[], string | void>({
-      query: (periodStart) => ({ url: '/api/v1/families/me/budgets', params: periodStart ? { periodStart } : undefined }),
+      query: (periodStart) => ({
+        url: '/api/v1/families/me/budgets',
+        params: periodStart ? { periodStart } : undefined,
+      }),
       providesTags: ['finance-budgets'],
     }),
-    createFinancialBudget: build.mutation<FinancialBudget, { categoryId: string; periodStart: string; limitMinor: string }>({
+    createFinancialBudget: build.mutation<
+      FinancialBudget,
+      { categoryId: string; periodStart: string; limitMinor: string }
+    >({
       query: (body) => ({ url: '/api/v1/families/me/budgets', method: 'POST', body }),
       invalidatesTags: ['finance-budgets', 'finance-summary'],
+    }),
+    updateFinancialBudget: build.mutation<
+      FinancialBudget,
+      { id: string; limitMinor: string; version?: number }
+    >({
+      query: ({ id, version, ...body }) => ({
+        url: `/api/v1/families/me/budgets/${id}`,
+        method: 'PATCH',
+        body,
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-budgets', 'finance-summary'],
+    }),
+    archiveFinancialBudget: build.mutation<void, { id: string; version?: number }>({
+      query: ({ id, version }) => ({
+        url: `/api/v1/families/me/budgets/${id}`,
+        method: 'DELETE',
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-budgets', 'finance-summary'],
+    }),
+    listRecurringPayments: build.query<RecurringPayment[], void>({
+      query: () => '/api/v1/families/me/recurring-payments',
+      providesTags: ['finance-recurring'],
+    }),
+    createRecurringPayment: build.mutation<
+      RecurringPayment,
+      {
+        walletId: string;
+        type: 'INCOME' | 'EXPENSE';
+        title: string;
+        amountMinor: string;
+        frequency: 'WEEKLY' | 'MONTHLY';
+        nextDueAt: string;
+        categoryId?: string;
+      }
+    >({
+      query: (body) => ({ url: '/api/v1/families/me/recurring-payments', method: 'POST', body }),
+      invalidatesTags: ['finance-recurring', 'finance-summary'],
+    }),
+    archiveRecurringPayment: build.mutation<void, { id: string; version?: number }>({
+      query: ({ id, version }) => ({
+        url: `/api/v1/families/me/recurring-payments/${id}`,
+        method: 'DELETE',
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-recurring', 'finance-summary'],
+    }),
+    updateRecurringPayment: build.mutation<
+      RecurringPayment,
+      {
+        id: string;
+        title?: string;
+        amountMinor?: string;
+        frequency?: 'WEEKLY' | 'MONTHLY';
+        interval?: number;
+        nextDueAt?: string;
+        categoryId?: string | null;
+        active?: boolean;
+        version?: number;
+      }
+    >({
+      query: ({ id, version, ...body }) => ({
+        url: `/api/v1/families/me/recurring-payments/${id}`,
+        method: 'PATCH',
+        body,
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-recurring', 'finance-summary'],
+    }),
+    getFinancialAnalytics: build.query<
+      FinancialAnalytics,
+      { periodStart?: string; months?: number; forecastDays?: number } | void
+    >({
+      query: (params) => ({
+        url: '/api/v1/families/me/finance/analytics',
+        params: params ?? undefined,
+      }),
+      providesTags: ['finance-summary'],
+    }),
+    listFinancialMeetings: build.query<FinancialMeeting[], void>({
+      query: () => '/api/v1/families/me/financial-meetings',
+      providesTags: ['finance-meetings'],
+    }),
+    createFinancialMeeting: build.mutation<
+      FinancialMeeting,
+      { title: string; scheduledAt: string; notes?: string }
+    >({
+      query: (body) => ({ url: '/api/v1/families/me/financial-meetings', method: 'POST', body }),
+      invalidatesTags: ['finance-meetings'],
+    }),
+    completeFinancialMeeting: build.mutation<FinancialMeeting, { id: string; version?: number }>({
+      query: ({ id, version }) => ({
+        url: `/api/v1/families/me/financial-meetings/${id}/complete`,
+        method: 'POST',
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-meetings'],
+    }),
+    updateFinancialMeeting: build.mutation<
+      FinancialMeeting,
+      { id: string; title?: string; scheduledAt?: string; notes?: string | null; version?: number }
+    >({
+      query: ({ id, version, ...body }) => ({
+        url: `/api/v1/families/me/financial-meetings/${id}`,
+        method: 'PATCH',
+        body,
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-meetings'],
+    }),
+    cancelFinancialMeeting: build.mutation<void, { id: string; version?: number }>({
+      query: ({ id, version }) => ({
+        url: `/api/v1/families/me/financial-meetings/${id}`,
+        method: 'DELETE',
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-meetings'],
+    }),
+    createFinancialDecision: build.mutation<
+      unknown,
+      { meetingId: string; title: string; description?: string }
+    >({
+      query: ({ meetingId, ...body }) => ({
+        url: `/api/v1/families/me/financial-meetings/${meetingId}/decisions`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['finance-meetings'],
+    }),
+    respondFinancialDecision: build.mutation<
+      unknown,
+      { meetingId: string; decisionId: string; status: 'AGREED' | 'REJECTED'; version?: number }
+    >({
+      query: ({ meetingId, decisionId, status, version }) => ({
+        url: `/api/v1/families/me/financial-meetings/${meetingId}/decisions/${decisionId}/respond`,
+        method: 'POST',
+        body: { status },
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-meetings'],
     }),
     getFinancialSummary: build.query<FinancialSummary, string | void>({
       query: (periodStart) => ({
@@ -202,6 +482,8 @@ const financeApi = baseApi.injectEndpoints({
 export const {
   useListFinanceWalletsQuery,
   useCreateFinanceWalletMutation,
+  useUpdateFinanceWalletMutation,
+  useArchiveFinanceWalletMutation,
   useListLedgerQuery,
   useCreateIncomeMutation,
   useCreateExpenseMutation,
@@ -212,8 +494,24 @@ export const {
   useListFinancialGoalsQuery,
   useCreateFinancialGoalMutation,
   useContributeFinancialGoalMutation,
+  useUpdateFinancialGoalMutation,
+  useArchiveFinancialGoalMutation,
   useListFinancialBudgetsQuery,
   useCreateFinancialBudgetMutation,
+  useUpdateFinancialBudgetMutation,
+  useArchiveFinancialBudgetMutation,
+  useListRecurringPaymentsQuery,
+  useCreateRecurringPaymentMutation,
+  useArchiveRecurringPaymentMutation,
+  useUpdateRecurringPaymentMutation,
+  useGetFinancialAnalyticsQuery,
+  useListFinancialMeetingsQuery,
+  useCreateFinancialMeetingMutation,
+  useCompleteFinancialMeetingMutation,
+  useUpdateFinancialMeetingMutation,
+  useCancelFinancialMeetingMutation,
+  useCreateFinancialDecisionMutation,
+  useRespondFinancialDecisionMutation,
   useGetFinancialSummaryQuery,
   useGetExpenseStatisticsQuery,
 } = financeApi;

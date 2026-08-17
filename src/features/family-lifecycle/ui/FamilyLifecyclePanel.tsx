@@ -75,7 +75,12 @@ export const FamilyLifecyclePanel = ({ status }: FamilyLifecyclePanelProps) => {
           </>
         )}
         {status === 'ARCHIVED' && (
-          <Button disabled={busy} icon={<RotateCcw aria-hidden="true" className="h-4 w-4" />} onClick={() => run(() => restoreFamily().unwrap())} size="s">
+          <Button
+            disabled={busy}
+            icon={<RotateCcw aria-hidden="true" className="h-4 w-4" />}
+            onClick={() => run(() => restoreFamily().unwrap())}
+            size="s"
+          >
             Восстановить семью
           </Button>
         )}

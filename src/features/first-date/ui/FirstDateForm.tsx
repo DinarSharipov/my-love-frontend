@@ -116,15 +116,21 @@ export const FirstDateForm = ({ initialValue, mode, onCancel, onSuccess }: First
       )}
 
       <div className="flex flex-wrap gap-gap">
-        <Button disabled={isSubmitting || (mode === 'edit' && !isDirty)} icon={<Save aria-hidden="true" className="h-4 w-4" />} size="s" type="submit">
-          <span>
-            {isSubmitting ? 'Сохраняем…' : 'Сохранить'}
-          </span>
+        <Button
+          disabled={isSubmitting || (mode === 'edit' && !isDirty)}
+          icon={<Save aria-hidden="true" className="h-4 w-4" />}
+          size="s"
+          type="submit"
+        >
+          <span>{isSubmitting ? 'Сохраняем…' : 'Сохранить'}</span>
         </Button>
-        <Button disabled={isSubmitting} icon={<X aria-hidden="true" className="h-4 w-4" />} onClick={onCancel} size="s">
-          <span>
-            Отмена
-          </span>
+        <Button
+          disabled={isSubmitting}
+          icon={<X aria-hidden="true" className="h-4 w-4" />}
+          onClick={onCancel}
+          size="s"
+        >
+          <span>Отмена</span>
         </Button>
       </div>
     </form>
