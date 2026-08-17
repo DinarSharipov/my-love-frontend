@@ -17,6 +17,7 @@ const FamilyCalendarPage = lazyPage(() => import('@/pages/family-calendar'), 'Fa
 const TasksPage = lazyPage(() => import('@/pages/tasks'), 'TasksPage');
 const TaskRoutinesPage = lazyPage(() => import('@/pages/task-routines'), 'TaskRoutinesPage');
 const ShoppingListsPage = lazyPage(() => import('@/pages/shopping-lists'), 'ShoppingListsPage');
+const FinancePage = lazyPage(() => import('@/pages/finance'), 'FinancePage');
 const SettingsPage = lazyPage(() => import('@/pages/settings'), 'SettingsPage');
 const HomePage = lazyPage(() => import('@/pages/home'), 'HomePage');
 const LoginPage = lazyPage(() => import('@/pages/login'), 'LoginPage');
@@ -75,6 +76,7 @@ export const router = createBrowserRouter([
               { path: 'tasks', element: withSuspense(<TasksPage />) },
               { path: 'task-routines', element: withSuspense(<TaskRoutinesPage />) },
               { path: 'shopping-lists', element: withSuspense(<ShoppingListsPage />) },
+              { path: 'finance', element: withSuspense(<FinancePage />) },
             ],
           },
           { path: '/settings', element: withSuspense(<SettingsPage />) },
