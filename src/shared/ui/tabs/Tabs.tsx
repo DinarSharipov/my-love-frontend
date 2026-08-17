@@ -22,7 +22,7 @@ export const Tabs = ({ activeId, items, onChange }: TabsProps) => (
     {items.map((item) => (
       <button
         aria-selected={activeId === item.id}
-        className={`relative shrink-0 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-cyber-cyan ${
+        className={`relative shrink-0 rounded-xl cursor-pointer px-4 py-2.5 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-cyber-cyan ${
           activeId === item.id
             ? 'bg-primary-neon/20 text-primary-neon shadow-[0_0_18px_rgba(176,38,255,0.2)]'
             : 'text-muted-text hover:bg-elevated hover:text-text'

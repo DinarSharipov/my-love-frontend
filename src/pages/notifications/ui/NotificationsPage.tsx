@@ -131,10 +131,11 @@ export const NotificationsPage = () => {
               </div>
               <Button
                 disabled={!unread.length || markAllState.isLoading}
+                icon={<CheckCheck className="size-4" />}
                 onClick={() => runInboxAction(() => markAllRead().unwrap())}
                 size="s"
               >
-                <CheckCheck className="size-4" /> Прочитать всё
+                Прочитать всё
               </Button>
             </div>
             <AsyncState
@@ -173,12 +174,13 @@ export const NotificationsPage = () => {
                       {!notification.readAt && (
                         <Button
                           aria-label={`Отметить уведомление «${notification.title}» прочитанным`}
+                          icon={<CheckCheck className="size-4" />}
                           onClick={() =>
                             runInboxAction(() => markRead({ id: notification.id }).unwrap())
                           }
                           size="s"
                         >
-                          <CheckCheck className="size-4" />
+                          <span className="sr-only">Прочитать</span>
                         </Button>
                       )}
                     </div>
@@ -249,8 +251,8 @@ export const NotificationsPage = () => {
                     />
                   </div>
                 )}
-                <Button className="mt-4" disabled={updateState.isLoading} onClick={savePreferences}>
-                  <Mail className="size-4" /> Сохранить настройки
+                <Button className="mt-4" disabled={updateState.isLoading} icon={<Mail className="size-4" />} onClick={savePreferences}>
+                  Сохранить настройки
                 </Button>
                 <p className="text-muted-text mt-3 flex items-start gap-gap text-xs">
                   <Send className="mt-0.5 size-3.5 shrink-0" />

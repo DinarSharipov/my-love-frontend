@@ -62,8 +62,8 @@ export const ThemeSettingsPanel = () => {
               Настройте акценты интерфейса. Изменения сохраняются только на этом устройстве.
             </p>
           </div>
-          <Button className="opacity-80" onClick={reset} size="s">
-            <RotateCcw className="size-4" /> Сбросить
+          <Button className="opacity-80" icon={<RotateCcw className="size-4" />} onClick={reset} size="s">
+            Сбросить
           </Button>
         </div>
         <div className="mt-5 grid grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-gap">
@@ -97,8 +97,8 @@ export const ThemeSettingsPanel = () => {
               Выберите изображение для фоновой сцены. Оно хранится локально.
             </p>
           </div>
-          <Button onClick={() => fileInputRef.current?.click()} size="s">
-            <Upload className="size-4" /> Выбрать изображение
+          <Button icon={<Upload className="size-4" />} onClick={() => fileInputRef.current?.click()} size="s">
+            Выбрать изображение
           </Button>
         </div>
         <input

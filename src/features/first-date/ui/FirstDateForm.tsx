@@ -13,7 +13,7 @@ import {
 } from '@/features/first-date/model/firstDateSchema';
 import type { FirstDateResponseDto } from '@/shared/api';
 import { getApiErrorMessage } from '@/shared/api';
-import { Button, Input, Textarea } from '@/shared/ui';
+import { Button, DatePicker, Input, Textarea } from '@/shared/ui';
 
 type FirstDateFormProps = {
   initialValue?: FirstDateResponseDto;
@@ -93,7 +93,7 @@ export const FirstDateForm = ({ initialValue, mode, onCancel, onSuccess }: First
           maxLength={200}
           placeholder="Наше первое свидание"
         />
-        <Input {...register('date')} error={errors.date?.message} label="Дата" type="date" />
+        <DatePicker {...register('date')} error={errors.date?.message} label="Дата" />
       </div>
 
       <Textarea
@@ -116,15 +116,13 @@ export const FirstDateForm = ({ initialValue, mode, onCancel, onSuccess }: First
       )}
 
       <div className="flex flex-wrap gap-gap">
-        <Button disabled={isSubmitting || (mode === 'edit' && !isDirty)} size="s" type="submit">
-          <span className="flex items-center gap-2.5">
-            <Save aria-hidden="true" className="h-4 w-4" />
+        <Button disabled={isSubmitting || (mode === 'edit' && !isDirty)} icon={<Save aria-hidden="true" className="h-4 w-4" />} size="s" type="submit">
+          <span>
             {isSubmitting ? 'Сохраняем…' : 'Сохранить'}
           </span>
         </Button>
-        <Button disabled={isSubmitting} onClick={onCancel} size="s">
-          <span className="flex items-center gap-2.5">
-            <X aria-hidden="true" className="h-4 w-4" />
+        <Button disabled={isSubmitting} icon={<X aria-hidden="true" className="h-4 w-4" />} onClick={onCancel} size="s">
+          <span>
             Отмена
           </span>
         </Button>

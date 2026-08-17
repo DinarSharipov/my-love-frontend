@@ -12,6 +12,7 @@ type ButtonProps = Omit<HTMLMotionProps<'button'>, 'children'> & {
   animateVariant?: AnimateVariant;
   children?: ReactNode;
   containerClassName?: string;
+  icon?: ReactNode;
   size?: ButtonSize;
 };
 
@@ -22,10 +23,10 @@ type WaveBurst = {
 const magneticRadius = 100;
 const magneticStrength = 0.4;
 const sizeClassNames: Record<ButtonSize, string> = {
-  s: 'px-3 py-2 text-xs',
-  m: 'px-5 py-2.5 text-sm',
-  l: 'px-6 py-3 text-base',
-  xl: 'px-8 py-4 text-lg',
+  s: 'h-9 px-3 text-xs',
+  m: 'h-10 px-5 text-sm',
+  l: 'h-12 px-6 text-base',
+  xl: 'h-14 px-8 text-lg',
 };
 
 gsap.registerPlugin(useGSAP);
@@ -37,6 +38,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       className = '',
       containerClassName = '',
+      icon,
       disabled,
       onClick,
       size = 'm',
@@ -203,7 +205,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               transition={{ duration: 0.25 }}
               whileHover={{ opacity: 0.22 }}
             />
-            <span className="relative z-10 inline-flex items-center justify-center gap-gap">
+            <span className="relative z-10 inline-flex items-center justify-center gap-1">
+              {icon}
               {children}
             </span>
           </motion.button>

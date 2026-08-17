@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { createPortal } from 'react-dom';
 import { forwardRef, useEffect, useId, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
+import { Tooltip } from '@/shared/ui/tooltip';
 
 export type SelectOption = {
   label: string;
@@ -167,7 +168,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
           aria-haspopup="listbox"
           aria-invalid={Boolean(error)}
           aria-labelledby={label ? labelId : undefined}
-          className={`bg-elevated text-text relative flex w-full cursor-pointer items-center justify-between overflow-hidden rounded-2xl border px-4 py-3.5 text-left outline-none disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+          className={`bg-elevated text-text relative flex w-full cursor-pointer items-center justify-between rounded-2xl border px-4 py-3.5 text-left outline-none disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
           disabled={disabled}
           id={selectId}
           name={name}
@@ -180,12 +181,14 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
         >
           <motion.span
             animate={{ opacity: isActive ? 1 : 0.45, scaleX: isActive ? 1 : 0.72 }}
-            className="from-primary-neon via-neon-pink to-cyber-cyan pointer-events-none absolute inset-x-0 top-0 h-px origin-center bg-gradient-to-r"
+            className="from-primary-neon via-neon-pink to-cyber-cyan pointer-events-none absolute inset-x-3 top-0 h-px origin-center rounded-full bg-gradient-to-r"
             transition={{ duration: 0.3 }}
           />
-          <span className={selectedOption ? 'text-text' : 'text-muted-text'}>
-            {selectedOption?.label ?? placeholder}
-          </span>
+          <Tooltip content={selectedOption?.label ?? placeholder}>
+            <span className={`min-w-0 truncate ${selectedOption ? 'text-text' : 'text-muted-text'}`}>
+              {selectedOption?.label ?? placeholder}
+            </span>
+          </Tooltip>
           <motion.svg
             animate={{ rotate: isOpen ? 180 : 0 }}
             aria-hidden="true"

@@ -124,7 +124,6 @@ export const ShoppingListsPage = () => {
             disabled={createState.isLoading || !listName.trim()}
             type="submit"
           >
-            <Plus aria-hidden="true" className="size-4" />
             Создать список
           </Button>
         </form>
@@ -170,6 +169,7 @@ export const ShoppingListsPage = () => {
                     aria-label={`Архивировать список «${list.name}»`}
                     className="text-neon-pink"
                     disabled={Boolean(pendingAction)}
+                    icon={<Archive aria-hidden="true" className="size-4" />}
                     onClick={() =>
                       runAction(
                         `archive:${list.id}`,
@@ -178,9 +178,7 @@ export const ShoppingListsPage = () => {
                       )
                     }
                     size="s"
-                  >
-                    <Archive aria-hidden="true" className="size-4" />
-                  </Button>
+                  />
                 </div>
 
                 <form

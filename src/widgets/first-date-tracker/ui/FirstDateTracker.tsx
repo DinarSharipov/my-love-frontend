@@ -123,16 +123,14 @@ const EmptyFirstDate = ({ canCreate, notice, onCreate, onRetry }: EmptyFirstDate
       </p>
       <div className="mt-5 flex justify-center">
         {canCreate ? (
-          <Button onClick={onCreate} size="s">
-            <span className="flex items-center gap-2.5">
-              <Plus aria-hidden="true" className="h-4 w-4" />
+          <Button icon={<Plus aria-hidden="true" className="h-4 w-4" />} onClick={onCreate} size="s">
+            <span>
               Добавить встречу
             </span>
           </Button>
         ) : (
-          <Button onClick={onRetry} size="s">
-            <span className="flex items-center gap-2.5">
-              <RefreshCw aria-hidden="true" className="h-4 w-4" />
+          <Button icon={<RefreshCw aria-hidden="true" className="h-4 w-4" />} onClick={onRetry} size="s">
+            <span>
               Повторить
             </span>
           </Button>
@@ -276,22 +274,21 @@ export const FirstDateTracker = () => {
         </div>
 
         <div className="flex flex-wrap items-start justify-end gap-gap">
-          <Button onClick={() => openForm('edit')} size="s">
-            <span className="flex items-center gap-2.5">
-              <Pencil aria-hidden="true" className="h-4 w-4" />
+          <Button icon={<Pencil aria-hidden="true" className="h-4 w-4" />} onClick={() => openForm('edit')} size="s">
+            <span>
               Изменить
             </span>
           </Button>
           <Button
             className="border-neon-pink/60 text-neon-pink hover:bg-neon-pink/10"
+            icon={<Trash2 aria-hidden="true" className="h-4 w-4" />}
             onClick={() => {
               setNotice(null);
               setIsConfirmingDelete(true);
             }}
             size="s"
           >
-            <span className="flex items-center gap-2.5">
-              <Trash2 aria-hidden="true" className="h-4 w-4" />
+            <span>
               Удалить
             </span>
           </Button>
@@ -322,21 +319,21 @@ export const FirstDateTracker = () => {
                   <Button
                     className="border-neon-pink/70 text-neon-pink hover:bg-neon-pink/10"
                     disabled={removeState.isLoading}
+                    icon={<Trash2 aria-hidden="true" className="h-4 w-4" />}
                     onClick={handleDelete}
                     size="s"
                   >
-                    <span className="flex items-center gap-2.5">
-                      <Trash2 aria-hidden="true" className="h-4 w-4" />
+                    <span>
                       {removeState.isLoading ? 'Удаляем…' : 'Да, удалить'}
                     </span>
                   </Button>
                   <Button
                     disabled={removeState.isLoading}
+                    icon={<X aria-hidden="true" className="h-4 w-4" />}
                     onClick={() => setIsConfirmingDelete(false)}
                     size="s"
                   >
-                    <span className="flex items-center gap-2.5">
-                      <X aria-hidden="true" className="h-4 w-4" />
+                    <span>
                       Отмена
                     </span>
                   </Button>

@@ -73,6 +73,21 @@ export type TransferCommand = {
   note?: string;
 };
 
+export type FinancialGoal = {
+  id: string;
+  title: string;
+  targetAmountMinor: string;
+  currentAmountMinor: string;
+  remainingAmountMinor: string;
+  currency: string;
+  targetDate: string | null;
+  achievedAt: string | null;
+  archived: boolean;
+  version: number;
+  envelope: { walletId: string; type: 'PERSONAL' | 'FAMILY'; visibility: string };
+};
+export type FinancialBudget = { id: string; categoryId: string; periodStart: string; limitMinor: string; version: number };
+
 const financeApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     listFinanceWallets: build.query<Wallet[], void>({
@@ -143,6 +158,26 @@ const financeApi = baseApi.injectEndpoints({
       query: (body) => ({ url: '/api/v1/families/me/financial-categories', method: 'POST', body }),
       invalidatesTags: ['finance-categories', 'finance-summary'],
     }),
+    listFinancialGoals: build.query<FinancialGoal[], void>({
+      query: () => '/api/v1/families/me/financial-goals',
+      providesTags: ['finance-goals'],
+    }),
+    createFinancialGoal: build.mutation<FinancialGoal, { title: string; targetAmountMinor: string; type: 'PERSONAL' | 'FAMILY'; currency?: string; targetDate?: string }>({
+      query: (body) => ({ url: '/api/v1/families/me/financial-goals', method: 'POST', body }),
+      invalidatesTags: ['finance-goals', 'finance-wallets'],
+    }),
+    contributeFinancialGoal: build.mutation<unknown, { id: string; fromWalletId: string; amountMinor: string; key: string; occurredAt?: string; note?: string }>({
+      query: ({ id, key, ...body }) => ({ url: `/api/v1/families/me/financial-goals/${id}/contributions`, method: 'POST', body, headers: { 'Idempotency-Key': key } }),
+      invalidatesTags: ['finance-goals', 'finance-wallets', 'finance-ledger'],
+    }),
+    listFinancialBudgets: build.query<FinancialBudget[], string | void>({
+      query: (periodStart) => ({ url: '/api/v1/families/me/budgets', params: periodStart ? { periodStart } : undefined }),
+      providesTags: ['finance-budgets'],
+    }),
+    createFinancialBudget: build.mutation<FinancialBudget, { categoryId: string; periodStart: string; limitMinor: string }>({
+      query: (body) => ({ url: '/api/v1/families/me/budgets', method: 'POST', body }),
+      invalidatesTags: ['finance-budgets', 'finance-summary'],
+    }),
     getFinancialSummary: build.query<FinancialSummary, string | void>({
       query: (periodStart) => ({
         url: '/api/v1/families/me/finance/summary',
@@ -174,6 +209,11 @@ export const {
   useReverseLedgerMutation,
   useListFinancialCategoriesQuery,
   useCreateFinancialCategoryMutation,
+  useListFinancialGoalsQuery,
+  useCreateFinancialGoalMutation,
+  useContributeFinancialGoalMutation,
+  useListFinancialBudgetsQuery,
+  useCreateFinancialBudgetMutation,
   useGetFinancialSummaryQuery,
   useGetExpenseStatisticsQuery,
 } = financeApi;

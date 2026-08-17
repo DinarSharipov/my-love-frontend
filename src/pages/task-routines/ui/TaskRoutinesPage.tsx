@@ -10,7 +10,15 @@ import {
   useGenerateMutation,
   useList2Query,
 } from '@/shared/api';
-import { AnimatedPanel, AsyncState, Button, Input, Select, Textarea } from '@/shared/ui';
+import {
+  AnimatedPanel,
+  AsyncState,
+  Button,
+  DatePicker,
+  Input,
+  Select,
+  Textarea,
+} from '@/shared/ui';
 
 const priorities = [
   { label: 'Низкий', value: 'LOW' },
@@ -131,12 +139,12 @@ export const TaskRoutinesPage = () => {
               type="number"
               value={intervalValue}
             />
-            <Input
+            <DatePicker
               label="Следующий запуск"
               onChange={(event) => setNextRunAt(event.target.value)}
               required
-              type="datetime-local"
               value={nextRunAt}
+              withTime
             />
             <Select
               label="Исполнитель"
@@ -207,7 +215,7 @@ export const TaskRoutinesPage = () => {
                     size="s"
                   >
                     <span className="inline-flex items-center">
-                      <Play className="size-3.5" />
+                      <Play className="size-3.5 mr-2" />
                       Создать сейчас
                     </span>
                   </Button>
@@ -221,7 +229,7 @@ export const TaskRoutinesPage = () => {
                     size="s"
                   >
                     <span className="inline-flex items-center">
-                      <Archive className="size-3.5" />
+                      <Archive className="size-3.5 mr-2" />
                       Архивировать
                     </span>
                   </Button>

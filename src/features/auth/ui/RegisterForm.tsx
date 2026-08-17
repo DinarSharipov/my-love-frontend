@@ -8,7 +8,7 @@ import { registerSchema, type RegisterFormValues } from '@/features/auth/model/s
 import { getAuthRedirect } from '@/features/auth/lib/getAuthRedirect';
 import { AuthFormLayout } from '@/features/auth/ui/AuthFormLayout';
 import { FormStatus } from '@/features/auth/ui/FormStatus';
-import { Button, Input, Select } from '@/shared/ui';
+import { Button, DatePicker, Input, Select } from '@/shared/ui';
 import { getApiErrorMessage } from '@/shared/api';
 import type { SelectOption } from '@/shared/ui';
 
@@ -78,11 +78,10 @@ export const RegisterForm = () => {
             label="Фамилия"
             placeholder="Ваша фамилия"
           />
-          <Input
+          <DatePicker
             {...register('birthDate')}
             error={errors.birthDate?.message}
             label="Дата рождения"
-            type="date"
           />
           <Controller
             control={control}

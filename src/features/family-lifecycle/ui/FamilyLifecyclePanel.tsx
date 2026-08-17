@@ -48,6 +48,7 @@ export const FamilyLifecyclePanel = ({ status }: FamilyLifecyclePanelProps) => {
           <>
             <Button
               disabled={busy}
+              icon={<LogOut aria-hidden="true" className="h-4 w-4" />}
               onClick={() => {
                 // eslint-disable-next-line no-alert
                 if (window.confirm('Выйти из семьи? Общие данные будут сохранены.')) {
@@ -56,11 +57,11 @@ export const FamilyLifecyclePanel = ({ status }: FamilyLifecyclePanelProps) => {
               }}
               size="s"
             >
-              <LogOut aria-hidden="true" className="h-4 w-4" />
               Выйти из семьи
             </Button>
             <Button
               disabled={busy}
+              icon={<Archive aria-hidden="true" className="h-4 w-4" />}
               onClick={() => {
                 // eslint-disable-next-line no-alert
                 if (window.confirm('Архивировать семью? Доступ можно будет восстановить.')) {
@@ -69,14 +70,12 @@ export const FamilyLifecyclePanel = ({ status }: FamilyLifecyclePanelProps) => {
               }}
               size="s"
             >
-              <Archive aria-hidden="true" className="h-4 w-4" />
               Архивировать
             </Button>
           </>
         )}
         {status === 'ARCHIVED' && (
-          <Button disabled={busy} onClick={() => run(() => restoreFamily().unwrap())} size="s">
-            <RotateCcw aria-hidden="true" className="h-4 w-4" />
+          <Button disabled={busy} icon={<RotateCcw aria-hidden="true" className="h-4 w-4" />} onClick={() => run(() => restoreFamily().unwrap())} size="s">
             Восстановить семью
           </Button>
         )}

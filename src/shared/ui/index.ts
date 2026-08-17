@@ -8,12 +8,14 @@ export type { CalendarPeriod, CalendarVisiblePeriod, PlannedItem } from '@/share
 export { Footer } from '@/shared/ui/footer';
 export type { MenuItem } from '@/shared/ui/footer';
 export { Input } from '@/shared/ui/input';
+export { DatePicker } from '@/shared/ui/date-picker';
 export { Pagination } from '@/shared/ui/pagination';
 export { PageLayout } from '@/shared/ui/page-layout';
 export type { PaginationProps } from '@/shared/ui/pagination';
 export { ScrambleText } from '@/shared/ui/scramble-text';
 export { Select } from '@/shared/ui/select';
 export type { SelectOption } from '@/shared/ui/select';
+export { Tooltip } from '@/shared/ui/tooltip';
 export { Table } from '@/shared/ui/table';
 export type { TableColumn } from '@/shared/ui/table';
 export { Textarea } from '@/shared/ui/textarea';

@@ -220,13 +220,11 @@ export const AccountSecurityPanel = () => {
           <Button
             className="border-neon-pink/50 text-neon-pink hover:bg-neon-pink/10 mt-4"
             disabled={isSessionMutationLoading}
+            icon={<LogOut aria-hidden="true" className="h-4 w-4" />}
             onClick={handleRevokeOtherSessions}
             size="s"
           >
-            <span className="flex items-center gap-gap">
-              <LogOut aria-hidden="true" className="h-4 w-4" />
-              {revokeOtherSessionsState.isLoading ? 'Завершаем…' : 'Завершить все остальные'}
-            </span>
+            {revokeOtherSessionsState.isLoading ? 'Завершаем…' : 'Завершить все остальные'}
           </Button>
         )}
       </>
@@ -293,14 +291,10 @@ export const AccountSecurityPanel = () => {
             <Button
               aria-label="Обновить список сессий"
               disabled={sessions.isFetching}
+              icon={<RefreshCw aria-hidden="true" className={`h-4 w-4 ${sessions.isFetching ? 'animate-spin' : ''}`} />}
               onClick={refreshSessions}
               size="s"
-            >
-              <RefreshCw
-                aria-hidden="true"
-                className={`h-4 w-4 ${sessions.isFetching ? 'animate-spin' : ''}`}
-              />
-            </Button>
+            />
           </div>
 
           {sessionsContent}

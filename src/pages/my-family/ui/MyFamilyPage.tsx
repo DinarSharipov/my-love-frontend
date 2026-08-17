@@ -110,7 +110,7 @@ export const MyFamilyPage = () => {
             key={id}
             transition={{ delay: index * 0.08 }}
           >
-            <div className="bg-primary-neon/10 absolute -right-10 -top-10 h-28 w-28 rounded-full blur-3xl" />
+            <div className="bg-primary-neon/10 absolute right-0 -top-10 h-28 w-28 rounded-full blur-3xl" />
             <div className="border-primary-neon/40 bg-primary-neon/10 text-primary-neon relative mb-4 grid h-12 w-12 place-items-center rounded-2xl border text-lg font-semibold">
               {user.firstName.slice(0, 1)}
               {user.lastName.slice(0, 1)}

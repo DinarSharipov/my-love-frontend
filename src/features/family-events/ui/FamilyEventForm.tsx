@@ -17,7 +17,7 @@ import {
 } from '@/features/family-events/model/familyEventSchema';
 import type { FamilyEventResponseDto } from '@/shared/api';
 import { getApiErrorMessage } from '@/shared/api';
-import { Button, Input, Textarea } from '@/shared/ui';
+import { Button, DatePicker, Input, Textarea } from '@/shared/ui';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -153,7 +153,7 @@ export const FamilyEventForm = ({
       />
 
       <div className="grid gap-gap sm:grid-cols-2">
-        <Input {...register('date')} error={errors.date?.message} label="Дата" type="date" />
+        <DatePicker {...register('date')} error={errors.date?.message} label="Дата" />
         <Input {...register('time')} error={errors.time?.message} label="Время" type="time" />
       </div>
 
@@ -189,11 +189,11 @@ export const FamilyEventForm = ({
             max={525600}
             type="number"
           />
-          <Input
+          <DatePicker
             {...register('repeatReminderAt')}
             hint="Необязательно"
             label="Второе напоминание"
-            type="datetime-local"
+            withTime
           />
         </div>
         <div className="mt-gap">
@@ -231,15 +231,13 @@ export const FamilyEventForm = ({
       )}
 
       <div className="flex flex-wrap gap-gap">
-        <Button disabled={isSubmitting || (mode === 'edit' && !isDirty)} size="s" type="submit">
-          <span className="flex items-center gap-2.5">
-            <Save aria-hidden="true" className="h-4 w-4" />
+        <Button disabled={isSubmitting || (mode === 'edit' && !isDirty)} icon={<Save aria-hidden="true" className="h-4 w-4" />} size="s" type="submit">
+          <span>
             {isSubmitting ? 'Сохраняем…' : 'Сохранить'}
           </span>
         </Button>
-        <Button disabled={isSubmitting} onClick={onCancel} size="s">
-          <span className="flex items-center gap-2.5">
-            <X aria-hidden="true" className="h-4 w-4" />
+        <Button disabled={isSubmitting} icon={<X aria-hidden="true" className="h-4 w-4" />} onClick={onCancel} size="s">
+          <span>
             Отмена
           </span>
         </Button>

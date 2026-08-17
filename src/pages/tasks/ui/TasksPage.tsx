@@ -16,6 +16,7 @@ import {
   AnimatedPanel,
   AsyncState,
   Button,
+  DatePicker,
   Input,
   PageLayout,
   Select,
@@ -137,8 +138,7 @@ export const TasksPage = () => {
                 {editing ? 'Редактирование задачи' : 'Новая задача'}
               </h2>
               {editing && (
-                <Button onClick={resetForm} size="s">
-                  <X className="h-4 w-4" />
+                <Button icon={<X className="h-4 w-4" />} onClick={resetForm} size="s">
                   Отмена
                 </Button>
               )}
@@ -155,11 +155,11 @@ export const TasksPage = () => {
               value={description}
             />
             <div className="grid gap-gap sm:grid-cols-3">
-              <Input
+              <DatePicker
                 label="Срок"
                 onChange={(event) => setDueAt(event.target.value)}
-                type="datetime-local"
                 value={dueAt}
+                withTime
               />
               <Select
                 label="Приоритет"
@@ -181,9 +181,9 @@ export const TasksPage = () => {
             )}
             <Button
               disabled={!title.trim() || createState.isLoading || updateState.isLoading}
+              icon={<Plus className="h-4 w-4" />}
               type="submit"
             >
-              <Plus className="h-4 w-4" />
               {editing ? 'Сохранить изменения' : 'Добавить задачу'}
             </Button>
           </form>
@@ -266,19 +266,17 @@ export const TasksPage = () => {
                   </div>
                   <Button
                     aria-label="Редактировать задачу"
+                    icon={<Edit3 className="h-4 w-4" />}
                     onClick={() => startEdit(task)}
                     size="s"
-                  >
-                    <Edit3 className="h-4 w-4" />
-                  </Button>
+                  />
                   <Button
                     aria-label="Архивировать задачу"
                     className="text-neon-pink"
+                    icon={<Trash2 className="h-4 w-4" />}
                     onClick={() => mutate(() => archiveTask({ id: task.id }).unwrap())}
                     size="s"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  />
                 </article>
               ))}
               {!visible.length && (

@@ -89,12 +89,12 @@ export const TelegramConnectionPanel = () => {
           </p>
         </div>
         {active ? (
-          <Button disabled={deleteState.isLoading} onClick={disconnect} size="s">
-            <Unplug className="size-4" /> Отключить
+          <Button disabled={deleteState.isLoading} icon={<Unplug className="size-4" />} onClick={disconnect} size="s">
+            Отключить
           </Button>
         ) : (
-          <Button disabled={createState.isLoading} onClick={connect} size="s">
-            <ExternalLink className="size-4" /> Подключить
+          <Button disabled={createState.isLoading} icon={<ExternalLink className="size-4" />} onClick={connect} size="s">
+            Подключить
           </Button>
         )}
       </div>
@@ -106,8 +106,7 @@ export const TelegramConnectionPanel = () => {
           </p>
           <div className="mt-2 flex items-center gap-gap">
             <code className="text-text min-w-0 flex-1 truncate text-sm">{link.token}</code>
-            <Button aria-label="Скопировать код" onClick={copyToken} size="s">
-              <Copy className="size-4" />
+            <Button aria-label="Скопировать код" icon={<Copy className="size-4" />} onClick={copyToken} size="s">
               {copied ? 'Скопировано' : 'Копировать'}
             </Button>
           </div>
