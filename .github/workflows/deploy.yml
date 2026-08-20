@@ -43,7 +43,7 @@ jobs:
           name: frontend-dist
           path: deploy-artifact
       - name: Upload frontend artifact
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
@@ -51,6 +51,9 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: deploy-artifact/dist,deploy-artifact/deploy/nginx.conf
           target: /opt/my-love-frontend-deploy
+          timeout: 60s
+          command_timeout: 10m
+          debug: true
       - name: Deploy on server
         uses: appleboy/ssh-action@v1.2.2
         with:
