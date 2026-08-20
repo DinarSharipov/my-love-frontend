@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PageLayout, Tabs } from '@/shared/ui';
+import { AnimatedPanel, PageLayout, Tabs } from '@/shared/ui';
 import { AnalyticsTab } from './tabs/AnalyticsTab';
 import { BudgetsTab } from './tabs/BudgetsTab';
 import { GoalsTab } from './tabs/GoalsTab';
@@ -13,13 +13,13 @@ export const FinancePage = () => {
   const [activeTab, setActiveTab] = useState('wallets');
   return (
     <PageLayout>
-      <header className="page-header">
+      <AnimatedPanel className="page-header">
         <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
           Семейные финансы
         </p>
         <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">Финансы</h1>
         <p className="text-muted-text mt-1 text-sm">Кошельки, операции и вклад участников.</p>
-      </header>
+      </AnimatedPanel>
       <Tabs
         activeId={activeTab}
         onChange={setActiveTab}

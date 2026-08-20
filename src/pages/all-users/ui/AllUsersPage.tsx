@@ -8,7 +8,7 @@ import {
   useCreateFamilyInvitationMutation,
   useFindUsersQuery,
 } from '@/shared/api';
-import { Input, Table } from '@/shared/ui';
+import { AnimatedPanel, Input, Table } from '@/shared/ui';
 import type { TableColumn } from '@/shared/ui';
 
 const PAGE_SIZE = 12;
@@ -167,7 +167,7 @@ export const AllUsersPage = () => {
 
   return (
     <main className="flex h-full min-h-0 flex-col gap-gap">
-      <header className="page-header flex shrink-0 flex-col gap-gap sm:flex-row sm:items-end sm:justify-between">
+      <AnimatedPanel className="page-header flex shrink-0 flex-col gap-gap sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
             <UsersRound aria-hidden="true" className="h-4 w-4" />
@@ -194,7 +194,7 @@ export const AllUsersPage = () => {
             value={search}
           />
         </div>
-      </header>
+      </AnimatedPanel>
 
       <AnimatePresence mode="wait">
         {notice && (

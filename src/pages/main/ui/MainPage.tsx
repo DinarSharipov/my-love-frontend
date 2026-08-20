@@ -221,7 +221,7 @@ export const MainPage = () => {
   return (
     <main className="text-text h-full overflow-auto">
       <div className="w-full space-y-5">
-        <header className="page-header flex flex-col justify-between gap-gap sm:flex-row sm:items-end">
+        <AnimatedPanel className="page-header flex flex-col justify-between gap-gap sm:flex-row sm:items-end">
           <div>
             <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
               Семейный стол
@@ -237,7 +237,7 @@ export const MainPage = () => {
               ? formatUnreadCount(unreadNotifications.length)
               : 'Уведомлений нет'}
           </Button>
-        </header>
+        </AnimatedPanel>
 
         <DashboardCard icon={Plus} title="Быстрые действия">
           <QuickActions />

@@ -105,7 +105,7 @@ export const NotificationsPage = () => {
     <main className="h-full overflow-y-auto lg:min-h-0 lg:overflow-hidden">
       <div className="mx-auto grid w-full items-start gap-gap lg:h-full lg:min-h-0 lg:items-stretch lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
         <section className="flex flex-col gap-5 lg:h-full lg:min-h-0">
-          <header className="page-header">
+          <AnimatedPanel className="page-header">
             <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
               Семейный inbox
             </p>
@@ -113,7 +113,7 @@ export const NotificationsPage = () => {
             <p className="text-muted-text mt-1 text-sm">
               Важные семейные события без лишнего шума.
             </p>
-          </header>
+          </AnimatedPanel>
 
           {error && (
             <p className="text-neon-pink text-sm" role="alert">

@@ -317,7 +317,7 @@ export const FamilyInvitationsPage = () => {
   return (
     <PageLayout>
       <div className="w-full">
-        <header className="page-header mb-5 flex flex-wrap items-end justify-between gap-gap">
+        <AnimatedPanel className="page-header mb-5 flex flex-wrap items-end justify-between gap-gap">
           <div>
             <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
               <MailCheck aria-hidden="true" className="h-4 w-4" />
@@ -341,7 +341,7 @@ export const FamilyInvitationsPage = () => {
               Обновить
             </span>
           </Button>
-        </header>
+        </AnimatedPanel>
 
         <AnimatePresence mode="wait">
           {notice && (

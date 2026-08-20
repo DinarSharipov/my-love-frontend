@@ -31,7 +31,7 @@ import {
 } from '@/features/family-events';
 import type { FamilyEventResponseDto } from '@/shared/api';
 import { getApiErrorMessage, useFindMyFamilyQuery, useListQuery } from '@/shared/api';
-import { AsyncState, Button, Calendar } from '@/shared/ui';
+import { AnimatedPanel, AsyncState, Button, Calendar } from '@/shared/ui';
 import type { CalendarVisiblePeriod, PlannedItem } from '@/shared/ui';
 
 type Notice = { message: string; type: 'error' | 'success' };
@@ -517,7 +517,7 @@ export const FamilyCalendar = () => {
 
   return (
     <div className="flex min-h-full flex-col gap-gap">
-      <header className="page-header flex shrink-0 flex-wrap items-end justify-between gap-gap">
+      <AnimatedPanel className="page-header flex shrink-0 flex-wrap items-end justify-between gap-gap">
         <div>
           <p className="text-primary-neon flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
             <CalendarDays aria-hidden="true" className="h-4 w-4" />
@@ -541,7 +541,7 @@ export const FamilyCalendar = () => {
             Добавить событие
           </span>
         </Button>
-      </header>
+      </AnimatedPanel>
 
       {notice && mode === 'agenda' && (
         <p

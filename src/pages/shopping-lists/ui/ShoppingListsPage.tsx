@@ -100,7 +100,7 @@ export const ShoppingListsPage = () => {
 
   return (
     <PageLayout>
-      <header className="page-header">
+      <AnimatedPanel className="page-header">
         <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
           Семейный стол
         </p>
@@ -108,7 +108,7 @@ export const ShoppingListsPage = () => {
         <p className="text-muted-text mt-1 text-sm">
           Собирайте покупки вместе и отмечайте уже взятое.
         </p>
-      </header>
+      </AnimatedPanel>
 
       <AnimatedPanel className="p-5 sm:p-6">
         <form className="flex flex-col gap-gap sm:flex-row sm:items-end" onSubmit={submitList}>

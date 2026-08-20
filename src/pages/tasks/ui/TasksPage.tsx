@@ -133,7 +133,7 @@ export const TasksPage = () => {
   };
   return (
     <PageLayout>
-      <header className="page-header">
+      <AnimatedPanel className="page-header">
         <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
           Семейный стол
         </p>
@@ -141,7 +141,7 @@ export const TasksPage = () => {
         <p className="text-muted-text mt-1 text-sm">
           Собирайте бытовые дела в одном понятном списке.
         </p>
-      </header>
+      </AnimatedPanel>
       <div className="grid items-start gap-gap lg:grid-cols-[minmax(20rem,1.5fr)_minmax(0,1fr)]">
         <AnimatedPanel className="p-5 sm:p-6">
           <form className="space-y-4" onSubmit={submit}>

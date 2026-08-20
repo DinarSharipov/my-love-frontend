@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { NotificationsPage } from '@/pages/notifications';
 import { ProfilePage } from '@/pages/profile';
-import { Tabs } from '@/shared/ui';
+import { AnimatedPanel, Tabs } from '@/shared/ui';
 import { ThemeSettingsPanel } from './ThemeSettingsPanel';
 
 type SettingsTab = 'notifications' | 'profile' | 'theme';
@@ -18,7 +18,7 @@ export const SettingsPage = () => {
   return (
     <main className="h-full min-h-0 overflow-hidden">
       <div className="flex h-full min-h-0 w-full flex-col gap-gap">
-        <header className="page-header shrink-0">
+        <AnimatedPanel className="page-header shrink-0">
           <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
             Центр управления
           </p>
@@ -26,7 +26,7 @@ export const SettingsPage = () => {
           <p className="text-muted-text mt-1 text-sm">
             Профиль, уведомления и подключённые каналы.
           </p>
-        </header>
+        </AnimatedPanel>
         <div className="shrink-0">
           <Tabs
             activeId={activeTab}

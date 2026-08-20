@@ -220,3 +220,17 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 # 2026-08-20 theme/panel slice: в настройках темизации добавлена сохраняемая настройка прозрачности `AnimatedPanel` (20–100%); `FirstDateTracker` и его состояния переведены на общий `AnimatedPanel`; правило оборачивать самостоятельные визуальные блоки в `AnimatedPanel` добавлено в `AGENTS.md`. Checks: format:check/typecheck/diff-check PASS; browser QA не выполнялась по запросу пользователя.
 
 # 2026-08-20 panel blur setting: в темизацию добавлена сохраняемая настройка размытия `AnimatedPanel` (0–32 px), применяемая через CSS custom property. Checks: format:check/typecheck/diff-check PASS; browser QA не выполнялась по запросу пользователя.
+
+# 2026-08-20 collapsed sidebar sizing: в свёрнутом Sidebar зафиксированы минимальная ширина контейнера, `min-w-0` у layout-обёрток и `shrink-0` у логотипа/иконок, чтобы элементы не сжимались во время transition и в конечном collapsed state. Checks: format/format:check/typecheck/diff-check PASS; browser QA не выполнялась.
+
+# 2026-08-20 sidebar icon sizing follow-up: для верхней кнопки, пунктов меню, дочерних пунктов и выхода заданы явные `h/w` и `shrink-0`, чтобы SVG не сужались при закрытии Sidebar. Checks: format:check/typecheck/diff-check PASS; browser QA не выполнялась.
+
+# 2026-08-20 collapsed sidebar alignment: исправлена collapsed-разметка Sidebar: логотип скрывается в закрытом состоянии, кнопка переключения центрирует только стрелку, а ссылки меню занимают всю ширину и центрируют иконки. Checks: format/format:check/typecheck/diff-check PASS; browser QA не выполнялась.
+
+# 2026-08-20 collapsed active item shape: активный пункт свёрнутого Sidebar переведён в фиксированный квадрат 56×56 с `rounded-full`, чтобы фиолетовая рамка и фон были круглыми, а иконка оставалась по центру. Checks: format/format:check/typecheck/diff-check PASS; browser QA не выполнялась.
+
+# 2026-08-20 collapsed sidebar gutter fix: устранено переполнение круглого активного пункта из-за одновременных padding у `AnimatedPanel` и `nav`; в collapsed-состоянии применяются компактные `!p-2`/`!p-1`, поэтому круг полностью помещается и центрируется внутри Sidebar. Checks: format/format:check/typecheck/diff-check PASS; browser QA не выполнялась.
+
+# 2026-08-20 deploy build fix: CI падал на шаге `npm run lint` из-за двух несвязанных с Sidebar label-ошибок в `ThemeSettingsPanel`: range inputs не имели `id`, а labels — `htmlFor`. Связи добавлены; полный workflow-порядок `format:check`, `typecheck`, `lint`, `build`, `git diff --check` проходит. Сервер `185.227.144.160` read-only проверен: контейнер `my-love-frontend` запущен, текущий HTTP healthcheck отвечает.
+
+# 2026-08-20 page headers: все 13 найденных обёрток с классом `page-header` заменены на `AnimatedPanel` с сохранением класса для sticky-позиционирования и существующей layout-логики. Checks: format/format:check/typecheck/build/diff-check PASS; lint заблокирован двумя существующими jsx-a11y ошибками в `ThemeSettingsPanel.tsx` (строки 100 и 120); authenticated browser QA не выполнялась.

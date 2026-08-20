@@ -116,7 +116,7 @@ export const TaskRoutinesPage = () => {
   return (
     <main className="h-full overflow-auto">
       <div className="mx-auto w-full space-y-5">
-        <header className="page-header">
+        <AnimatedPanel className="page-header">
           <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
             Автоматизация быта
           </p>
@@ -124,7 +124,7 @@ export const TaskRoutinesPage = () => {
           <p className="text-muted-text mt-1 text-sm">
             Шаблоны дел, которые можно создавать по расписанию.
           </p>
-        </header>
+        </AnimatedPanel>
         <AnimatedPanel className="p-5">
           <form className="grid gap-gap md:grid-cols-2" onSubmit={submit}>
             <Input

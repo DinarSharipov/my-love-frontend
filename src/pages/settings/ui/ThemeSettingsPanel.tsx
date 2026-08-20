@@ -97,7 +97,10 @@ export const ThemeSettingsPanel = () => {
             </label>
           ))}
         </div>
-        <label className="border-border bg-elevated/35 mt-3 block rounded-xl border p-3">
+        <label
+          className="border-border bg-elevated/35 mt-3 block rounded-xl border p-3"
+          htmlFor="animated-panel-opacity"
+        >
           <span className="text-text block text-sm font-medium">Прозрачность AnimatedPanel</span>
           <span className="text-muted-text mt-1 block text-xs">
             Панели: {Math.round(panelOpacity * 100)}%
@@ -105,6 +108,7 @@ export const ThemeSettingsPanel = () => {
           <input
             aria-label="Прозрачность AnimatedPanel"
             className="accent-primary-neon mt-3 w-full cursor-pointer"
+            id="animated-panel-opacity"
             max="1"
             min="0"
             onChange={(event) => {
@@ -117,12 +121,16 @@ export const ThemeSettingsPanel = () => {
             value={panelOpacity}
           />
         </label>
-        <label className="border-border bg-elevated/35 mt-3 block rounded-xl border p-3">
+        <label
+          className="border-border bg-elevated/35 mt-3 block rounded-xl border p-3"
+          htmlFor="animated-panel-blur"
+        >
           <span className="text-text block text-sm font-medium">Размытие AnimatedPanel</span>
           <span className="text-muted-text mt-1 block text-xs">Blur: {panelBlur} px</span>
           <input
             aria-label="Размытие AnimatedPanel"
             className="accent-primary-neon mt-3 w-full cursor-pointer"
+            id="animated-panel-blur"
             max="32"
             min="0"
             onChange={(event) => {

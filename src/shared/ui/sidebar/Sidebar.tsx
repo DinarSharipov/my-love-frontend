@@ -12,18 +12,25 @@ export const Sidebar = ({ items }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   return (
     <aside
-      className={`min-h-0 shrink-0 overflow-hidden transition-[width] duration-300 lg:block ${collapsed ? 'w-20' : 'w-64'}`}
+      className={`min-h-0 min-w-20 shrink-0 overflow-hidden transition-[width] duration-300 lg:block ${collapsed ? 'w-20' : 'w-64'}`}
     >
-      <AnimatedPanel className="h-full">
-        <nav aria-label="Основная навигация" className="flex h-full flex-col gap-gap p-page">
+      <AnimatedPanel className={`h-full min-w-0 ${collapsed ? '!p-2' : ''}`}>
+        <nav
+          aria-label="Основная навигация"
+          className={`flex h-full min-w-0 flex-col gap-gap ${collapsed ? '!p-1' : 'p-page'}`}
+        >
           <button
             aria-label={collapsed ? 'Развернуть меню' : 'Свернуть меню'}
-            className="text-muted-text hover:text-text mb-gap flex items-center justify-between rounded-[var(--radius-panel)] border border-transparent p-page transition-colors hover:border-border hover:bg-elevated/70 focus-visible:outline-2 focus-visible:outline-cyber-cyan"
+            className={`text-muted-text hover:text-text mb-gap flex min-w-0 items-center rounded-[var(--radius-panel)] border border-transparent p-page transition-colors hover:border-border hover:bg-elevated/70 focus-visible:outline-2 focus-visible:outline-cyber-cyan ${collapsed ? 'w-full justify-center' : 'justify-between'}`}
             onClick={() => setCollapsed((value) => !value)}
             type="button"
           >
-            <LogoIcon className="size-6 rounded-md object-cover" />
-            {collapsed ? <ChevronRight className="size-5" /> : <ChevronLeft className="size-5" />}
+            {!collapsed && <LogoIcon className="size-6 shrink-0 rounded-md object-cover" />}
+            {collapsed ? (
+              <ChevronRight className="h-5 w-5 shrink-0" />
+            ) : (
+              <ChevronLeft className="h-5 w-5 shrink-0" />
+            )}
           </button>
           {items.map((item) => {
             const Icon = item.icon;
@@ -33,12 +40,12 @@ export const Sidebar = ({ items }: SidebarProps) => {
                   <NavLink
                     aria-label={item.label}
                     className={({ isActive }) =>
-                      `flex items-center ${collapsed ? 'justify-center px-0' : 'gap-gap px-3'} rounded-[var(--radius-panel)] border py-3 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-cyber-cyan ${isActive ? 'border-primary-neon/35 bg-primary-neon/15 text-primary-neon shadow-[0_0_22px_rgb(176_38_255_/_16%)]' : 'border-transparent text-muted-text hover:border-border hover:bg-elevated/70 hover:text-text'}`
+                      `flex min-w-0 items-center ${collapsed ? 'mx-auto h-14 w-14 justify-center rounded-full p-0' : 'gap-gap rounded-[var(--radius-panel)] px-3 py-3'} border text-sm transition-colors focus-visible:outline-2 focus-visible:outline-cyber-cyan ${isActive ? 'border-primary-neon/35 bg-primary-neon/15 text-primary-neon shadow-[0_0_22px_rgb(176_38_255_/_16%)]' : 'border-transparent text-muted-text hover:border-border hover:bg-elevated/70 hover:text-text'}`
                     }
                     end
                     to={item.to}
                   >
-                    <Icon className="size-5 shrink-0" />
+                    <Icon className="h-5 w-5 shrink-0" />
                     {!collapsed && <span className="truncate">{item.label}</span>}
                     {!collapsed && Boolean(item.badgeCount) && (
                       <span className="bg-neon-pink text-text ml-auto rounded-full px-1.5 text-[10px]">
@@ -49,11 +56,11 @@ export const Sidebar = ({ items }: SidebarProps) => {
                 ) : (
                   <button
                     aria-label={item.label}
-                    className={`text-muted-text hover:text-text flex w-full items-center rounded-xl py-3 text-sm ${collapsed ? 'justify-center px-0' : 'gap-gap px-3'}`}
+                    className={`text-muted-text hover:text-text flex min-w-0 w-full items-center rounded-xl py-3 text-sm ${collapsed ? 'justify-center px-0' : 'gap-gap px-3'}`}
                     onClick={item.callback}
                     type="button"
                   >
-                    <Icon className="size-5 shrink-0" />
+                    <Icon className="h-5 w-5 shrink-0" />
                     {!collapsed && item.label}
                   </button>
                 )}
@@ -67,7 +74,7 @@ export const Sidebar = ({ items }: SidebarProps) => {
                           key={child.label}
                           to={child.to}
                         >
-                          <ChildIcon className="size-4" />
+                          <ChildIcon className="h-4 w-4 shrink-0" />
                           {child.label}
                         </NavLink>
                       ) : (
@@ -77,7 +84,7 @@ export const Sidebar = ({ items }: SidebarProps) => {
                           onClick={child.callback}
                           type="button"
                         >
-                          <ChildIcon className="size-4" />
+                          <ChildIcon className="h-4 w-4 shrink-0" />
                           {child.label}
                         </button>
                       );
@@ -88,7 +95,7 @@ export const Sidebar = ({ items }: SidebarProps) => {
             );
           })}
           <div className="mt-auto flex items-center gap-gap px-3 py-3 text-xs text-muted-text">
-            <LogOut className="size-4" />
+            <LogOut className="h-4 w-4 shrink-0" />
             {!collapsed && 'Сессия защищена'}
           </div>
         </nav>

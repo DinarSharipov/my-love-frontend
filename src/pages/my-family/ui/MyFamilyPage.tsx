@@ -93,14 +93,14 @@ export const MyFamilyPage = () => {
 
   return (
     <PageLayout>
-      <header className="page-header">
+      <AnimatedPanel className="page-header">
         <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
           <UsersRound aria-hidden="true" className="h-4 w-4" />
           Моя семья
         </div>
         <h1 className="text-text text-2xl font-semibold sm:text-3xl">Ваше общее пространство</h1>
         <p className="text-muted-text mt-1 text-sm">Семья создана {formatDate(data.createdAt)}</p>
-      </header>
+      </AnimatedPanel>
 
       <section className="grid gap-gap sm:grid-cols-2">
         {data.members.map(({ id, joinedAt, user }, index) => (

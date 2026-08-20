@@ -1,10 +1,10 @@
 import { HeartPulse } from 'lucide-react';
-import { PageLayout } from '@/shared/ui';
+import { AnimatedPanel, PageLayout } from '@/shared/ui';
 import { WellbeingPanel } from '@/features/wellbeing';
 
 export const WellbeingPage = () => (
   <PageLayout>
-    <header className="page-header">
+    <AnimatedPanel className="page-header">
       <p className="text-primary-neon text-xs font-semibold uppercase tracking-[0.2em]">
         Семейное пространство
       </p>
@@ -15,7 +15,7 @@ export const WellbeingPage = () => (
       <p className="text-muted-text mt-1 text-sm">
         Мягкая ежедневная проверка состояния и безопасный обмен поддержкой.
       </p>
-    </header>
+    </AnimatedPanel>
     <WellbeingPanel />
   </PageLayout>
 );
