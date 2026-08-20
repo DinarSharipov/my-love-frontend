@@ -21,6 +21,10 @@ export const ThemeSettingsPanel = () => {
       ),
     [preferences],
   ) as Record<ThemeColorKey, string>;
+  const panelOpacity =
+    typeof preferences.animatedPanelOpacity === 'number' ? preferences.animatedPanelOpacity : 0.9;
+  const panelBlur =
+    typeof preferences.animatedPanelBlur === 'number' ? preferences.animatedPanelBlur : 12;
 
   const updateColor = (key: ThemeColorKey, value: string) => {
     const next = { ...preferences, [key]: value };
@@ -93,6 +97,44 @@ export const ThemeSettingsPanel = () => {
             </label>
           ))}
         </div>
+        <label className="border-border bg-elevated/35 mt-3 block rounded-xl border p-3">
+          <span className="text-text block text-sm font-medium">Прозрачность AnimatedPanel</span>
+          <span className="text-muted-text mt-1 block text-xs">
+            Панели: {Math.round(panelOpacity * 100)}%
+          </span>
+          <input
+            aria-label="Прозрачность AnimatedPanel"
+            className="accent-primary-neon mt-3 w-full cursor-pointer"
+            max="1"
+            min="0"
+            onChange={(event) => {
+              const next = { ...preferences, animatedPanelOpacity: Number(event.target.value) };
+              setPreferences(next);
+              applyThemePreferences(next);
+            }}
+            step="0.05"
+            type="range"
+            value={panelOpacity}
+          />
+        </label>
+        <label className="border-border bg-elevated/35 mt-3 block rounded-xl border p-3">
+          <span className="text-text block text-sm font-medium">Размытие AnimatedPanel</span>
+          <span className="text-muted-text mt-1 block text-xs">Blur: {panelBlur} px</span>
+          <input
+            aria-label="Размытие AnimatedPanel"
+            className="accent-primary-neon mt-3 w-full cursor-pointer"
+            max="32"
+            min="0"
+            onChange={(event) => {
+              const next = { ...preferences, animatedPanelBlur: Number(event.target.value) };
+              setPreferences(next);
+              applyThemePreferences(next);
+            }}
+            step="1"
+            type="range"
+            value={panelBlur}
+          />
+        </label>
       </AnimatedPanel>
       <AnimatedPanel className="p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-gap">

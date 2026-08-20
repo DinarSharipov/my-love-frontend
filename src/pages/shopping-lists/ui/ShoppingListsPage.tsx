@@ -6,9 +6,9 @@ import type { ShoppingList } from '@/entities/shopping';
 import {
   getApiErrorMessage,
   useAddMutation,
-  useArchive3Mutation,
+  useArchive7Mutation,
   useCheckMutation,
-  useCreate3Mutation,
+  useCreate9Mutation,
   useListsQuery,
   useUncheckMutation,
 } from '@/shared/api';
@@ -23,11 +23,11 @@ const emptyDraft: ItemDraft = { name: '', quantity: '' };
 
 export const ShoppingListsPage = () => {
   const listsQuery = useListsQuery();
-  const [createList, createState] = useCreate3Mutation();
+  const [createList, createState] = useCreate9Mutation();
   const [addItem, addState] = useAddMutation();
   const [checkItem] = useCheckMutation();
   const [uncheckItem] = useUncheckMutation();
-  const [archiveList] = useArchive3Mutation();
+  const [archiveList] = useArchive7Mutation();
   const [listName, setListName] = useState('');
   const [drafts, setDrafts] = useState<Record<string, ItemDraft>>({});
   const [pendingAction, setPendingAction] = useState<string>();

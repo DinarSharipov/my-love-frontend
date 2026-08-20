@@ -1,5 +1,6 @@
 import {
   CalendarDays,
+  Baby,
   HeartPulse,
   ListChecks,
   MailCheck,
@@ -20,6 +21,7 @@ const familyMenuItems: readonly MenuItem[] = [
   { icon: ShoppingBasket, label: 'Покупки', to: '/my_family/shopping-lists' },
   { icon: WalletCards, label: 'Финансы', to: '/my_family/finance' },
   { icon: HeartPulse, label: 'Благополучие', to: '/my_family/wellbeing' },
+  { icon: Baby, label: 'Дети', to: '/my_family/children' },
   { icon: MailCheck, label: 'Приглашения', to: '/my_family/family-invitations' },
 ];
 

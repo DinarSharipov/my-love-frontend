@@ -54,7 +54,10 @@ const getDefaultValues = ({
     location: initialValue?.location ?? '',
     name: initialValue?.name ?? '',
     time: initialValue ? zonedDate.format('HH:mm') : '18:00',
-    reminderOffsetMinutes: initialValue?.reminderOffsetMinutes ?? null,
+    reminderOffsetMinutes:
+      initialValue?.reminderOffsetMinutes == null
+        ? null
+        : Number(initialValue.reminderOffsetMinutes),
     reminderRecipientIds: initialValue?.reminderRecipientIds ?? familyMembers.map(({ id }) => id),
     repeatReminderAt: initialValue?.repeatReminderAt
       ? dayjs(initialValue.repeatReminderAt).tz(timeZone).format('YYYY-MM-DDTHH:mm')
@@ -99,11 +102,11 @@ export const FamilyEventForm = ({
       location: values.location.trim(),
       name: values.name.trim(),
       scheduledAt: toFamilyEventInstant(values.date, values.time, timeZone),
-      reminderOffsetMinutes: values.reminderOffsetMinutes || null,
+      reminderOffsetMinutes: (values.reminderOffsetMinutes || null) as unknown as object,
       reminderRecipientIds: values.reminderRecipientIds,
-      repeatReminderAt: values.repeatReminderAt
+      repeatReminderAt: (values.repeatReminderAt
         ? new Date(values.repeatReminderAt).toISOString()
-        : null,
+        : null) as unknown as object,
     };
 
     try {

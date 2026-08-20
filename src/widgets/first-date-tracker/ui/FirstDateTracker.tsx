@@ -21,7 +21,7 @@ import {
 } from '@/features/first-date';
 import type { FirstDateResponseDto } from '@/shared/api';
 import { getApiErrorMessage } from '@/shared/api';
-import { Button } from '@/shared/ui';
+import { AnimatedPanel, Button } from '@/shared/ui';
 
 const milestones = [
   { label: '1 месяц', months: 1 },
@@ -106,7 +106,7 @@ type EmptyFirstDateProps = {
 };
 
 const EmptyFirstDate = ({ canCreate, notice, onCreate, onRetry }: EmptyFirstDateProps) => (
-  <section className="border-border bg-surface/70 relative grid min-h-64 place-items-center overflow-hidden rounded-3xl border p-6 text-center backdrop-blur-xl">
+  <AnimatedPanel className="relative grid min-h-64 place-items-center overflow-hidden p-6 text-center">
     <div className="bg-primary-neon/10 absolute h-36 w-36 rounded-full blur-3xl" />
     <div className="relative w-full">
       <NoticeBanner notice={notice} />
@@ -141,7 +141,7 @@ const EmptyFirstDate = ({ canCreate, notice, onCreate, onRetry }: EmptyFirstDate
         )}
       </div>
     </div>
-  </section>
+  </AnimatedPanel>
 );
 
 export const FirstDateTracker = () => {
@@ -160,7 +160,12 @@ export const FirstDateTracker = () => {
     }
   }, [data?.updatedAt, savedValue]);
 
-  if (isLoading && !data && !isLocallyRemoved) return <TrackerSkeleton />;
+  if (isLoading && !data && !isLocallyRemoved)
+    return (
+      <AnimatedPanel className="min-h-52 p-0">
+        <TrackerSkeleton />
+      </AnimatedPanel>
+    );
 
   const openForm = (nextMode: Exclude<FormMode, 'view'>) => {
     setMode(nextMode);
@@ -205,14 +210,14 @@ export const FirstDateTracker = () => {
 
   if (mode === 'create') {
     return (
-      <section className="border-border bg-surface/70 relative overflow-hidden rounded-3xl border p-4 shadow-[0_0_45px_rgba(176,38,255,0.1)] backdrop-blur-xl sm:p-6">
+      <AnimatedPanel className="p-4 sm:p-6">
         <div className="bg-primary-neon/10 pointer-events-none absolute -left-16 -top-20 h-52 w-52 rounded-full blur-3xl" />
         <FirstDateForm
           mode="create"
           onCancel={() => setMode('view')}
           onSuccess={handleFormSuccess}
         />
-      </section>
+      </AnimatedPanel>
     );
   }
 
@@ -231,7 +236,7 @@ export const FirstDateTracker = () => {
 
   if (mode === 'edit') {
     return (
-      <section className="border-border bg-surface/70 relative overflow-hidden rounded-3xl border p-4 shadow-[0_0_45px_rgba(176,38,255,0.1)] backdrop-blur-xl sm:p-6">
+      <AnimatedPanel className="p-4 sm:p-6">
         <div className="bg-primary-neon/10 pointer-events-none absolute -left-16 -top-20 h-52 w-52 rounded-full blur-3xl" />
         <FirstDateForm
           initialValue={firstDateData}
@@ -239,7 +244,7 @@ export const FirstDateTracker = () => {
           onCancel={() => setMode('view')}
           onSuccess={handleFormSuccess}
         />
-      </section>
+      </AnimatedPanel>
     );
   }
 
@@ -254,7 +259,7 @@ export const FirstDateTracker = () => {
     typeof firstDateData.description === 'string' ? firstDateData.description : null;
 
   return (
-    <section className="border-border bg-surface/70 relative min-h-52 overflow-hidden rounded-3xl border p-4 shadow-[0_0_45px_rgba(176,38,255,0.1)] backdrop-blur-xl sm:p-6">
+    <AnimatedPanel className="min-h-52 p-4 sm:p-6">
       <div className="bg-primary-neon/10 pointer-events-none absolute -left-16 -top-20 h-52 w-52 rounded-full blur-3xl" />
       <div className="bg-cyber-cyan/5 pointer-events-none absolute -bottom-24 right-0 h-48 w-48 rounded-full blur-3xl" />
 
@@ -408,6 +413,6 @@ export const FirstDateTracker = () => {
               .format('D MMMM YYYY')}`
           : 'Тридцать лет — и это только начало'}
       </p>
-    </section>
+    </AnimatedPanel>
   );
 };

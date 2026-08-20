@@ -184,6 +184,18 @@ const financeApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['finance-wallets'],
     }),
+    listArchivedFinanceWallets: build.query<Wallet[], void>({
+      query: () => '/api/v1/families/me/wallets/archived',
+      providesTags: ['finance-wallets'],
+    }),
+    restoreFinanceWallet: build.mutation<Wallet, { id: string; version?: number }>({
+      query: ({ id, version }) => ({
+        url: `/api/v1/families/me/wallets/${id}/restore`,
+        method: 'POST',
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-wallets'],
+    }),
     listLedger: build.query<LedgerPage, { page?: number; limit?: number; walletId?: string }>({
       query: ({ page = 1, limit = 20, walletId }) => ({
         url: '/api/v1/families/me/ledger',
@@ -303,6 +315,18 @@ const financeApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['finance-goals', 'finance-wallets'],
     }),
+    listArchivedFinancialGoals: build.query<FinancialGoal[], void>({
+      query: () => '/api/v1/families/me/financial-goals/archived',
+      providesTags: ['finance-goals'],
+    }),
+    restoreFinancialGoal: build.mutation<FinancialGoal, { id: string; version?: number }>({
+      query: ({ id, version }) => ({
+        url: `/api/v1/families/me/financial-goals/${id}/restore`,
+        method: 'POST',
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-goals', 'finance-wallets'],
+    }),
     listFinancialBudgets: build.query<FinancialBudget[], string | void>({
       query: (periodStart) => ({
         url: '/api/v1/families/me/budgets',
@@ -360,6 +384,18 @@ const financeApi = baseApi.injectEndpoints({
       query: ({ id, version }) => ({
         url: `/api/v1/families/me/recurring-payments/${id}`,
         method: 'DELETE',
+        headers: version ? { 'If-Match': String(version) } : undefined,
+      }),
+      invalidatesTags: ['finance-recurring', 'finance-summary'],
+    }),
+    listArchivedRecurringPayments: build.query<RecurringPayment[], void>({
+      query: () => '/api/v1/families/me/recurring-payments/archived',
+      providesTags: ['finance-recurring'],
+    }),
+    restoreRecurringPayment: build.mutation<RecurringPayment, { id: string; version?: number }>({
+      query: ({ id, version }) => ({
+        url: `/api/v1/families/me/recurring-payments/${id}/restore`,
+        method: 'POST',
         headers: version ? { 'If-Match': String(version) } : undefined,
       }),
       invalidatesTags: ['finance-recurring', 'finance-summary'],

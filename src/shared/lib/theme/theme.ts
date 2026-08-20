@@ -16,6 +16,8 @@ export const THEME_COLOR_TOKENS = [
 export type ThemeColorKey = (typeof THEME_COLOR_TOKENS)[number]['key'];
 export type ThemePreferences = Partial<Record<ThemeColorKey, string>> & {
   backgroundImage?: string;
+  animatedPanelOpacity?: number;
+  animatedPanelBlur?: number;
 };
 
 export const readThemePreferences = (): ThemePreferences => {
@@ -32,6 +34,16 @@ export const applyThemePreferences = (preferences: ThemePreferences) => {
   THEME_COLOR_TOKENS.forEach(({ fallback, key }) =>
     root.style.setProperty(key, preferences[key] ?? fallback),
   );
+  const panelOpacity =
+    typeof preferences.animatedPanelOpacity === 'number'
+      ? Math.min(1, Math.max(0.2, preferences.animatedPanelOpacity))
+      : 0.9;
+  root.style.setProperty('--animated-panel-opacity', String(panelOpacity));
+  const panelBlur =
+    typeof preferences.animatedPanelBlur === 'number'
+      ? Math.min(32, Math.max(0, preferences.animatedPanelBlur))
+      : 12;
+  root.style.setProperty('--animated-panel-blur', `${panelBlur}px`);
   localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(preferences));
   window.dispatchEvent(new CustomEvent('my-love-theme-change'));
 };

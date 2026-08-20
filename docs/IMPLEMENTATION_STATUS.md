@@ -200,3 +200,23 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 # 2026-08-20 visual slice: wellbeing route/panel, child profile CRUD panel, task reminder controls. Checks: typecheck/build/diff-check PASS. Browser QA pending authenticated session.
 
 # 2026-08-20 audit slice: WellbeingPanel decomposed into CheckInForm/CheckInList; checkbox label linked for accessibility. Checks: lint/typecheck/diff-check PASS. Authenticated browser QA pending.
+
+# 2026-08-20 list scroll slice: Notifications page now uses a full-height layout with overflow isolated to the incoming notifications list; mobile keeps page-level overflow for settings content. Checks: format:check/typecheck/diff-check PASS. Browser QA pending.
+
+# 2026-08-20 backend contract sync: Runtime Swagger was stale/incomplete and would remove existing generated operations, so generated API was preserved. Added confirmed finance archive/restore/list-archived hooks for wallets, financial goals, and recurring payments from backend controllers. Checks: format:check/typecheck/diff-check PASS. Browser QA pending.
+
+# 2026-08-20 backend Swagger refresh: `/docs-json` теперь содержит полный контракт; generated RTK Query API обновлён. Адаптированы изменившиеся operation IDs/DTO-типы для shopping, tasks и family events. Уведомления переведены на растягиваемую desktop-панель с внутренним scroll списка и отдельным scroll настроек. Checks: format:check/typecheck/diff-check PASS. Browser QA pending.
+
+# 2026-08-20 family privacy slice: Добавлен маршрут `/my_family/children` и пункт «Дети» в левое меню family-раздела; wellbeing получил явный consent-блок с выдачей и отзывом доступа к scopes. Существующие child CRUD и wellbeing check-in hooks переиспользованы. Checks: typecheck/format:check/diff-check PASS. Browser QA pending.
+
+# 2026-08-20 notifications bugfix: `NotificationsPage` переключена с ошибочного `useList3Query` (кошельки) на `useList11Query` (`GET /api/v1/notifications`), поэтому заголовок и текст снова берутся из уведомлений. Checks: typecheck/format:check/diff-check PASS. Следующий срез: authenticated visual QA; browser blocked by `missing field sandboxPolicy`.
+
+# 2026-08-20 child routines: в `/tasks` и `/task-routines` добавлены выбор ребёнка при создании, фильтрация списков и отображение привязанного профиля; payload передаёт `childId` в подтверждённый backend DTO. Checks: typecheck/format:check/diff-check PASS. Browser QA не выполнялась по запросу пользователя.
+
+# 2026-08-20 notifications scroll fix: у desktop-панели inbox зафиксирована flex-высота, а список получил `h-0 flex-1 overflow-y-auto`; длинные уведомления больше не растягивают страницу и прокручиваются внутри блока. Checks: typecheck/format:check/diff-check PASS. Browser QA не выполнялась по запросу пользователя.
+
+# 2026-08-20 notification badge sync: `MainRouteLayout` исправлен с ошибочного `useList3Query` (wallets) на `useList11Query` (notifications), поэтому badge непрочитанных использует тот же источник, что и inbox. Checks: typecheck/format:check/diff-check PASS.
+
+# 2026-08-20 theme/panel slice: в настройках темизации добавлена сохраняемая настройка прозрачности `AnimatedPanel` (20–100%); `FirstDateTracker` и его состояния переведены на общий `AnimatedPanel`; правило оборачивать самостоятельные визуальные блоки в `AnimatedPanel` добавлено в `AGENTS.md`. Checks: format:check/typecheck/diff-check PASS; browser QA не выполнялась по запросу пользователя.
+
+# 2026-08-20 panel blur setting: в темизацию добавлена сохраняемая настройка размытия `AnimatedPanel` (0–32 px), применяемая через CSS custom property. Checks: format:check/typecheck/diff-check PASS; browser QA не выполнялась по запросу пользователя.

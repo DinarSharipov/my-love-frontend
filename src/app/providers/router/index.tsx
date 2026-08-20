@@ -26,6 +26,7 @@ const MainPage = lazyPage(() => import('@/pages/main'), 'MainPage');
 const AllUsersPage = lazyPage(() => import('@/pages/all-users'), 'AllUsersPage');
 const MyFamilyPage = lazyPage(() => import('@/pages/my-family'), 'MyFamilyPage');
 const WellbeingPage = lazyPage(() => import('@/pages/wellbeing'), 'WellbeingPage');
+const ChildProfilesPage = lazyPage(() => import('@/pages/child-profiles'), 'ChildProfilesPage');
 const RestorePage = lazyPage(() => import('@/pages/restore'), 'RestorePage');
 const ResetPasswordPage = lazyPage(() => import('@/pages/reset-password'), 'ResetPasswordPage');
 const MainRouteLayout = lazyPage(
@@ -79,6 +80,7 @@ export const router = createBrowserRouter([
               { path: 'shopping-lists', element: withSuspense(<ShoppingListsPage />) },
               { path: 'finance', element: withSuspense(<FinancePage />) },
               { path: 'wellbeing', element: withSuspense(<WellbeingPage />) },
+              { path: 'children', element: withSuspense(<ChildProfilesPage />) },
             ],
           },
           { path: '/settings', element: withSuspense(<SettingsPage />) },

@@ -13,6 +13,7 @@ Cyberpunk web app for creating a family and managing family life: household task
 - React + TypeScript + Vite; React Router, Redux Toolkit, RTK Query.
 - Follow Feature-Sliced Design: `app → pages → widgets → features → entities → shared`; imports may only point downward.
 - Put generic UI primitives in `src/shared/ui`. Move other code to `shared` when it is reused 2–3 times and is genuinely domain-agnostic; keep domain logic in `entities`/`features`.
+- Оборачивай самостоятельные визуальные блоки и карточки в общий `AnimatedPanel`; специализированные контейнеры с собственным overflow/layout можно не оборачивать, если это ломает их поведение.
 - Use RTK Query for server state and Redux Toolkit only for justified client/global state.
 
 ## UI

@@ -20,6 +20,7 @@ export const ChildProfilesPanel = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [birthDate, setBirthDate] = useState('');
+  const [actionError, setActionError] = useState<string>();
 
   const reset = () => {
     setEditing(null);
@@ -29,22 +30,42 @@ export const ChildProfilesPanel = () => {
   };
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setActionError(undefined);
     if (!firstName.trim() || !birthDate) return;
-    if (editing)
-      await update({
-        id: editing,
-        firstName: firstName.trim(),
-        lastName: lastName.trim() || undefined,
-        birthDate,
-      }).unwrap();
-    else
-      await create({
-        firstName: firstName.trim(),
-        lastName: lastName.trim() || undefined,
-        birthDate,
-      }).unwrap();
-    reset();
-    list.refetch();
+    try {
+      if (editing)
+        await update({
+          id: editing,
+          firstName: firstName.trim(),
+          lastName: lastName.trim() || undefined,
+          birthDate,
+        }).unwrap();
+      else
+        await create({
+          firstName: firstName.trim(),
+          lastName: lastName.trim() || undefined,
+          birthDate,
+        }).unwrap();
+      reset();
+      list.refetch();
+    } catch {
+      setActionError('Не удалось сохранить профиль ребёнка');
+    }
+  };
+  const exportChild = async (childId: string, childName: string) => {
+    setActionError(undefined);
+    try {
+      const data = await exportProfile(childId).unwrap();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `child-profile-${childName.toLowerCase().replace(/[^a-zа-я0-9]+/gi, '-')}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setActionError('Не удалось экспортировать профиль ребёнка');
+    }
   };
   return (
     <AnimatedPanel className="p-5 sm:p-6">
@@ -86,6 +107,11 @@ export const ChildProfilesPanel = () => {
           {editing && <Button icon={<X className="h-4 w-4" />} onClick={reset} type="button" />}
         </div>
       </form>
+      {actionError && (
+        <p className="text-neon-pink mb-4 text-sm" role="alert">
+          {actionError}
+        </p>
+      )}
       <AsyncState
         error={list.error}
         hasData={Boolean(list.data)}
@@ -109,7 +135,7 @@ export const ChildProfilesPanel = () => {
                   <Button
                     aria-label="Экспорт профиля"
                     icon={<Download className="h-4 w-4" />}
-                    onClick={() => exportProfile(child.id)}
+                    onClick={() => exportChild(child.id, child.firstName)}
                     size="s"
                   />
                   <Button

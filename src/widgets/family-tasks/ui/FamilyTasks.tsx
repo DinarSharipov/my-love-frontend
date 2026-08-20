@@ -87,8 +87,8 @@ export const FamilyTasks = () => {
                   onClick={() =>
                     mutate(() =>
                       task.status === 'COMPLETED'
-                        ? reopenTask({ id: task.id, 'if-match': String(task.version) }).unwrap()
-                        : completeTask({ id: task.id, 'if-match': String(task.version) }).unwrap(),
+                        ? reopenTask({ id: task.id }).unwrap()
+                        : completeTask({ id: task.id }).unwrap(),
                     )
                   }
                   type="button"

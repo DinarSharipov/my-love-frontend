@@ -8,6 +8,7 @@ import {
   useCreate2Mutation,
   useFindMyFamilyQuery,
   useGenerateMutation,
+  useList13Query,
   useList2Query,
 } from '@/shared/api';
 import {
@@ -29,6 +30,7 @@ const priorities = [
 export const TaskRoutinesPage = () => {
   const list = useList2Query();
   const family = useFindMyFamilyQuery();
+  const children = useList13Query();
   const [createRoutine, createState] = useCreate2Mutation();
   const [generateTask] = useGenerateMutation();
   const [archiveRoutine] = useArchive2Mutation();
@@ -39,9 +41,27 @@ export const TaskRoutinesPage = () => {
   const [intervalValue, setIntervalValue] = useState('1');
   const [nextRunAt, setNextRunAt] = useState('');
   const [assignedToId, setAssignedToId] = useState('');
+  const [childId, setChildId] = useState('');
+  const [childFilter, setChildFilter] = useState('');
   const [error, setError] = useState<string>();
 
-  const routines = list.data ?? [];
+  const routines = (list.data ?? []).filter(
+    (routine) => !childFilter || (routine.childId as unknown as string) === childFilter,
+  );
+  const childNames = new Map(
+    (children.data ?? []).map((child) => [
+      child.id,
+      `${child.firstName} ${typeof child.lastName === 'string' ? child.lastName : ''}`.trim(),
+    ]),
+  );
+  const childOptions = [
+    { label: 'Общая рутина', value: '' },
+    ...(children.data ?? []).map((child) => ({
+      label:
+        `${child.firstName} ${typeof child.lastName === 'string' ? child.lastName : ''}`.trim(),
+      value: child.id,
+    })),
+  ];
   const assigneeOptions = [
     { label: 'Свободная задача', value: '' },
     ...(family.data?.members ?? []).map(({ user }) => ({
@@ -60,6 +80,7 @@ export const TaskRoutinesPage = () => {
     setIntervalValue('1');
     setNextRunAt('');
     setAssignedToId('');
+    setChildId('');
   };
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -74,6 +95,7 @@ export const TaskRoutinesPage = () => {
           interval: Math.max(1, Number(intervalValue) || 1),
           nextRunAt: new Date(nextRunAt).toISOString(),
           assignedToId: assignedToId || null,
+          childId: childId || null,
         },
       }).unwrap();
       reset();
@@ -152,6 +174,7 @@ export const TaskRoutinesPage = () => {
               options={assigneeOptions}
               value={assignedToId}
             />
+            <Select label="Для кого" onChange={setChildId} options={childOptions} value={childId} />
             <div className="md:col-span-2">
               <Button disabled={createState.isLoading || !title.trim() || !nextRunAt} type="submit">
                 <span className="inline-flex items-center">
@@ -179,6 +202,14 @@ export const TaskRoutinesPage = () => {
             ) : undefined
           }
         >
+          <div className="mb-4 max-w-xs">
+            <Select
+              label="Фильтр по ребёнку"
+              onChange={setChildFilter}
+              options={childOptions}
+              value={childFilter}
+            />
+          </div>
           <div className="grid gap-gap md:grid-cols-2">
             {routines.map((routine) => (
               <AnimatedPanel className="p-5" key={routine.id}>
@@ -204,6 +235,11 @@ export const TaskRoutinesPage = () => {
                     ? (assigneeNames.get(routine.assignedToId) ?? 'Участник семьи')
                     : 'Свободная задача'}
                 </p>
+                {typeof routine.childId === 'string' && (
+                  <p className="text-cyber-cyan mt-2 text-xs">
+                    Ребёнок: {childNames.get(routine.childId) ?? 'Профиль'}
+                  </p>
+                )}
                 <div className="mt-4 flex flex-wrap gap-gap">
                   <Button
                     onClick={() =>

@@ -7,6 +7,7 @@ import {
   useCompleteMutation,
   useCreateMutation,
   useFindMyFamilyQuery,
+  useList13Query,
   useListQuery,
   useReopenMutation,
   useUpdateMutation,
@@ -39,6 +40,7 @@ const filterLabels: Record<Filter, string> = {
 export const TasksPage = () => {
   const list = useListQuery({ page: 1, limit: 100 });
   const family = useFindMyFamilyQuery();
+  const children = useList13Query();
   const [createTask, createState] = useCreateMutation();
   const [updateTask, updateState] = useUpdateMutation();
   const [completeTask] = useCompleteMutation();
@@ -51,13 +53,21 @@ export const TasksPage = () => {
   const [dueAt, setDueAt] = useState('');
   const [priority, setPriority] = useState<'LOW' | 'NORMAL' | 'HIGH'>('NORMAL');
   const [assignedToId, setAssignedToId] = useState('');
+  const [childId, setChildId] = useState('');
+  const [childFilter, setChildFilter] = useState('');
   const [error, setError] = useState<string>();
   const tasks = ((list.data as TaskList | undefined)?.data ?? []).filter(
     (task) => task.status !== 'ARCHIVED',
   );
+  const childVisibleTasks = childFilter
+    ? tasks.filter((task) => (task.childId as unknown as string) === childFilter)
+    : tasks;
   const visible = useMemo(
-    () => (filter === 'ALL' ? tasks : tasks.filter((task) => task.status === filter)),
-    [filter, tasks],
+    () =>
+      filter === 'ALL'
+        ? childVisibleTasks
+        : childVisibleTasks.filter((task) => task.status === filter),
+    [filter, childVisibleTasks],
   );
   const assigneeOptions = [
     { label: 'Свободная задача', value: '' },
@@ -77,6 +87,7 @@ export const TasksPage = () => {
     setDueAt('');
     setPriority('NORMAL');
     setAssignedToId('');
+    setChildId('');
   };
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -88,11 +99,11 @@ export const TasksPage = () => {
         dueAt: dueAt ? new Date(dueAt).toISOString() : undefined,
         priority,
         assignedToId: assignedToId || null,
+        childId: childId || null,
       };
       if (editing)
         await updateTask({
           id: editing.id,
-          'if-match': String(editing.version),
           updateTaskDto: payload,
         }).unwrap();
       else await createTask({ createTaskDto: payload }).unwrap();
@@ -118,6 +129,7 @@ export const TasksPage = () => {
     setDueAt(task.dueAt ? String(task.dueAt).slice(0, 16) : '');
     setPriority(task.priority);
     setAssignedToId(typeof task.assignedToId === 'string' ? task.assignedToId : '');
+    setChildId(typeof task.childId === 'string' ? task.childId : '');
   };
   return (
     <PageLayout>
@@ -174,6 +186,19 @@ export const TasksPage = () => {
                 options={assigneeOptions}
                 value={assignedToId}
               />
+              <Select
+                label="Для кого"
+                onChange={setChildId}
+                options={[
+                  { label: 'Общая задача', value: '' },
+                  ...(children.data ?? []).map((child) => ({
+                    label:
+                      `${child.firstName} ${typeof child.lastName === 'string' ? child.lastName : ''}`.trim(),
+                    value: child.id,
+                  })),
+                ]}
+                value={childId}
+              />
             </div>
             {error && (
               <p className="text-neon-pink text-sm" role="alert">
@@ -192,6 +217,19 @@ export const TasksPage = () => {
         <AnimatedPanel className="p-5 sm:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-gap">
             <h2 className="text-text font-semibold">Список задач</h2>
+            <Select
+              label="Фильтр по ребёнку"
+              onChange={setChildFilter}
+              options={[
+                { label: 'Все задачи', value: '' },
+                ...(children.data ?? []).map((child) => ({
+                  label:
+                    `${child.firstName} ${typeof child.lastName === 'string' ? child.lastName : ''}`.trim(),
+                  value: child.id,
+                })),
+              ]}
+              value={childFilter}
+            />
             <div className="flex gap-gap">
               {(['ALL', 'OPEN', 'COMPLETED'] as Filter[]).map((value) => (
                 <Button
@@ -225,10 +263,9 @@ export const TasksPage = () => {
                     onClick={() =>
                       mutate(() =>
                         task.status === 'COMPLETED'
-                          ? reopenTask({ id: task.id, 'if-match': String(task.version) }).unwrap()
+                          ? reopenTask({ id: task.id }).unwrap()
                           : completeTask({
                               id: task.id,
-                              'if-match': String(task.version),
                             }).unwrap(),
                       )
                     }

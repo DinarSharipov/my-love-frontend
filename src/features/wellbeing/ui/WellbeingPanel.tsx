@@ -2,10 +2,14 @@ import { HeartPulse, MessageCircleHeart, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import {
+  useGrantWellbeingConsentMutation,
   useCreateWellbeingCheckInMutation,
+  useListWellbeingConsentsQuery,
   useListSharedWellbeingCheckInsQuery,
   useListWellbeingCheckInsQuery,
+  useRevokeWellbeingConsentMutation,
 } from '@/entities/wellbeing';
+import { useFindMyFamilyQuery } from '@/shared/api';
 import { AnimatedPanel, AsyncState, Button, Select, Textarea } from '@/shared/ui';
 
 const scoreOptions = [1, 2, 3, 4, 5].map((value) => ({
@@ -131,6 +135,11 @@ export const WellbeingPanel = () => {
   const own = useListWellbeingCheckInsQuery();
   const shared = useListSharedWellbeingCheckInsQuery();
   const [create, state] = useCreateWellbeingCheckInMutation();
+  const family = useFindMyFamilyQuery();
+  const consents = useListWellbeingConsentsQuery();
+  const [grantConsent, grantState] = useGrantWellbeingConsentMutation();
+  const [revokeConsent] = useRevokeWellbeingConsentMutation();
+  const [recipientId, setRecipientId] = useState('');
   const [error, setError] = useState('');
   const [formKey, setFormKey] = useState(0);
   const submit = async (event: FormEvent, values: CheckInValues) => {
@@ -146,6 +155,62 @@ export const WellbeingPanel = () => {
   };
   return (
     <div className="space-y-gap">
+      <AnimatedPanel className="p-5 sm:p-6">
+        <div className="mb-4 flex items-start gap-gap">
+          <ShieldCheck className="text-acid-green mt-1 h-6 w-6" />
+          <div>
+            <h2 className="text-text font-semibold">Кто видит wellbeing-данные</h2>
+            <p className="text-muted-text mt-1 text-sm">
+              По умолчанию check-in виден только вам. Доступ выдаётся отдельно и может быть отозван.
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-col gap-gap sm:flex-row sm:items-end">
+          <Select
+            label="Разрешить партнёру"
+            onChange={setRecipientId}
+            options={(family.data?.members ?? []).map(({ user }) => ({
+              value: user.id,
+              label: `${user.firstName} ${user.lastName}`,
+            }))}
+            value={recipientId}
+          />
+          <Button
+            disabled={!recipientId || grantState.isLoading}
+            onClick={async () => {
+              await grantConsent({
+                recipientId,
+                scopes: ['mood', 'energy', 'stress', 'supportRequest'],
+              }).unwrap();
+              consents.refetch();
+            }}
+          >
+            Выдать доступ
+          </Button>
+        </div>
+        <div className="mt-4 space-y-2">
+          {(consents.data ?? []).map((consent) => (
+            <div
+              className="border-border flex items-center justify-between gap-3 rounded-xl border p-3"
+              key={consent.id}
+            >
+              <span className="text-muted-text text-sm">
+                Доступ выдан · {consent.scopes.join(', ')}
+              </span>
+              <Button
+                className="text-neon-pink"
+                onClick={async () => {
+                  await revokeConsent(consent.id).unwrap();
+                  consents.refetch();
+                }}
+                size="s"
+              >
+                Отозвать
+              </Button>
+            </div>
+          ))}
+        </div>
+      </AnimatedPanel>
       <AnimatedPanel className="p-5 sm:p-6">
         <div className="mb-5 flex items-start gap-gap">
           <HeartPulse className="text-primary-neon mt-1 h-6 w-6" />
