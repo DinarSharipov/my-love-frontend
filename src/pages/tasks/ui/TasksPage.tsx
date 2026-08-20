@@ -22,6 +22,7 @@ import {
   Select,
   Textarea,
 } from '@/shared/ui';
+import { TaskReminderPanel } from '@/features/task-reminders';
 
 type Filter = 'ALL' | 'OPEN' | 'COMPLETED';
 type TaskList = { data?: TaskResponseDto[] };
@@ -263,6 +264,7 @@ export const TasksPage = () => {
                           : 'Свободная задача'}
                       </p>
                     </div>
+                    <TaskReminderPanel taskId={task.id} />
                   </div>
                   <Button
                     aria-label="Редактировать задачу"

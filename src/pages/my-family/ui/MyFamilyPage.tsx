@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 
 import { FamilyLifecyclePanel } from '@/features/family-lifecycle';
+import { ChildProfilesPanel } from '@/features/child-profiles';
 import { useFindMyFamilyQuery } from '@/shared/api';
 import { AnimatedPanel, AsyncState, Button, PageLayout } from '@/shared/ui';
 import { FirstDateTracker } from '@/widgets/first-date-tracker';
@@ -127,6 +128,7 @@ export const MyFamilyPage = () => {
       </section>
 
       <FirstDateTracker />
+      <ChildProfilesPanel />
       <FamilyLifecyclePanel status={data.status} />
     </PageLayout>
   );

@@ -5,6 +5,7 @@ export { AsyncState } from '@/shared/ui/async-state';
 export { Button } from '@/shared/ui/button';
 export { Calendar } from '@/shared/ui/calendar';
 export type { CalendarPeriod, CalendarVisiblePeriod, PlannedItem } from '@/shared/ui/calendar';
+export { ConfirmDialog } from '@/shared/ui/confirm-dialog';
 export { Footer } from '@/shared/ui/footer';
 export type { MenuItem } from '@/shared/ui/footer';
 export { Input } from '@/shared/ui/input';

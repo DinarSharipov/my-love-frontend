@@ -7,7 +7,7 @@ import {
   useLeaveFamilyMutation,
   useRestoreFamilyMutation,
 } from '@/shared/api';
-import { AnimatedPanel, Button } from '@/shared/ui';
+import { AnimatedPanel, Button, ConfirmDialog } from '@/shared/ui';
 
 type FamilyLifecyclePanelProps = {
   status: 'ACTIVE' | 'ARCHIVED' | 'DISSOLVED';
@@ -15,6 +15,7 @@ type FamilyLifecyclePanelProps = {
 
 export const FamilyLifecyclePanel = ({ status }: FamilyLifecyclePanelProps) => {
   const [error, setError] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<'leave' | 'archive' | null>(null);
   const [leaveFamily, leaveState] = useLeaveFamilyMutation();
   const [archiveFamily, archiveState] = useArchiveFamilyMutation();
   const [restoreFamily, restoreState] = useRestoreFamilyMutation();
@@ -29,6 +30,13 @@ export const FamilyLifecyclePanel = ({ status }: FamilyLifecyclePanelProps) => {
   };
 
   const busy = leaveState.isLoading || archiveState.isLoading || restoreState.isLoading;
+  const confirmPending = pendingAction !== null;
+
+  const confirmAction = async () => {
+    if (pendingAction === 'leave') await run(() => leaveFamily().unwrap());
+    if (pendingAction === 'archive') await run(() => archiveFamily().unwrap());
+    setPendingAction(null);
+  };
 
   return (
     <AnimatedPanel className="mt-5 p-5 sm:p-6">
@@ -50,10 +58,7 @@ export const FamilyLifecyclePanel = ({ status }: FamilyLifecyclePanelProps) => {
               disabled={busy}
               icon={<LogOut aria-hidden="true" className="h-4 w-4" />}
               onClick={() => {
-                // eslint-disable-next-line no-alert
-                if (window.confirm('Выйти из семьи? Общие данные будут сохранены.')) {
-                  run(() => leaveFamily().unwrap());
-                }
+                setPendingAction('leave');
               }}
               size="s"
             >
@@ -63,10 +68,7 @@ export const FamilyLifecyclePanel = ({ status }: FamilyLifecyclePanelProps) => {
               disabled={busy}
               icon={<Archive aria-hidden="true" className="h-4 w-4" />}
               onClick={() => {
-                // eslint-disable-next-line no-alert
-                if (window.confirm('Архивировать семью? Доступ можно будет восстановить.')) {
-                  run(() => archiveFamily().unwrap());
-                }
+                setPendingAction('archive');
               }}
               size="s"
             >
@@ -90,6 +92,19 @@ export const FamilyLifecyclePanel = ({ status }: FamilyLifecyclePanelProps) => {
           {error}
         </p>
       )}
+      <ConfirmDialog
+        confirmLabel={pendingAction === 'archive' ? 'Архивировать' : 'Выйти из семьи'}
+        description={
+          pendingAction === 'archive'
+            ? 'Семья будет архивирована. Доступ и общие данные можно будет восстановить позже.'
+            : 'Вы выйдете из семьи, но общие данные сохранятся.'
+        }
+        isLoading={busy}
+        onCancel={() => setPendingAction(null)}
+        onConfirm={confirmAction}
+        open={confirmPending}
+        title={pendingAction === 'archive' ? 'Архивировать семью?' : 'Выйти из семьи?'}
+      />
     </AnimatedPanel>
   );
 };

@@ -8,7 +8,7 @@ import {
 } from '@/features/telegram';
 import { getApiErrorMessage } from '@/shared/api';
 import { formatDate } from '@/shared/lib/date';
-import { AnimatedPanel, Button } from '@/shared/ui';
+import { AnimatedPanel, Button, ConfirmDialog } from '@/shared/ui';
 
 const BOT_URL = 'https://t.me/my_LOVE_telegrem_bot';
 
@@ -23,6 +23,7 @@ export const TelegramConnectionPanel = () => {
   const [link, setLink] = useState<{ token: string; expiresAt: string }>();
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string>();
+  const [confirmDisconnect, setConfirmDisconnect] = useState(false);
 
   useEffect(() => {
     const refresh = () => refetch();
@@ -50,13 +51,12 @@ export const TelegramConnectionPanel = () => {
   };
 
   const disconnect = async () => {
-    // eslint-disable-next-line no-alert
-    if (!window.confirm('Отключить Telegram от аккаунта?')) return;
     setError(undefined);
     try {
       await deleteConnection().unwrap();
       setLink(undefined);
       await connection.refetch();
+      setConfirmDisconnect(false);
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, 'Не удалось отключить Telegram'));
     }
@@ -92,7 +92,7 @@ export const TelegramConnectionPanel = () => {
           <Button
             disabled={deleteState.isLoading}
             icon={<Unplug className="size-4" />}
-            onClick={disconnect}
+            onClick={() => setConfirmDisconnect(true)}
             size="s"
           >
             Отключить
@@ -139,6 +139,15 @@ export const TelegramConnectionPanel = () => {
           {error}
         </p>
       )}
+      <ConfirmDialog
+        confirmLabel="Отключить"
+        description="Связь Telegram с аккаунтом будет отключена. Подключить её можно будет снова."
+        isLoading={deleteState.isLoading}
+        onCancel={() => setConfirmDisconnect(false)}
+        onConfirm={disconnect}
+        open={confirmDisconnect}
+        title="Отключить Telegram?"
+      />
     </AnimatedPanel>
   );
 };
