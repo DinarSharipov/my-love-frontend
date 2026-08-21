@@ -12,6 +12,7 @@ export const THEME_COLOR_TOKENS = [
   { key: '--color-acid-green', label: 'Атрибут-10', fallback: '#39ff88' },
   { key: '--color-text', label: 'Атрибут-11', fallback: '#f4f2ff' },
   { key: '--color-muted-text', label: 'Атрибут-12', fallback: '#8e8aa3' },
+  { key: '--color-button', label: 'Цвет кнопок', fallback: '#b026ff' },
 ] as const;
 export type ThemeColorKey = (typeof THEME_COLOR_TOKENS)[number]['key'];
 export type ThemePreferences = Partial<Record<ThemeColorKey, string>> & {

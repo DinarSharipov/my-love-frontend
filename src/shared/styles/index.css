@@ -13,6 +13,7 @@
   --color-acid-green: #39ff88;
   --color-text: #f4f2ff;
   --color-muted-text: #8e8aa3;
+  --color-button: #b026ff;
   --spacing-block: 5px;
   --spacing-gap: 5px;
   --spacing-page: 10px;
@@ -25,13 +26,15 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-  -webkit-backdrop-filter: blur(18px) saturate(1.15);
-  backdrop-filter: blur(18px) saturate(1.15);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-panel);
-  box-shadow: 0 24px 50px rgb(0 0 0 / 18%);
   padding: var(--spacing-page);
+}
+
+.main-idle-scroll {
+  scrollbar-width: none;
+}
+
+.main-idle-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 @layer base {

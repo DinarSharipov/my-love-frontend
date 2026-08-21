@@ -13,6 +13,8 @@ import {
   ShoppingBasket,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { motion } from 'motion/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -36,6 +38,62 @@ const formatTime = (value: string) =>
 const formatWeekDate = (value: string) => dayjs(value).locale('ru').format('ddd, D MMM · HH:mm');
 const formatUnreadCount = (count: number) =>
   `${count} ${count % 10 === 1 && count % 100 !== 11 ? 'непрочитанное' : 'непрочитанных'}`;
+
+const IDLE_DELAY = 30000;
+const IDLE_EXIT_OFFSET = 260;
+
+const idleBlockVariants = {
+  active: {
+    filter: 'blur(0px)',
+    opacity: 1,
+    rotate: 0,
+    rotateY: 0,
+    scale: 1,
+    skewX: 0,
+    x: 0,
+    y: 0,
+  },
+  idle: ({ direction }: { direction: 1 | -1 }) => ({
+    filter: 'blur(4px)',
+    opacity: 0.05,
+    rotate: direction * 13,
+    rotateY: direction * 30,
+    scale: 0.86,
+    skewX: direction * 7,
+    x: direction * 74,
+    y: IDLE_EXIT_OFFSET,
+  }),
+};
+
+const IdleBlock = ({
+  children,
+  delay = 0,
+  direction,
+  isIdle,
+}: {
+  children: ReactNode;
+  delay?: number;
+  direction: 1 | -1;
+  isIdle: boolean;
+}) => (
+  <motion.div
+    animate={isIdle ? 'idle' : 'active'}
+    custom={{ direction }}
+    initial="active"
+    style={{
+      perspective: 900,
+      transformOrigin: direction === 1 ? 'right center' : 'left center',
+    }}
+    variants={idleBlockVariants}
+    transition={{
+      delay,
+      duration: 1.05,
+      ease: [0.22, 1, 0.36, 1],
+    }}
+  >
+    {children}
+  </motion.div>
+);
 
 const DashboardCard = ({
   action,
@@ -105,6 +163,8 @@ const QuickActions = () => {
 };
 
 export const MainPage = () => {
+  const [isIdle, setIsIdle] = useState(false);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
   const accessToken = useSelector(selectAccessToken);
   const currentUser = useSelector(selectCurrentUser);
@@ -218,30 +278,55 @@ export const MainPage = () => {
     notificationsQuery.refetch();
   };
 
-  return (
-    <main className="text-text h-full overflow-auto">
-      <div className="w-full space-y-5">
-        <AnimatedPanel className="page-header flex flex-col justify-between gap-gap sm:flex-row sm:items-end">
-          <div>
-            <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
-              Семейный стол
-            </p>
-            <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">Что важно сейчас</h1>
-            <p className="text-muted-text mt-1 text-sm">
-              Сегодня, ближайшая неделя и вопросы, которым нужен ответ.
-            </p>
-          </div>
-          <Button onClick={() => navigate('/settings')} size="s">
-            <Bell aria-hidden="true" className="size-4" />
-            {unreadNotifications.length
-              ? formatUnreadCount(unreadNotifications.length)
-              : 'Уведомлений нет'}
-          </Button>
-        </AnimatedPanel>
+  const resetIdleTimer = useCallback(() => {
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    setIsIdle(false);
+    idleTimerRef.current = setTimeout(() => setIsIdle(true), IDLE_DELAY);
+  }, []);
 
-        <DashboardCard icon={Plus} title="Быстрые действия">
-          <QuickActions />
-        </DashboardCard>
+  useEffect(() => {
+    resetIdleTimer();
+    return () => {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    };
+  }, [resetIdleTimer]);
+
+  return (
+    <main
+      className={`text-text h-full overflow-auto ${isIdle ? 'main-idle-scroll' : ''}`}
+      onFocusCapture={resetIdleTimer}
+      onPointerDown={resetIdleTimer}
+      onPointerMove={resetIdleTimer}
+      onWheel={resetIdleTimer}
+    >
+      <div className="w-full space-y-5">
+        <IdleBlock delay={0.12} direction={-1} isIdle={isIdle}>
+          <AnimatedPanel className="page-header flex flex-col justify-between gap-gap sm:flex-row sm:items-end">
+            <div>
+              <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
+                Семейный стол
+              </p>
+              <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">
+                Что важно сейчас
+              </h1>
+              <p className="text-muted-text mt-1 text-sm">
+                Сегодня, ближайшая неделя и вопросы, которым нужен ответ.
+              </p>
+            </div>
+            <Button onClick={() => navigate('/settings')} size="s">
+              <Bell aria-hidden="true" className="size-4" />
+              {unreadNotifications.length
+                ? formatUnreadCount(unreadNotifications.length)
+                : 'Уведомлений нет'}
+            </Button>
+          </AnimatedPanel>
+        </IdleBlock>
+
+        <IdleBlock delay={0.2} direction={1} isIdle={isIdle}>
+          <DashboardCard icon={Plus} title="Быстрые действия">
+            <QuickActions />
+          </DashboardCard>
+        </IdleBlock>
 
         <AsyncState
           error={cockpitError}
@@ -254,46 +339,58 @@ export const MainPage = () => {
           onRetry={refreshCockpit}
         >
           <div className="grid items-start gap-gap lg:grid-cols-[1.15fr_0.85fr]">
-            <DashboardCard icon={Clock3} title={`Сегодня · ${todayEntries.length}`}>
-              <EntryList empty="На сегодня всё спокойно." entries={todayEntries} />
-            </DashboardCard>
-            <DashboardCard icon={CalendarDays} title={`На неделе · ${weekEntries.length}`}>
-              <EntryList empty="На ближайшую неделю планов нет." entries={weekEntries} />
-            </DashboardCard>
-            <DashboardCard icon={AlertCircle} title={`Нужно решение · ${decisionEntries.length}`}>
-              <EntryList empty="Сейчас ничего не ждёт ответа." entries={decisionEntries} />
-            </DashboardCard>
+            <IdleBlock delay={0.24} direction={-1} isIdle={isIdle}>
+              <DashboardCard icon={Clock3} title={`Сегодня · ${todayEntries.length}`}>
+                <EntryList empty="На сегодня всё спокойно." entries={todayEntries} />
+              </DashboardCard>
+            </IdleBlock>
+            <IdleBlock delay={0.38} direction={1} isIdle={isIdle}>
+              <DashboardCard icon={CalendarDays} title={`На неделе · ${weekEntries.length}`}>
+                <EntryList empty="На ближайшую неделю планов нет." entries={weekEntries} />
+              </DashboardCard>
+            </IdleBlock>
+            <IdleBlock delay={0.52} direction={-1} isIdle={isIdle}>
+              <DashboardCard icon={AlertCircle} title={`Нужно решение · ${decisionEntries.length}`}>
+                <EntryList empty="Сейчас ничего не ждёт ответа." entries={decisionEntries} />
+              </DashboardCard>
+            </IdleBlock>
           </div>
         </AsyncState>
 
         <div className="grid items-start gap-gap lg:grid-cols-[minmax(18rem,0.7fr)_minmax(0,1.3fr)]">
-          <DashboardCard icon={Heart} title="Наша история">
-            <FirstDateTracker />
-          </DashboardCard>
-          <DashboardCard icon={MailCheck} title="Семейные разделы">
-            <div className="grid gap-gap sm:grid-cols-2">
-              <button
-                className="border-border bg-elevated/35 hover:border-primary-neon/60 rounded-2xl border p-4 text-left outline-none focus-visible:border-cyber-cyan"
-                onClick={() => navigate('/my_family/family-invitations')}
-                type="button"
-              >
-                <MailCheck className="text-primary-neon size-5" />
-                <span className="text-text mt-3 block text-sm font-medium">Приглашения</span>
-                <span className="text-muted-text mt-1 block text-xs">
-                  Входящих: {invitations.length}
-                </span>
-              </button>
-              <button
-                className="border-border bg-elevated/35 hover:border-primary-neon/60 rounded-2xl border p-4 text-left outline-none focus-visible:border-cyber-cyan"
-                onClick={() => navigate('/my_family/shopping-lists')}
-                type="button"
-              >
-                <ShoppingBasket className="text-acid-green size-5" />
-                <span className="text-text mt-3 block text-sm font-medium">Покупки</span>
-                <span className="text-muted-text mt-1 block text-xs">Открыть семейные списки</span>
-              </button>
-            </div>
-          </DashboardCard>
+          <IdleBlock delay={0.66} direction={1} isIdle={isIdle}>
+            <DashboardCard icon={Heart} title="Наша история">
+              <FirstDateTracker />
+            </DashboardCard>
+          </IdleBlock>
+          <IdleBlock delay={0.8} direction={-1} isIdle={isIdle}>
+            <DashboardCard icon={MailCheck} title="Семейные разделы">
+              <div className="grid gap-gap sm:grid-cols-2">
+                <button
+                  className="border-border bg-elevated/35 hover:border-primary-neon/60 rounded-2xl border p-4 text-left outline-none focus-visible:border-cyber-cyan"
+                  onClick={() => navigate('/my_family/family-invitations')}
+                  type="button"
+                >
+                  <MailCheck className="text-primary-neon size-5" />
+                  <span className="text-text mt-3 block text-sm font-medium">Приглашения</span>
+                  <span className="text-muted-text mt-1 block text-xs">
+                    Входящих: {invitations.length}
+                  </span>
+                </button>
+                <button
+                  className="border-border bg-elevated/35 hover:border-primary-neon/60 rounded-2xl border p-4 text-left outline-none focus-visible:border-cyber-cyan"
+                  onClick={() => navigate('/my_family/shopping-lists')}
+                  type="button"
+                >
+                  <ShoppingBasket className="text-acid-green size-5" />
+                  <span className="text-text mt-3 block text-sm font-medium">Покупки</span>
+                  <span className="text-muted-text mt-1 block text-xs">
+                    Открыть семейные списки
+                  </span>
+                </button>
+              </div>
+            </DashboardCard>
+          </IdleBlock>
         </div>
       </div>
     </main>

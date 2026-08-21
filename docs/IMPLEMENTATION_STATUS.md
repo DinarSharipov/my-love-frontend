@@ -219,6 +219,12 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 
 # 2026-08-20 theme/panel slice: в настройках темизации добавлена сохраняемая настройка прозрачности `AnimatedPanel` (20–100%); `FirstDateTracker` и его состояния переведены на общий `AnimatedPanel`; правило оборачивать самостоятельные визуальные блоки в `AnimatedPanel` добавлено в `AGENTS.md`. Checks: format:check/typecheck/diff-check PASS; browser QA не выполнялась по запросу пользователя.
 
+# 2026-08-20 button click effect: общий `Button` получил `clickEffect` (по умолчанию `true`); при клике через portal разлетаются разноцветные вращающиеся сердечки, эффект отключается через `clickEffect={false}`. Checks: format/format:check/typecheck/lint/build/diff-check PASS; browser QA pending.
+
+# 2026-08-20 button click effect refinement: сохранены исходные волновые кольца кнопки; сердечки теперь сначала разлетаются радиально во все стороны, затем падают вниз. Checks: format/format:check/typecheck/lint/build/diff-check PASS; browser QA pending.
+
+# 2026-08-20 button theme color: добавлен сохраняемый токен `--color-button` в темизацию; цвет рамки/свечения кнопок, волн и сердечек теперь настраивается единым значением, сердечки больше не разноцветные. Checks: pending.
+
 # 2026-08-20 panel blur setting: в темизацию добавлена сохраняемая настройка размытия `AnimatedPanel` (0–32 px), применяемая через CSS custom property. Checks: format:check/typecheck/diff-check PASS; browser QA не выполнялась по запросу пользователя.
 
 # 2026-08-20 collapsed sidebar sizing: в свёрнутом Sidebar зафиксированы минимальная ширина контейнера, `min-w-0` у layout-обёрток и `shrink-0` у логотипа/иконок, чтобы элементы не сжимались во время transition и в конечном collapsed state. Checks: format/format:check/typecheck/diff-check PASS; browser QA не выполнялась.
@@ -234,3 +240,15 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 # 2026-08-20 deploy build fix: CI падал на шаге `npm run lint` из-за двух несвязанных с Sidebar label-ошибок в `ThemeSettingsPanel`: range inputs не имели `id`, а labels — `htmlFor`. Связи добавлены; полный workflow-порядок `format:check`, `typecheck`, `lint`, `build`, `git diff --check` проходит. Сервер `185.227.144.160` read-only проверен: контейнер `my-love-frontend` запущен, текущий HTTP healthcheck отвечает.
 
 # 2026-08-20 page headers: все 13 найденных обёрток с классом `page-header` заменены на `AnimatedPanel` с сохранением класса для sticky-позиционирования и существующей layout-логики. Checks: format/format:check/typecheck/build/diff-check PASS; lint заблокирован двумя существующими jsx-a11y ошибками в `ThemeSettingsPanel.tsx` (строки 100 и 120); authenticated browser QA не выполнялась.
+
+# 2026-08-20 my-family header surface: удалено дублирующее визуальное оформление `.page-header` (фон, blur, border и shadow); sticky-хедеры теперь используют единый визуальный слой `AnimatedPanel`. Checks: format/format:check/typecheck/lint/build/diff-check PASS; browser QA не выполнялась.
+
+# 2026-08-20 panel shadow clipping: layout-обёртки основной области и family-раздела переведены с `overflow-hidden` на `overflow-visible`; внутренний scroll уже контролируется страницами, поэтому тени `AnimatedPanel` больше не срезаются по краям контейнеров. Checks: format/format:check/typecheck/lint/build/diff-check PASS; browser QA не выполнялась.
+
+# 2026-08-20 main idle cinematic mode: на главной странице крупные блоки после 5 секунд бездействия плавно уходят вниз с последовательным stagger/fade, оставляя фон; движение курсора, фокус, клик или scroll запускают красивое возвращение блоков. Реализовано через `motion` с очисткой таймера при unmount. Checks: format/format:check/typecheck/lint/build/diff-check PASS; browser QA не выполнялась.
+
+# 2026-08-20 main panel collapse refinement: idle-анимация главной усилена эффектом плохо закреплённых панелей: блоки падают с чередующимся левым/правым transform-origin, rotate/rotateY/skew, scale, смещением и blur. Checks: format/format:check/typecheck/lint/build/diff-check PASS; browser QA не выполнялась.
+
+# 2026-08-20 main house-collapse staging: обзорные панели разделены на отдельные «элементы конструкции»; при бездействии они обрушиваются сверху вниз с чередующимися направлениями и отдельными задержками, вместо исчезновения единым блоком. Checks: format/format:check/typecheck/lint/build/diff-check PASS; browser QA не выполнялась.
+
+# 2026-08-20 main collapse scrollbar state: во время обрушения главной добавлен локальный класс `main-idle-scroll`, скрывающий scrollbar только у scroll-контейнера страницы; при активности класс снимается, и scrollbar возвращается. Checks: format/format:check/typecheck/lint/build/diff-check PASS; browser QA не выполнялась.

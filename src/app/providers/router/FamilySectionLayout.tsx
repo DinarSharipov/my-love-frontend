@@ -28,7 +28,7 @@ const familyMenuItems: readonly MenuItem[] = [
 export const FamilySectionLayout = () => (
   <div className="flex h-full min-h-0 min-w-0 max-w-full gap-gap">
     <Sidebar items={familyMenuItems} />
-    <div className="h-full min-h-0 min-w-0 flex-1 overflow-hidden">
+    <div className="h-full min-h-0 min-w-0 flex-1 overflow-visible">
       <Outlet />
     </div>
   </div>
