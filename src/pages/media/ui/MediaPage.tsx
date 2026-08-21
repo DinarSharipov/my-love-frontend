@@ -1,13 +1,14 @@
-import { FileImage, FileVideo, ImagePlus, Trash2, Upload, X } from 'lucide-react';
+import { FileAudio, FileImage, FileVideo, ImagePlus, Play, Trash2, Upload, X } from 'lucide-react';
 import { useState } from 'react';
 
 import {
   useFindMediaQuery,
   useListMediaQuery,
-  useMediaUploadMutation,
+  useMediaUploadDirectMutation,
   useRemoveMediaMutation,
   type Media,
 } from '@/entities/media';
+import { useMediaPlayer } from '@/features/media-player';
 import { getApiErrorMessage } from '@/shared/api';
 import {
   AnimatedPanel,
@@ -33,7 +34,44 @@ const formatDate = (value: string) =>
     new Date(value),
   );
 
-const isVideo = (media: Media) => media.mimeType.startsWith('video/');
+const mediaKind = (media: Media): 'IMAGE' | 'VIDEO' | 'AUDIO' => {
+  if (media.kind) return media.kind;
+  if (media.mimeType.startsWith('video/')) return 'VIDEO';
+  if (media.mimeType.startsWith('audio/')) return 'AUDIO';
+  return 'IMAGE';
+};
+
+const MediaTypeIcon = ({ media }: { media: Media }) => {
+  const kind = mediaKind(media);
+  if (kind === 'VIDEO') return <FileVideo aria-label="Видео" className="text-cyber-cyan h-5 w-5" />;
+  if (kind === 'AUDIO') return <FileAudio aria-label="Аудио" className="text-cyber-cyan h-5 w-5" />;
+  return <FileImage aria-label="Изображение" className="text-primary-neon h-5 w-5" />;
+};
+
+const MediaPreview = ({ media }: { media: Media }) => {
+  const kind = mediaKind(media);
+  if (kind === 'VIDEO') {
+    return (
+      <video className="max-h-[75vh] max-w-full" controls src={media.downloadUrl}>
+        <track kind="captions" label="Русские субтитры" srcLang="ru" src="data:text/vtt,WEBVTT" />
+      </video>
+    );
+  }
+  if (kind === 'AUDIO') {
+    return (
+      <audio className="w-full" controls src={media.downloadUrl}>
+        <track kind="captions" label="Русские субтитры" srcLang="ru" src="data:text/vtt,WEBVTT" />
+      </audio>
+    );
+  }
+  return (
+    <img
+      alt={media.originalName}
+      className="max-h-[75vh] max-w-full object-contain"
+      src={media.downloadUrl}
+    />
+  );
+};
 
 export const MediaPage = () => {
   const [page, setPage] = useState(1);
@@ -45,8 +83,9 @@ export const MediaPage = () => {
   const [pendingDelete, setPendingDelete] = useState<Media | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [listError, setListError] = useState<string | null>(null);
-  const [upload, uploadState] = useMediaUploadMutation();
+  const [upload, uploadState] = useMediaUploadDirectMutation();
   const [remove, removeState] = useRemoveMediaMutation();
+  const { addTrack, play } = useMediaPlayer();
   const { data: detailData, isFetching: detailIsFetching } = useFindMediaQuery(
     { id: selectedId ?? '' },
     { skip: !selectedId },
@@ -91,6 +130,17 @@ export const MediaPage = () => {
     setSelectedId(media.id);
   };
 
+  const playAudio = (media: Media) => {
+    addTrack({
+      artist: 'Мой альбом',
+      id: media.id,
+      sourceType: 'url',
+      src: media.downloadUrl,
+      title: media.originalName,
+    });
+    play(media.id);
+  };
+
   const confirmDelete = async () => {
     if (!pendingDelete) return;
     try {
@@ -113,7 +163,9 @@ export const MediaPage = () => {
           Мой альбом
         </div>
         <h1 className="text-text text-2xl font-semibold sm:text-3xl">Фото и видео</h1>
-        <p className="text-muted-text mt-1 text-sm">Личные медиафайлы с приватным доступом.</p>
+        <p className="text-muted-text mt-1 text-sm">
+          Изображения, видео и аудио с приватным доступом.
+        </p>
       </AnimatedPanel>
 
       <AnimatedPanel className="p-5">
@@ -146,11 +198,13 @@ export const MediaPage = () => {
       <AnimatedPanel className="flex flex-wrap items-center justify-between gap-gap p-5">
         <div>
           <h2 className="text-text text-lg font-semibold">Добавить медиа</h2>
-          <p className="text-muted-text mt-1 text-sm">Изображение до 10 МБ или видео до 500 МБ.</p>
+          <p className="text-muted-text mt-1 text-sm">
+            Изображение до 10 МБ, аудио до 100 МБ или видео до 500 МБ.
+          </p>
         </div>
         <label className="inline-flex" htmlFor="media-upload-file">
           <input
-            accept="image/*,video/*"
+            accept="image/*,video/*,audio/*"
             className="sr-only"
             disabled={uploadState.isLoading}
             id="media-upload-file"
@@ -187,24 +241,31 @@ export const MediaPage = () => {
             {
               id: 'type',
               header: 'Тип',
-              render: (item) =>
-                isVideo(item) ? (
-                  <FileVideo aria-label="Видео" className="text-cyber-cyan h-5 w-5" />
-                ) : (
-                  <FileImage aria-label="Изображение" className="text-primary-neon h-5 w-5" />
-                ),
+              render: (item) => <MediaTypeIcon media={item} />,
             },
             {
               id: 'name',
               header: 'Имя файла',
               render: (item) => (
-                <button
-                  className="text-text hover:text-primary-neon max-w-[300px] truncate text-left font-medium underline-offset-4 hover:underline"
-                  onClick={() => openMedia(item)}
-                  type="button"
-                >
-                  {item.originalName}
-                </button>
+                <div className="flex items-center gap-1">
+                  {mediaKind(item) === 'AUDIO' && (
+                    <button
+                      aria-label={`Play ${item.originalName}`}
+                      className="text-muted-text hover:text-primary-neon cursor-pointer rounded-lg p-2 transition-colors focus-visible:outline-2 focus-visible:outline-cyber-cyan"
+                      onClick={() => playAudio(item)}
+                      type="button"
+                    >
+                      <Play className="h-4 w-4" />
+                    </button>
+                  )}
+                  <button
+                    className="text-text hover:text-primary-neon max-w-[300px] truncate text-left font-medium underline-offset-4 hover:underline"
+                    onClick={() => openMedia(item)}
+                    type="button"
+                  >
+                    {item.originalName}
+                  </button>
+                </div>
               ),
             },
             { id: 'size', header: 'Размер', render: (item) => formatSize(item.sizeBytes) },
@@ -212,7 +273,7 @@ export const MediaPage = () => {
             {
               id: 'actions',
               header: '',
-              className: 'w-16',
+              className: 'w-24',
               render: (item) => (
                 <button
                   aria-label={`Удалить ${item.originalName}`}
@@ -271,17 +332,7 @@ export const MediaPage = () => {
               <X className="h-5 w-5" />
             </button>
           </div>
-          {isVideo(previewMedia) ? (
-            <video className="max-h-[75vh] max-w-full" controls src={previewMedia.downloadUrl}>
-              <track kind="captions" label="Русские субтитры" srcLang="ru" />
-            </video>
-          ) : (
-            <img
-              alt={previewMedia.originalName}
-              className="max-h-[75vh] max-w-full object-contain"
-              src={previewMedia.downloadUrl}
-            />
-          )}
+          <MediaPreview media={previewMedia} />
           <p className="text-muted-text mt-3 text-xs">
             {formatDate(previewMedia.createdAt)} · {formatSize(previewMedia.sizeBytes)}
           </p>

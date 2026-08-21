@@ -39,7 +39,7 @@ Cyberpunk web app for creating a family and managing family life: household task
 - Format all project files according to the repository's Prettier configuration; run `npm run format` after code changes and confirm with `npm run format:check`.
 - Do not write unit or end-to-end tests for this project.
 - When backend contracts change, regenerate frontend API types through the repository scripts from `package.json`, using `npm run api:generate` before adapting the UI.
-- After every implementation slice, run the frontend in the browser and verify every affected route visually: page layout, loading/error/empty states, visible buttons, inputs, keyboard access, and primary interactions. Use Playwright when available; do not consider a slice complete until the affected controls are reachable and work.
+- Browser QA is performed by the user. The agent must not open or interact with the browser for visual or interaction checks; limit validation to formatting, lint, typecheck, build, and relevant static checks, and clearly report that browser QA remains user-owned.
 
 ## Continuity
 

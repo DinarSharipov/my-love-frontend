@@ -1,2 +1,1 @@
-export { MediaPage } from '@/pages/media/ui/MediaPage';
 export { MediaHubPage } from '@/pages/media/ui/MediaHubPage';

@@ -1,5 +1,27 @@
 # My Love — статус реализации
 
+Ripple `Button` переработан без внешнего absolute-layer: волны снова являются дочерними элементами самой кнопки, имеют `inset-0` и не масштабируются за её границы. Убрана причина смещения border и растягивания по wrapper. Проверки: format, format:check, lint, typecheck, build, `git diff --check` — PASS; browser QA выполняет пользователь.
+
+Ripple ограничен собственным wave-layer через `overflow-hidden`; scale волн уменьшен до 1.08 максимум, чтобы border не выходил выше/ниже кнопки. Проверки: format, format:check, lint, typecheck, build, `git diff --check` — PASS; browser QA выполняет пользователь.
+
+Ripple `Button` получил жёсткие размеры wave-layer из `getBoundingClientRect()` кнопки в момент клика. Размер больше не берётся из растянутого wrapper; масштабирование волн сохраняется, но исходная геометрия всегда равна кнопке. Проверки: format, format:check, lint, typecheck, build, `git diff --check` — PASS; browser QA выполняет пользователь.
+
+Ripple `Button` возвращён во внешний wave-layer; вместо переноса внутрь кнопки target-wrapper зафиксирован через `h-fit self-start`, чтобы сохранить волны и исключить растягивание border по высоте родителя. Проверки: format, format:check, lint, typecheck, build, `git diff --check` — PASS; browser QA выполняет пользователь.
+
+Ripple `Button` закреплён внутри `motion.button`: wave-layer теперь получает размеры самой кнопки, а не flex-wrapper родителя. Particle burst оставлен без изменений. Проверки: format, format:check, lint, typecheck, build, `git diff --check` — PASS; browser QA выполняет пользователь.
+
+`DatePicker` также выровнен по стандартной высоте control-компонентов: 40px с сохранением календарной кнопки и режимов `date`/`datetime-local`.
+
+## 21 августа 2026 — shared control height
+
+Высота стандартного `Button` (`size="m"`, `h-10`) синхронизирована с `Input`, `Textarea` и `Select`: все control-компоненты стартуют с высоты 40px. Для `Textarea` сохранено вертикальное изменение размера, но минимальная/начальная высота теперь 40px. Изменены только высота и вертикальные отступы, остальные размеры и поведение не тронуты. Проверки: format, format:check, lint, typecheck, build, `git diff --check` — PASS; browser QA выполняет пользователь.
+
+## 21 августа 2026 — media audio/video contract sync
+
+Проверены обновлённые media-контракты backend: `IMAGE`, `VIDEO`, `AUDIO`, legacy upload, direct S3 multipart (`initiate`, part upload, `complete`, `status`, `abort`), family stream/download, list/detail/delete. Frontend album теперь принимает image/video/audio, использует direct multipart upload с cleanup через abort, показывает audio/video preview и запускает аудио в глобальном MediaPlayer. Добавлены typed feature endpoints для upload-session flow; generated API не содержит новые операции, поскольку доступные `docs-json` (container и remote) старые, а текущий backend checkout не собирается из-за несвязанных users compile errors. Требуется обновить/redeploy backend runtime и повторить `npm run api:generate` из frontend.
+
+Проверки frontend: `format`, `format:check`, `lint`, `typecheck`, `build`, `git diff --check` — PASS. Browser QA выполняет пользователь.
+
 Последнее обновление: 20 августа 2026 года.
 
 Добавлен общий `shared/ui/DatePicker` в стилистике `Input`: одинаковые размеры, focus/error-состояния, project color tokens и иконка календаря с открытием native picker. DatePicker подключён к регистрации, первой встрече и семейным событиям; нативные `input type="date"` в frontend-коде больше не используются. Проверки: typecheck, lint, build и `git diff --check`.
@@ -260,3 +282,11 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 # 2026-08-21 modal close bugfix: fixed cached media detail data keeping the preview open after close by binding preview visibility to active `selectedId`; added pointer cursors for modal backdrop and close control. Checks: format:check/lint/typecheck/build/diff-check.
 
 # 2026-08-21 performance slice: throttled main dashboard idle reset, coalesced magnetic button and footer pointer work to animation frames, and disabled background glitch layers under reduced-motion preference. Static checks: format:check/lint/typecheck/build/diff-check.
+
+# 2026-08-21 local media player slice: добавлен persistent `MediaPlayer` с mini/full состояниями, drag-перемещением поверх маршрутов, сохранением положения/громкости/видимости в localStorage и базовым Web Audio EQ. Добавлен защищённый `/media` с вкладками плейлиста и настроек, добавлением URL/локального аудиофайла и таблицей из shared UI; backend не используется. Browser QA pending.
+
+# 2026-08-21 media player bugfix: `MediaPlayerProvider` и overlay вынесены выше keyed `RouteTransition`, поэтому player не размонтируется при переходах между маршрутами. Timeline теперь не перезагружает source при обычном rerender, seek отделён локальным scrub-state и вычисляет позицию по координате pointer, а `timeupdate` coalesced через requestAnimationFrame. Mini-состояние оставляет только название и три action-кнопки. Checks: format:check/lint/typecheck/build/diff-check PASS; browser QA выполняется пользователем.
+
+# 2026-08-21 timeline click correction: добавлен финальный `click`-расчёт позиции по `clientX` поверх native range, чтобы обычный клик не откатывался controlled value к началу трека. Checks: format:check/lint/typecheck/build/diff-check PASS; browser QA выполняется пользователем.
+
+# 2026-08-21 timeline root fix: native `input[type=range]` полностью заменён на custom accessible `role=slider` с единым pointer capture lifecycle и keyboard seek. Это убирает конфликт browser native value с React controlled state, который возвращал позицию к началу. Checks: format:check/lint/typecheck/build/diff-check PASS; browser QA выполняется пользователем.

@@ -30,8 +30,11 @@ export const Table = <T,>({
   pagination,
 }: TableProps<T>) => (
   <div className="border-border bg-surface/70 flex h-full min-h-0 w-full flex-col overflow-hidden rounded-3xl border shadow-[0_0_45px_rgba(176,38,255,0.08)] backdrop-blur-xl">
-    <div className="min-h-0 flex-1 overflow-auto">
-      <table aria-label={ariaLabel} className="w-full min-w-[720px] border-collapse text-left">
+    <div className="min-h-0 flex-1 overflow-auto h-full">
+      <table
+        aria-label={ariaLabel}
+        className="w-full min-w-[720px] border-collapse text-left h-full"
+      >
         <thead className="bg-elevated/95 sticky top-0 z-10 backdrop-blur-xl">
           <tr>
             {columns.map((column) => (
@@ -46,7 +49,7 @@ export const Table = <T,>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-border divide-y">
+        <tbody className="divide-border divide-y h-full">
           {isLoading &&
             Array.from({ length: 7 }, (_, rowIndex) => (
               <tr key={`skeleton-${rowIndex}`}>

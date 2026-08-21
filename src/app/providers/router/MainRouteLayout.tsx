@@ -6,6 +6,7 @@ import {
   Repeat2,
   ShoppingBasket,
   MailCheck,
+  Music2,
   Settings,
   UsersIcon,
 } from 'lucide-react';
@@ -67,6 +68,7 @@ export const MainRouteLayout = () => {
         icon: UsersIcon,
         to: '/all_users',
       },
+      { icon: Music2, label: 'Медиа', to: '/media' },
       {
         children: [
           { icon: CalendarDays, label: 'Календарь', to: '/my_family/calendar' },

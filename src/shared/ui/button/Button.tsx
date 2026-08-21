@@ -237,7 +237,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <>
         <span ref={magneticContainerRef} className={`relative inline-flex ${containerClassName}`}>
-          <span ref={magneticTargetRef} className="relative inline-flex will-change-transform">
+          <span
+            ref={magneticTargetRef}
+            className="relative inline-flex h-fit self-start will-change-transform"
+          >
             <motion.button
               {...buttonProps}
               ref={buttonRef}
@@ -257,38 +260,38 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 transition={{ duration: 0.25 }}
                 whileHover={{ opacity: 0.22 }}
               />
+              <AnimatePresence>
+                {bursts.map((burst) => (
+                  <motion.span
+                    className="pointer-events-none absolute inset-0 z-20 overflow-hidden rounded-xl"
+                    exit={{ opacity: 0 }}
+                    key={burst.id}
+                  >
+                    {[0, 1, 2, 3].map((wave) => (
+                      <motion.span
+                        animate={{
+                          filter: ['blur(0px)', 'blur(1px)', 'blur(3px)'],
+                          opacity: [0.85, 0.45, 0],
+                          scale: [1, 1.02, 1],
+                        }}
+                        className="border-[var(--color-button)] absolute inset-0 rounded-xl border"
+                        initial={{ filter: 'blur(0px)', opacity: 0.85, scale: 1 }}
+                        key={`wave-${wave}`}
+                        style={{
+                          boxShadow:
+                            '0 0 12px color-mix(in srgb, var(--color-button) 65%, transparent)',
+                        }}
+                        transition={{ delay: wave * 0.09, duration: 0.78, ease: 'easeOut' }}
+                      />
+                    ))}
+                  </motion.span>
+                ))}
+              </AnimatePresence>
               <span className="relative z-10 inline-flex items-center justify-center gap-1">
                 {icon}
                 {children}
               </span>
             </motion.button>
-            <AnimatePresence>
-              {bursts.map((burst) => (
-                <motion.span
-                  className="pointer-events-none absolute inset-0 z-30 rounded-xl"
-                  exit={{ opacity: 0 }}
-                  key={burst.id}
-                >
-                  {[0, 1, 2, 3].map((wave) => (
-                    <motion.span
-                      animate={{
-                        filter: ['blur(0px)', 'blur(1px)', 'blur(4px)'],
-                        opacity: [0.85, 0.36, 0],
-                        scale: [1, 1.22 + wave * 0.14, 1.48 + wave * 0.2],
-                      }}
-                      className="border-[var(--color-button)] absolute inset-0 rounded-xl border"
-                      initial={{ filter: 'blur(0px)', opacity: 0.85, scale: 1 }}
-                      key={`wave-${wave}`}
-                      style={{
-                        boxShadow:
-                          '0 0 12px color-mix(in srgb, var(--color-button) 65%, transparent)',
-                      }}
-                      transition={{ delay: wave * 0.09, duration: 0.78, ease: 'easeOut' }}
-                    />
-                  ))}
-                </motion.span>
-              ))}
-            </AnimatePresence>
           </span>
         </span>
         {clickEffect &&
