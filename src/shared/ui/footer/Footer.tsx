@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import { useEffect, useId, useRef, useState } from 'react';
-import type { ComponentType, PointerEvent, ReactNode } from 'react';
+import type { ComponentType, MouseEvent as ReactMouseEvent, PointerEvent, ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 export type MenuItem = {
@@ -325,10 +325,18 @@ export const Footer = ({ items }: FooterProps) => {
     return Number.isFinite(storedHeight) ? clampFooterHeight(storedHeight) : 72;
   });
   const resizeStart = useRef<{ height: number; y: number } | null>(null);
+  const mouseFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     window.localStorage.setItem(FOOTER_HEIGHT_KEY, String(height));
   }, [height]);
+
+  useEffect(
+    () => () => {
+      if (mouseFrameRef.current !== null) window.cancelAnimationFrame(mouseFrameRef.current);
+    },
+    [],
+  );
 
   const beginResize = (event: PointerEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -350,6 +358,14 @@ export const Footer = ({ items }: FooterProps) => {
     resizeStart.current = null;
   };
 
+  const handleMouseMove = ({ clientX }: ReactMouseEvent<HTMLElement>) => {
+    if (mouseFrameRef.current !== null) return;
+    mouseFrameRef.current = window.requestAnimationFrame(() => {
+      mouseFrameRef.current = null;
+      mouseX.set(clientX);
+    });
+  };
+
   return (
     <footer className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex justify-center px-4 pb-5">
       <motion.nav
@@ -357,7 +373,7 @@ export const Footer = ({ items }: FooterProps) => {
         className="border-border bg-surface/55 shadow-primary-neon/10 pointer-events-auto relative flex items-end gap-gap rounded-[1.75rem] border px-3 pb-3 shadow-[0_0_45px_currentColor] backdrop-blur-2xl"
         style={{ height }}
         onMouseLeave={() => mouseX.set(Number.POSITIVE_INFINITY)}
-        onMouseMove={({ clientX }) => mouseX.set(clientX)}
+        onMouseMove={handleMouseMove}
       >
         {items.map((item) => (
           <DockItem

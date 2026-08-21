@@ -93,6 +93,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         }
 
         let isMagneticActive = false;
+        let pointerFrame: number | null = null;
+        let latestPointerEvent: PointerEvent | null = null;
 
         const resetPosition = contextSafe(() => {
           if (!isMagneticActive) {
@@ -152,14 +154,29 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           });
         });
 
-        window.addEventListener('pointermove', followPointer);
+        const handlePointerMove = (event: PointerEvent) => {
+          latestPointerEvent = event;
+          if (pointerFrame !== null) return;
+
+          pointerFrame = window.requestAnimationFrame(() => {
+            pointerFrame = null;
+            const nextEvent = latestPointerEvent;
+            latestPointerEvent = null;
+            if (nextEvent) followPointer(nextEvent);
+          });
+        };
+
+        window.addEventListener('pointermove', handlePointerMove);
         window.addEventListener('pointerleave', resetPosition);
         window.addEventListener('blur', resetPosition);
         window.addEventListener('resize', resetPosition);
         window.addEventListener('scroll', resetPosition, true);
 
         return () => {
-          window.removeEventListener('pointermove', followPointer);
+          if (pointerFrame !== null) window.cancelAnimationFrame(pointerFrame);
+          pointerFrame = null;
+          latestPointerEvent = null;
+          window.removeEventListener('pointermove', handlePointerMove);
           window.removeEventListener('pointerleave', resetPosition);
           window.removeEventListener('blur', resetPosition);
           window.removeEventListener('resize', resetPosition);

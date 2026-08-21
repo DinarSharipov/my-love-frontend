@@ -258,3 +258,5 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 # 2026-08-21 reusable modal: added shared `Modal` with React Portal, outside-click/Escape close handling, focus entry, and animated open/close transitions. Media preview and `ConfirmDialog` now use the shared modal shell. Added the modal usage rule to `AGENTS.md`. Checks: format/typecheck/lint/build/diff-check; browser QA blocked by missing `sandboxPolicy`.
 
 # 2026-08-21 modal close bugfix: fixed cached media detail data keeping the preview open after close by binding preview visibility to active `selectedId`; added pointer cursors for modal backdrop and close control. Checks: format:check/lint/typecheck/build/diff-check.
+
+# 2026-08-21 performance slice: throttled main dashboard idle reset, coalesced magnetic button and footer pointer work to animation frames, and disabled background glitch layers under reduced-motion preference. Static checks: format:check/lint/typecheck/build/diff-check.

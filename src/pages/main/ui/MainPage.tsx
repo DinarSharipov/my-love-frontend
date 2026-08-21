@@ -165,6 +165,7 @@ const QuickActions = () => {
 export const MainPage = () => {
   const [isIdle, setIsIdle] = useState(false);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastIdleResetRef = useRef(0);
   const navigate = useNavigate();
   const accessToken = useSelector(selectAccessToken);
   const currentUser = useSelector(selectCurrentUser);
@@ -279,6 +280,10 @@ export const MainPage = () => {
   };
 
   const resetIdleTimer = useCallback(() => {
+    const now = Date.now();
+    if (now - lastIdleResetRef.current < 250) return;
+    lastIdleResetRef.current = now;
+
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     setIsIdle(false);
     idleTimerRef.current = setTimeout(() => setIsIdle(true), IDLE_DELAY);
