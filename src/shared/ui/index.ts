@@ -1,5 +1,6 @@
 export { AppBackground } from '@/shared/ui/app-background';
 export { MainLayout } from '@/shared/ui/main-layout';
+export { Modal } from '@/shared/ui/modal';
 export { AnimatedPanel } from '@/shared/ui/animated-panel';
 export { AsyncState } from '@/shared/ui/async-state';
 export { Button } from '@/shared/ui/button';

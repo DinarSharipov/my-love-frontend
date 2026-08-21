@@ -17,6 +17,7 @@ export const addTagTypes = [
   'first date',
   'calendar',
   'wellbeing',
+  'media',
   'health',
 ] as const;
 const injectedRtkApi = api
@@ -1332,6 +1333,31 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['wellbeing'],
       }),
+      upload: build.mutation<UploadApiResponse, UploadApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/media/upload`, method: 'POST', body: queryArg.body }),
+        invalidatesTags: ['media'],
+      }),
+      list15: build.query<List15ApiResponse, List15ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/media`,
+          params: {
+            page: queryArg.page,
+            limit: queryArg.limit,
+            name: queryArg.name,
+            dateFrom: queryArg.dateFrom,
+            dateTo: queryArg.dateTo,
+          },
+        }),
+        providesTags: ['media'],
+      }),
+      findOne2: build.query<FindOne2ApiResponse, FindOne2ApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/media/${queryArg.id}` }),
+        providesTags: ['media'],
+      }),
+      remove5: build.mutation<Remove5ApiResponse, Remove5ApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/media/${queryArg.id}`, method: 'DELETE' }),
+        invalidatesTags: ['media'],
+      }),
       checkHealth: build.query<CheckHealthApiResponse, CheckHealthApiArg>({
         query: () => ({ url: `/api/v1/health` }),
         providesTags: ['health'],
@@ -2046,6 +2072,29 @@ export type SetCoupleMeetingDecisionApiResponse =
 export type SetCoupleMeetingDecisionApiArg = {
   id: string;
   wellbeingCoupleMeetingDecisionDto: WellbeingCoupleMeetingDecisionDto;
+};
+export type UploadApiResponse = /** status 200  */ MediaResponseDto;
+export type UploadApiArg = {
+  body: {
+    file: Blob;
+  };
+};
+export type List15ApiResponse = /** status 200  */ PaginatedMediaResponseDto;
+export type List15ApiArg = {
+  page?: number;
+  limit?: number;
+  /** Case-insensitive substring of the original filename */
+  name?: string;
+  dateFrom?: string;
+  dateTo?: string;
+};
+export type FindOne2ApiResponse = /** status 200  */ MediaResponseDto;
+export type FindOne2ApiArg = {
+  id: string;
+};
+export type Remove5ApiResponse = /** status 200  */ any;
+export type Remove5ApiArg = {
+  id: string;
 };
 export type CheckHealthApiResponse = /** status 200  */ any;
 export type CheckHealthApiArg = void;
@@ -2990,6 +3039,23 @@ export type WellbeingCoupleMeetingResponseInputDto = {
 export type WellbeingCoupleMeetingDecisionDto = {
   decision: string;
 };
+export type MediaResponseDto = {
+  id: string;
+  userId: string;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+  createdAt: string;
+  /** Short-lived URL for downloading the private object */
+  downloadUrl: string;
+};
+export type PaginatedMediaResponseDto = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  data: MediaResponseDto[];
+};
 export const {
   useCreateMutation,
   useListQuery,
@@ -3169,5 +3235,9 @@ export const {
   useRespondToCoupleMeetingMutation,
   usePublishCoupleMeetingMutation,
   useSetCoupleMeetingDecisionMutation,
+  useUploadMutation,
+  useList15Query,
+  useFindOne2Query,
+  useRemove5Mutation,
   useCheckHealthQuery,
 } = injectedRtkApi;

@@ -252,3 +252,9 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 # 2026-08-20 main house-collapse staging: обзорные панели разделены на отдельные «элементы конструкции»; при бездействии они обрушиваются сверху вниз с чередующимися направлениями и отдельными задержками, вместо исчезновения единым блоком. Checks: format/format:check/typecheck/lint/build/diff-check PASS; browser QA не выполнялась.
 
 # 2026-08-20 main collapse scrollbar state: во время обрушения главной добавлен локальный класс `main-idle-scroll`, скрывающий scrollbar только у scroll-контейнера страницы; при активности класс снимается, и scrollbar возвращается. Checks: format/format:check/typecheck/lint/build/diff-check PASS; browser QA не выполнялась.
+
+# 2026-08-21 media album: added `/my_family/media` with sidebar navigation, generated Swagger media contracts, multipart `file` upload, paginated table, filename/date filters, private detail preview via `GET /media/:id`, and S3/metadata deletion via `DELETE /media/:id`. Backend source and Swagger were audited read-only; generated API was refreshed. Checks: `format`, `format:check`, `typecheck`, `git diff --check`; authenticated browser QA pending.
+
+# 2026-08-21 reusable modal: added shared `Modal` with React Portal, outside-click/Escape close handling, focus entry, and animated open/close transitions. Media preview and `ConfirmDialog` now use the shared modal shell. Added the modal usage rule to `AGENTS.md`. Checks: format/typecheck/lint/build/diff-check; browser QA blocked by missing `sandboxPolicy`.
+
+# 2026-08-21 modal close bugfix: fixed cached media detail data keeping the preview open after close by binding preview visibility to active `selectedId`; added pointer cursors for modal backdrop and close control. Checks: format:check/lint/typecheck/build/diff-check.
