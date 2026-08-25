@@ -35,7 +35,7 @@ const surfaceVariants: Variants = {
 export const AnimatedPanel = ({ children, className = '', ...props }: AnimatedPanelProps) => (
   <motion.section
     animate="visible"
-    className={`relative isolate w-full p-4 ${className}`}
+    className={`relative isolate h-full w-full p-4 ${className}`}
     initial="hidden"
     variants={panelVariants}
     whileHover="hover"
