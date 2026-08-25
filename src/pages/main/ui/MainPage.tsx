@@ -8,7 +8,7 @@ import { getCalendarTasks } from '@/entities/task';
 import { useFindFamilyEventsQuery } from '@/features/family-events';
 import { type FamilyDashboardResponseDto, useDashboardQuery, useListQuery } from '@/shared/api';
 import type { CalendarVisiblePeriod, PlannedItem } from '@/shared/ui';
-import { AnimatedPanel, AsyncState, Button, Calendar } from '@/shared/ui';
+import { AnimatedPanel, AsyncState, Button, Calendar, HeaderPanel } from '@/shared/ui';
 
 const getInitialPeriod = (): CalendarVisiblePeriod => {
   const from = dayjs().startOf('month').startOf('week').add(1, 'day');
@@ -109,15 +109,20 @@ export const MainPage = () => {
   return (
     <main className="text-text flex h-full min-h-0 flex-col overflow-hidden">
       <div className="flex min-h-0 w-full flex-1 flex-col p-5">
-        <AnimatedPanel className="page-header !h-fit mb-5 shrink-0">
-          <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
-            Семейный стол
-          </p>
-          <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">Главная</h1>
-          <p className="text-muted-text mt-1 text-sm">
-            Календарь семьи и быстрый доступ к основным действиям.
-          </p>
-        </AnimatedPanel>
+        <HeaderPanel
+          className="mb-5"
+          left={
+            <>
+              <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
+                Семейный стол
+              </p>
+              <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">Главная</h1>
+              <p className="text-muted-text mt-1 text-sm">
+                Календарь семьи и быстрый доступ к основным действиям.
+              </p>
+            </>
+          }
+        />
 
         <AsyncState
           error={error}

@@ -31,7 +31,7 @@ import {
 } from '@/features/family-events';
 import type { FamilyEventResponseDto } from '@/shared/api';
 import { getApiErrorMessage, useFindMyFamilyQuery, useListQuery } from '@/shared/api';
-import { AnimatedPanel, AsyncState, Button, Calendar } from '@/shared/ui';
+import { AsyncState, Button, Calendar, HeaderPanel } from '@/shared/ui';
 import type { CalendarVisiblePeriod, PlannedItem } from '@/shared/ui';
 
 type Notice = { message: string; type: 'error' | 'success' };
@@ -516,32 +516,36 @@ export const FamilyCalendar = () => {
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-gap">
-      <AnimatedPanel className="page-header flex shrink-0 flex-wrap items-end justify-between gap-gap">
-        <div>
-          <p className="text-primary-neon flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
-            <CalendarDays aria-hidden="true" className="h-4 w-4" />
-            Семейный календарь
-          </p>
-          <h1 className="text-text mt-2 text-2xl font-semibold sm:text-3xl">Общие планы</h1>
-          <p className="text-muted-text mt-1 text-xs">
-            Часовой пояс: {timeZone} · изменения подтверждаются партнёром
-          </p>
-        </div>
-        <Button
-          onClick={() => {
-            setFocusedEvent(undefined);
-            setNotice(null);
-            setMode('create');
-          }}
-          size="s"
-        >
-          <span className="flex items-center gap-2.5">
-            <Plus aria-hidden="true" className="h-4 w-4" />
-            Добавить событие
-          </span>
-        </Button>
-      </AnimatedPanel>
+    <div className="flex h-full min-h-0 flex-col gap-gap">
+      <HeaderPanel
+        left={
+          <>
+            <p className="text-primary-neon flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
+              <CalendarDays aria-hidden="true" className="h-4 w-4" />
+              Семейный календарь
+            </p>
+            <h1 className="text-text mt-2 text-2xl font-semibold sm:text-3xl">Общие планы</h1>
+            <p className="text-muted-text mt-1 text-xs">
+              Часовой пояс: {timeZone} · изменения подтверждаются партнёром
+            </p>
+          </>
+        }
+        right={
+          <Button
+            onClick={() => {
+              setFocusedEvent(undefined);
+              setNotice(null);
+              setMode('create');
+            }}
+            size="s"
+          >
+            <span className="flex items-center gap-2.5">
+              <Plus aria-hidden="true" className="h-4 w-4" />
+              Добавить событие
+            </span>
+          </Button>
+        }
+      />
 
       {notice && mode === 'agenda' && (
         <p
@@ -558,7 +562,7 @@ export const FamilyCalendar = () => {
 
       <div className="grid min-h-0 flex-1 gap-gap xl:grid-cols-2">
         <motion.aside
-          className="border-border bg-surface/75 min-h-[360px] h-full overflow-auto rounded-3xl border p-4 backdrop-blur-xl sm:p-5 xl:min-h-0"
+          className="border-border bg-surface/75 h-full min-h-0 overflow-auto rounded-3xl border p-4 backdrop-blur-xl sm:p-5"
           layout
         >
           {mode === 'create' && (
@@ -630,12 +634,12 @@ export const FamilyCalendar = () => {
           )}
         </motion.aside>
 
-        <div className="relative min-h-[560px] min-w-0">
+        <div className="relative min-h-0 min-w-0">
           {eventsQuery.isLoading && !eventsQuery.data ? (
             <CalendarSkeleton />
           ) : (
             <Calendar
-              className="min-h-[560px]"
+              className="min-h-0"
               onClickDay={(day, item) => {
                 if (item) {
                   const [kind, id] = String(item.id).split(':');

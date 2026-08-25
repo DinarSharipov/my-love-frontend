@@ -16,8 +16,7 @@ import {
   AsyncState,
   Button,
   ConfirmDialog,
-  DatePicker,
-  Input,
+  HeaderPanel,
   Modal,
   PageLayout,
 } from '@/shared/ui';
@@ -254,9 +253,6 @@ export const MediaPage = () => {
   const [page, setPage] = useState(1);
   const [mediaPages, setMediaPages] = useState<Record<number, Media[]>>({});
   const [hasMore, setHasMore] = useState(true);
-  const [name, setName] = useState('');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
   const [selected, setSelected] = useState<Media | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Media | null>(null);
@@ -270,21 +266,10 @@ export const MediaPage = () => {
     { id: selectedId ?? '' },
     { skip: !selectedId },
   );
-  const query = {
-    page,
+  const { currentData, error, isFetching, isLoading, refetch } = useListMediaQuery({
     limit: PAGE_SIZE,
-    ...(name ? { name } : {}),
-    ...(dateFrom ? { dateFrom } : {}),
-    ...(dateTo ? { dateTo } : {}),
-  };
-  const { currentData, error, isFetching, isLoading, refetch } = useListMediaQuery(query);
-  const filterKey = `${name}\u0000${dateFrom}\u0000${dateTo}`;
-
-  useEffect(() => {
-    setPage(1);
-    setMediaPages({});
-    setHasMore(true);
-  }, [filterKey]);
+    page,
+  });
 
   useEffect(() => {
     if (!currentData) return;
@@ -292,24 +277,6 @@ export const MediaPage = () => {
     setMediaPages((previous) => ({ ...previous, [currentPage]: currentData.data }));
     setHasMore(currentPage < (currentData.totalPages ?? currentPage));
   }, [currentData, page]);
-
-  const resetMediaList = () => {
-    setPage(1);
-    setMediaPages({});
-    setHasMore(true);
-  };
-
-  const applyFilters = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    resetMediaList();
-  };
-
-  const clearFilters = () => {
-    setName('');
-    setDateFrom('');
-    setDateTo('');
-    resetMediaList();
-  };
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget;
@@ -378,43 +345,20 @@ export const MediaPage = () => {
 
   return (
     <PageLayout contentClassName="overflow-hidden [&>div]:h-full [&>div]:min-h-0">
-      <AnimatedPanel className="page-header !h-auto shrink-0">
-        <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
-          <ImagePlus aria-hidden="true" className="h-4 w-4" />
-          Мой альбом
-        </div>
-        <h1 className="text-text text-2xl font-semibold sm:text-3xl">Фото и видео</h1>
-        <p className="text-muted-text mt-1 text-sm">
-          Изображения, видео и аудио с приватным доступом.
-        </p>
-      </AnimatedPanel>
-
-      <AnimatedPanel className="!h-auto shrink-0 p-5">
-        <form
-          className="grid gap-gap md:grid-cols-[minmax(0,1.5fr)_repeat(2,minmax(0,1fr))_auto] md:items-end"
-          onSubmit={applyFilters}
-        >
-          <Input label="Имя файла" onChange={(event) => setName(event.target.value)} value={name} />
-          <DatePicker
-            label="С даты"
-            onChange={(event) => setDateFrom(event.target.value)}
-            value={dateFrom}
-          />
-          <DatePicker
-            label="По дату"
-            onChange={(event) => setDateTo(event.target.value)}
-            value={dateTo}
-          />
-          <div className="flex gap-2 md:justify-end">
-            <Button size="s" type="submit">
-              Найти
-            </Button>
-            <Button aria-label="Очистить фильтры" onClick={clearFilters} size="s" type="button">
-              <X aria-hidden="true" className="h-4 w-4" />
-            </Button>
-          </div>
-        </form>
-      </AnimatedPanel>
+      <HeaderPanel
+        left={
+          <>
+            <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
+              <ImagePlus aria-hidden="true" className="h-4 w-4" />
+              Мой альбом
+            </div>
+            <h1 className="text-text text-2xl font-semibold sm:text-3xl">Фото и видео</h1>
+            <p className="text-muted-text mt-1 text-sm">
+              Изображения, видео и аудио с приватным доступом.
+            </p>
+          </>
+        }
+      />
 
       <AnimatedPanel className="!h-auto shrink-0 p-5">
         <div className="flex w-full flex-wrap items-center justify-between gap-gap">

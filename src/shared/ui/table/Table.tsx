@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { animatedPanelSurfaceStyle } from '@/shared/ui/animated-panel';
 import { Pagination } from '@/shared/ui/pagination';
 import type { PaginationProps } from '@/shared/ui/pagination';
 
@@ -29,7 +30,10 @@ export const Table = <T,>({
   isLoading = false,
   pagination,
 }: TableProps<T>) => (
-  <div className="border-border bg-surface/70 flex h-full min-h-0 w-full flex-col overflow-hidden rounded-3xl border shadow-[0_0_45px_rgba(176,38,255,0.08)] backdrop-blur-xl">
+  <div
+    className="border-border flex h-full min-h-0 w-full flex-col overflow-hidden rounded-3xl border shadow-[0_0_45px_rgba(176,38,255,0.08)]"
+    style={animatedPanelSurfaceStyle}
+  >
     <div className="min-h-0 flex-1 overflow-auto h-full">
       <table
         aria-label={ariaLabel}
@@ -90,7 +94,7 @@ export const Table = <T,>({
     </div>
 
     {pagination && (
-      <div className="border-border bg-elevated/75 shrink-0 border-t px-4 py-3 backdrop-blur-xl">
+      <div className="border-border bg-elevated/75 flex shrink-0 justify-end border-t px-4 py-3 backdrop-blur-xl">
         <Pagination {...pagination} />
       </div>
     )}

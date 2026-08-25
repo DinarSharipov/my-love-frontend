@@ -1,10 +1,8 @@
-import { Archive, HeartCrack, LogOut, RotateCcw, ShieldAlert, Undo2 } from 'lucide-react';
+import { Archive, HeartCrack, LogOut, RotateCcw, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
 
 import {
   type DissolutionResponseDto,
-  useCancelDissolutionMutation,
-  useConfirmDissolutionMutation,
   getApiErrorMessage,
   useArchiveFamilyMutation,
   useLeaveFamilyMutation,
@@ -14,12 +12,10 @@ import {
 import { AnimatedPanel, Button, ConfirmDialog } from '@/shared/ui';
 
 type FamilyLifecyclePanelProps = {
-  onFamilyChanged?: () => void;
   status: 'ACTIVE' | 'ARCHIVED' | 'DISSOLVED';
 };
 
-type LifecycleAction =
-  'leave' | 'archive' | 'request-dissolution' | 'confirm-dissolution' | 'cancel-dissolution';
+type LifecycleAction = 'leave' | 'archive' | 'request-dissolution';
 
 const actionCopy: Record<
   LifecycleAction,
@@ -41,20 +37,9 @@ const actionCopy: Record<
       'Второй партнёр получит уведомление. Семья будет расформирована только после его подтверждения.',
     title: 'Запросить расформирование семьи?',
   },
-  'confirm-dissolution': {
-    confirmLabel: 'Подтвердить',
-    description:
-      'Подтверждайте только запрос второго партнёра. После этого семья будет расформирована, а общие данные сохранятся.',
-    title: 'Подтвердить расформирование?',
-  },
-  'cancel-dissolution': {
-    confirmLabel: 'Отменить запрос',
-    description: 'Активный запрос на расформирование будет отменён для обоих партнёров.',
-    title: 'Отменить запрос на расформирование?',
-  },
 };
 
-export const FamilyLifecyclePanel = ({ onFamilyChanged, status }: FamilyLifecyclePanelProps) => {
+export const FamilyLifecyclePanel = ({ status }: FamilyLifecyclePanelProps) => {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<LifecycleAction | null>(null);
@@ -63,8 +48,6 @@ export const FamilyLifecyclePanel = ({ onFamilyChanged, status }: FamilyLifecycl
   const [archiveFamily, archiveState] = useArchiveFamilyMutation();
   const [restoreFamily, restoreState] = useRestoreFamilyMutation();
   const [requestDissolution, requestDissolutionState] = useRequestDissolutionMutation();
-  const [confirmDissolution, confirmDissolutionState] = useConfirmDissolutionMutation();
-  const [cancelDissolution, cancelDissolutionState] = useCancelDissolutionMutation();
 
   const run = async (action: () => Promise<unknown>) => {
     setError(null);
@@ -80,9 +63,7 @@ export const FamilyLifecyclePanel = ({ onFamilyChanged, status }: FamilyLifecycl
     leaveState.isLoading ||
     archiveState.isLoading ||
     restoreState.isLoading ||
-    requestDissolutionState.isLoading ||
-    confirmDissolutionState.isLoading ||
-    cancelDissolutionState.isLoading;
+    requestDissolutionState.isLoading;
   const confirmPending = pendingAction !== null;
 
   const confirmAction = async () => {
@@ -93,20 +74,6 @@ export const FamilyLifecyclePanel = ({ onFamilyChanged, status }: FamilyLifecycl
         const request = await requestDissolution().unwrap();
         setDissolution(request);
         setNotice('Запрос отправлен. Второму партнёру направлено уведомление для подтверждения.');
-      });
-    }
-    if (pendingAction === 'confirm-dissolution') {
-      await run(async () => {
-        await confirmDissolution().unwrap();
-        setNotice('Расформирование подтверждено. Обновляем состояние семьи.');
-        onFamilyChanged?.();
-      });
-    }
-    if (pendingAction === 'cancel-dissolution') {
-      await run(async () => {
-        await cancelDissolution().unwrap();
-        setDissolution(null);
-        setNotice('Запрос на расформирование отменён.');
       });
     }
     setPendingAction(null);
@@ -170,32 +137,6 @@ export const FamilyLifecyclePanel = ({ onFamilyChanged, status }: FamilyLifecycl
           </Button>
         )}
       </div>
-      {status === 'ACTIVE' && (
-        <div className="border-border bg-elevated/25 mt-4 rounded-2xl border p-3">
-          <p className="text-muted-text text-xs leading-relaxed">
-            Получили запрос от партнёра? Подтвердите или отмените его здесь. Backend разрешит
-            подтверждение только второму партнёру.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-gap">
-            <Button
-              disabled={busy}
-              icon={<HeartCrack aria-hidden="true" className="h-4 w-4" />}
-              onClick={() => setPendingAction('confirm-dissolution')}
-              size="s"
-            >
-              Подтвердить запрос
-            </Button>
-            <Button
-              disabled={busy}
-              icon={<Undo2 aria-hidden="true" className="h-4 w-4" />}
-              onClick={() => setPendingAction('cancel-dissolution')}
-              size="s"
-            >
-              Отменить запрос
-            </Button>
-          </div>
-        </div>
-      )}
       {status === 'DISSOLVED' && (
         <p className="text-muted-text mt-4 text-sm">
           Семья расформирована. Общие данные остаются сохранёнными согласно политике доступа.

@@ -32,7 +32,7 @@ const surfaceVariants: Variants = {
   },
 };
 
-const panelSurfaceStyle = {
+export const animatedPanelSurfaceStyle = {
   backgroundColor:
     'color-mix(in srgb, var(--color-surface) calc(var(--animated-panel-opacity, 0.9) * 100%), transparent)',
   backdropFilter: 'blur(var(--animated-panel-blur, 12px))',
@@ -42,7 +42,7 @@ const AnimatedPanelSurface = memo(() => (
   <motion.div
     aria-hidden="true"
     className="absolute inset-0 -z-10 rounded-3xl border backdrop-blur-md"
-    style={panelSurfaceStyle}
+    style={animatedPanelSurfaceStyle}
     variants={surfaceVariants}
   />
 ));
@@ -59,7 +59,7 @@ const AnimatedPanelComponent = ({ children, className = '', ...props }: Animated
     {...props}
   >
     <AnimatedPanelSurface />
-    <div className="relative z-10 h-full min-h-0 flex flex-col">{children}</div>
+    <div className="relative z-10 h-full min-h-0 flex flex-col w-full">{children}</div>
   </motion.section>
 );
 

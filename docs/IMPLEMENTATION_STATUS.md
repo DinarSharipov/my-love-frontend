@@ -1,5 +1,31 @@
 # My Love — статус реализации
 
+## 25 августа 2026 — общий HeaderPanel
+
+Добавлен `shared/ui/header-panel/HeaderPanel.tsx` с обязательным left-slot и опциональным right-slot для page-level заголовков. Компонент использует общий cyberpunk `AnimatedPanel`, занимает всю доступную ширину, имеет естественную высоту по контенту и адаптивно переносит правые действия. Все существовавшие `.page-header` в маршрутах и семейном календаре переведены на этот контракт; поисковая строка, primary actions и переключатели перенесены в `right`, где это уместно. В `AGENTS.md` закреплено обязательное использование `HeaderPanel` для новых page-level headers. Browser QA всех затронутых маршрутов выполняет пользователь.
+
+По visual QA раскрытые пункты каждой группы sidebar сдвинуты на 20px вправо относительно корневого group header; в свёрнутом icon-only режиме дополнительный отступ не применяется.
+
+Компактный sidebar уменьшен с 80px до 64px: снижены padding внешней panel и navigation container, а иконные пункты сохранены круглыми с зоной клика 40×40px.
+
+Во вкладке уведомлений `/settings` отключена прокрутка общего settings container. Фиксированными остаются page header, tabs и правая колонка с каналами; только список inbox получил собственный `notifications-list-scroll`, который используется и как target серверной infinite pagination.
+
+Исправлен badge непрочитанных уведомлений в нижнем меню: после изменения Swagger operationId `useList11Query` стал recipes endpoint, но всё ещё использовался как источник badge. `MainRouteLayout` переведён на `useList12Query` (`GET /api/v1/notifications`), который возвращает реальные notification DTO; теперь badge не считает элементы рецептов как непрочитанные уведомления.
+
+Из lifecycle panel временно убраны действия «Подтвердить запрос» и «Отменить запрос»: Swagger не публикует `GET` текущего dissolution request, поэтому UI не мог достоверно сообщить, что запрос партнёра существует. До появления read-контракта оставлено только явное создание собственного запроса на расформирование и его локальный pending-status.
+
+## 25 августа 2026 — информационная архитектура навигации «Моя семья»
+
+Левое меню семейного раздела перестроено из плоского списка из 11 равноправных ссылок в раскрываемые смысловые группы: «Обзор», «Планирование», «Быт», «Семья», «Финансы» и «Управление». «Общие» переименовано в «Обзор семьи», а «Регулярные задачи» стало вложенным пунктом «Задач». Активная группа открывается автоматически при переходе по маршруту; группы доступны с клавиатуры, передают `aria-expanded`, а при сворачивании sidebar остаётся компактная иконная навигация. Внутренняя прокрутка исключает потерю нижних пунктов на невысоких desktop-экранах. Browser QA группировки и компактного режима выполняет пользователь.
+
+По результатам visual QA развёрнутая ширина sidebar увеличена до 288px. Заголовки всех групп получили семантические иконки, а вертикальные и горизонтальные отступы ссылок, group headers и вложенных задач уменьшены для более плотной навигации без сокращения текста. Browser QA обновлённой плотности и ширины выполняет пользователь.
+
+По дополнительной visual QA заголовки корневых групп получили чуть больший padding, `cursor-pointer` и заметный hover: токенизированную неоновую поверхность, границу и контрастный текст. Компактные отступы дочерних пунктов сохранены.
+
+Страница `/my_family/calendar` переведена в viewport-ограниченный flex-layout: route container и calendar widget используют `h-full/min-h-0`, а header занимает только естественную высоту. Удалены жёсткие минимальные высоты 360px/560px, из-за которых контент увеличивал страницу выше доступного viewport; agenda сохраняет внутреннюю прокрутку, а календарная сетка сжимается в доступном остатке высоты. Browser QA поведения на desktop и narrow viewport выполняет пользователь.
+
+После visual QA исправлен побочный эффект базового `AnimatedPanel h-full`: header календаря получил явный `!h-auto`, поэтому больше не занимает весь viewport и не выталкивает основной календарный контент вниз.
+
 ## 25 августа 2026 — cyberpunk loader общего Button
 
 Общий `Button` получил проп `isLoading`: кнопка становится недоступной, сообщает `aria-busy` и заменяет переданную иконку на ripple-лоадер Motion — три неоновых кольца расходятся с увеличенным отступом от текста. Загрузка медиа на `/my_family/media` переведена с локального label/span на общий `Button`: повторный выбор файла блокируется, а состояние загрузки отображается единообразно. Проверки: Prettier, `format:check`, `typecheck`, ESLint и `git diff --check` — PASS; browser QA остаётся за пользователем.
@@ -316,6 +342,16 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 # 2026-08-20 collapsed sidebar gutter fix: устранено переполнение круглого активного пункта из-за одновременных padding у `AnimatedPanel` и `nav`; в collapsed-состоянии применяются компактные `!p-2`/`!p-1`, поэтому круг полностью помещается и центрируется внутри Sidebar. Checks: format/format:check/typecheck/diff-check PASS; browser QA не выполнялась.
 
 # 2026-08-20 deploy build fix: CI падал на шаге `npm run lint` из-за двух несвязанных с Sidebar label-ошибок в `ThemeSettingsPanel`: range inputs не имели `id`, а labels — `htmlFor`. Связи добавлены; полный workflow-порядок `format:check`, `typecheck`, `lint`, `build`, `git diff --check` проходит. Сервер `185.227.144.160` read-only проверен: контейнер `my-love-frontend` запущен, текущий HTTP healthcheck отвечает.
+
+# 2026-08-25 table theme surface: контейнер общего `Table` использует тот же shared surface-style, что и `AnimatedPanel`: `--animated-panel-opacity` и `--animated-panel-blur` из настроек темы применяются к фону и backdrop blur таблиц. Проверки: format/format:check/typecheck/lint/build/diff-check — PASS; browser QA выполняет пользователь.
+
+# 2026-08-25 table pagination alignment: общий footer `Table` выравнивает `Pagination` по правому краю вместо центра. Это применяется ко всем таблицам, использующим shared-компонент. Проверки: format/format:check/typecheck/lint/build/diff-check — PASS; browser QA выполняет пользователь.
+
+# 2026-08-25 HeaderPanel right slot alignment: правый слот общего page header теперь занимает всю строку на mobile и получает `margin-left: auto` при `sm+`. На `/all_users` поле поиска закреплено в правой части одной desktop-строки header (без переноса), а на узком экране остаётся доступным на отдельной строке. Проверки: format/format:check/typecheck/lint/build/diff-check — PASS; browser QA выполняет пользователь.
+
+# 2026-08-25 settings notification channels scroll: правая колонка раздела уведомлений на `/settings` получила независимую прокрутку на desktop, поэтому карточка подключения Telegram остаётся доступной при невысоком viewport. Для этого контейнера scrollbar скрыт; у списка входящих сохранён собственный видимый scrollbar. Проверки: format/format:check/typecheck/lint/build/diff-check — PASS; browser QA выполняет пользователь.
+
+# 2026-08-25 media filters removal: на `/my_family/media` удалён блок поиска и фильтрации по имени/датам. Галерея, загрузка, предпросмотр, удаление и infinite scroll сохранены; запрос списка медиа теперь всегда получает страницы без параметров фильтра. Проверки: format/format:check/typecheck/lint/build/diff-check — PASS; browser QA выполняет пользователь.
 
 # 2026-08-20 page headers: все 13 найденных обёрток с классом `page-header` заменены на `AnimatedPanel` с сохранением класса для sticky-позиционирования и существующей layout-логики. Checks: format/format:check/typecheck/build/diff-check PASS; lint заблокирован двумя существующими jsx-a11y ошибками в `ThemeSettingsPanel.tsx` (строки 100 и 120); authenticated browser QA не выполнялась.
 

@@ -18,6 +18,7 @@ import {
   AsyncState,
   Button,
   DatePicker,
+  HeaderPanel,
   Input,
   PageLayout,
   Select,
@@ -133,15 +134,19 @@ export const TasksPage = () => {
   };
   return (
     <PageLayout contentClassName="lg:overflow-hidden lg:[&>div]:h-full">
-      <AnimatedPanel className="page-header !h-auto shrink-0">
-        <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
-          Семейный стол
-        </p>
-        <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">Задачи и дела</h1>
-        <p className="text-muted-text mt-1 text-sm">
-          Собирайте бытовые дела в одном понятном списке.
-        </p>
-      </AnimatedPanel>
+      <HeaderPanel
+        left={
+          <>
+            <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
+              Семейный стол
+            </p>
+            <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">Задачи и дела</h1>
+            <p className="text-muted-text mt-1 text-sm">
+              Собирайте бытовые дела в одном понятном списке.
+            </p>
+          </>
+        }
+      />
       <div className="grid min-h-0 flex-1 items-stretch gap-gap lg:grid-cols-[minmax(20rem,1.5fr)_minmax(0,1fr)]">
         <AnimatedPanel className="!h-auto min-h-0 p-5 sm:p-6">
           <form className="space-y-4" onSubmit={submit}>

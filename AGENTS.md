@@ -14,6 +14,7 @@ Cyberpunk web app for creating a family and managing family life: household task
 - Follow Feature-Sliced Design: `app → pages → widgets → features → entities → shared`; imports may only point downward.
 - Put generic UI primitives in `src/shared/ui`. Move other code to `shared` when it is reused 2–3 times and is genuinely domain-agnostic; keep domain logic in `entities`/`features`.
 - Оборачивай самостоятельные визуальные блоки и карточки в общий `AnimatedPanel`; специализированные контейнеры с собственным overflow/layout можно не оборачивать, если это ломает их поведение.
+- Для page-level header всегда используй `src/shared/ui/header-panel/HeaderPanel.tsx`: передавай основной контент через `left`, действия или дополнительные controls через `right`. Компонент занимает всю доступную ширину и имеет естественную высоту по внутреннему контенту.
 - Все модальные окна открывай через переиспользуемый `src/shared/ui/modal/Modal.tsx`: компонент использует React Portal, принимает `children` и `onClose`, закрывается по outside click/Escape и содержит единые open/close-анимации.
 - Use RTK Query for server state and Redux Toolkit only for justified client/global state.
 

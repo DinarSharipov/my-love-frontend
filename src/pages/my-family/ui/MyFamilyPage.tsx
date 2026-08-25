@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FamilyLifecyclePanel } from '@/features/family-lifecycle';
 import { ChildProfilesPanel } from '@/features/child-profiles';
 import { useFindMyFamilyQuery } from '@/shared/api';
-import { AnimatedPanel, AsyncState, Button, PageLayout } from '@/shared/ui';
+import { AnimatedPanel, AsyncState, Button, HeaderPanel, PageLayout } from '@/shared/ui';
 import { FirstDateTracker } from '@/widgets/first-date-tracker';
 
 const isMissingActiveFamilyError = (error: unknown) =>
@@ -93,14 +93,22 @@ export const MyFamilyPage = () => {
 
   return (
     <PageLayout>
-      <AnimatedPanel className="page-header">
-        <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
-          <UsersRound aria-hidden="true" className="h-4 w-4" />
-          Моя семья
-        </div>
-        <h1 className="text-text text-2xl font-semibold sm:text-3xl">Ваше общее пространство</h1>
-        <p className="text-muted-text mt-1 text-sm">Семья создана {formatDate(data.createdAt)}</p>
-      </AnimatedPanel>
+      <HeaderPanel
+        left={
+          <>
+            <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
+              <UsersRound aria-hidden="true" className="h-4 w-4" />
+              Моя семья
+            </div>
+            <h1 className="text-text text-2xl font-semibold sm:text-3xl">
+              Ваше общее пространство
+            </h1>
+            <p className="text-muted-text mt-1 text-sm">
+              Семья создана {formatDate(data.createdAt)}
+            </p>
+          </>
+        }
+      />
 
       <section className="grid gap-gap sm:grid-cols-2">
         {data.members.map(({ id, joinedAt, user }, index) => (
@@ -129,7 +137,7 @@ export const MyFamilyPage = () => {
 
       <FirstDateTracker />
       <ChildProfilesPanel />
-      <FamilyLifecyclePanel onFamilyChanged={() => refetch()} status={data.status} />
+      <FamilyLifecyclePanel status={data.status} />
     </PageLayout>
   );
 };

@@ -1,1 +1,1 @@
-export { AnimatedPanel } from './AnimatedPanel';
+export { AnimatedPanel, animatedPanelSurfaceStyle } from './AnimatedPanel';

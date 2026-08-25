@@ -2,7 +2,7 @@ import { FileAudio, Link2, Music2, Play, Trash2, Upload } from 'lucide-react';
 import { useState } from 'react';
 
 import { useMediaPlayer } from '@/features/media-player';
-import { AnimatedPanel, Button, Input, PageLayout, Table, Tabs } from '@/shared/ui';
+import { AnimatedPanel, Button, HeaderPanel, Input, PageLayout, Table, Tabs } from '@/shared/ui';
 
 const formatTrackType = (track: { sourceType: 'file' | 'url' }) =>
   track.sourceType === 'file' ? 'Локальный файл' : 'URL';
@@ -225,15 +225,19 @@ export const MediaHubPage = () => {
 
   return (
     <PageLayout>
-      <AnimatedPanel className="page-header">
-        <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
-          <Music2 aria-hidden="true" className="h-4 w-4" /> Медиа
-        </div>
-        <h1 className="text-text text-2xl font-semibold sm:text-3xl">Музыкальный центр</h1>
-        <p className="text-muted-text mt-1 text-sm">
-          Локальный плейлист и плавающий плеер. Backend подключим отдельным срезом.
-        </p>
-      </AnimatedPanel>
+      <HeaderPanel
+        left={
+          <>
+            <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
+              <Music2 aria-hidden="true" className="h-4 w-4" /> Медиа
+            </div>
+            <h1 className="text-text text-2xl font-semibold sm:text-3xl">Музыкальный центр</h1>
+            <p className="text-muted-text mt-1 text-sm">
+              Локальный плейлист и плавающий плеер. Backend подключим отдельным срезом.
+            </p>
+          </>
+        }
+      />
       <Tabs
         activeId={activeTab}
         items={[

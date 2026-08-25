@@ -1,23 +1,55 @@
-import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
-import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { ChevronDown, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import type { ComponentType } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 
 import type { MenuItem } from '@/shared/ui/footer';
 import { LogoIcon } from '@/shared/ui/logo/LogoIcon';
 import { AnimatedPanel } from '../animated-panel';
 
-type SidebarProps = { items: readonly MenuItem[] };
+export type SidebarMenuGroup = {
+  icon: ComponentType<{ className?: string; strokeWidth?: number }>;
+  id: string;
+  items: readonly MenuItem[];
+  label: string;
+};
 
-export const Sidebar = ({ items }: SidebarProps) => {
+type SidebarProps = { groups: readonly SidebarMenuGroup[] };
+
+const isItemActive = (item: MenuItem, pathname: string): boolean =>
+  item.to === pathname || Boolean(item.children?.some((child) => isItemActive(child, pathname)));
+
+const isGroupActive = (group: SidebarMenuGroup, pathname: string): boolean =>
+  group.items.some((item) => isItemActive(item, pathname));
+
+export const Sidebar = ({ groups }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
+  const { pathname } = useLocation();
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(groups.map((group) => [group.id, isGroupActive(group, pathname)])),
+  );
+
+  useEffect(() => {
+    setExpandedGroups((current) => {
+      const activeGroups = groups.filter((group) => isGroupActive(group, pathname));
+
+      if (activeGroups.every((group) => current[group.id])) return current;
+
+      return {
+        ...current,
+        ...Object.fromEntries(activeGroups.map((group) => [group.id, true])),
+      };
+    });
+  }, [groups, pathname]);
+
   return (
     <aside
-      className={`min-h-0 min-w-20 shrink-0 overflow-visible transition-[width] duration-300 lg:block ${collapsed ? 'w-20' : 'w-64'}`}
+      className={`min-h-0 min-w-16 shrink-0 overflow-visible transition-[width] duration-300 lg:block ${collapsed ? 'w-16' : 'w-72'}`}
     >
-      <AnimatedPanel className={`h-full min-w-0 ${collapsed ? '!p-2' : ''}`}>
+      <AnimatedPanel className={`h-full min-w-0 ${collapsed ? '!p-1.5' : ''}`}>
         <nav
           aria-label="Основная навигация"
-          className={`flex h-full min-w-0 flex-col gap-gap overflow-hidden ${collapsed ? '!p-1' : 'p-page'}`}
+          className={`flex h-full min-w-0 flex-col gap-gap overflow-x-hidden overflow-y-auto ${collapsed ? '!p-0.5' : 'p-page'}`}
         >
           <button
             aria-label={collapsed ? 'Развернуть меню' : 'Свернуть меню'}
@@ -32,66 +64,117 @@ export const Sidebar = ({ items }: SidebarProps) => {
               <ChevronLeft className="h-5 w-5 shrink-0" />
             )}
           </button>
-          {items.map((item) => {
-            const Icon = item.icon;
+          {groups.map((group) => {
+            const groupIsOpen = collapsed || expandedGroups[group.id];
+            const GroupIcon = group.icon;
+
             return (
-              <div className="group relative" key={`${item.to ?? 'callback'}-${item.label}`}>
-                {item.to ? (
-                  <NavLink
-                    aria-label={item.label}
-                    className={({ isActive }) =>
-                      `flex min-w-0 items-center ${collapsed ? 'mx-auto h-14 w-14 justify-center rounded-full p-0' : 'gap-gap rounded-[var(--radius-panel)] px-3 py-3'} border text-sm transition-colors focus-visible:outline-2 focus-visible:outline-cyber-cyan ${isActive ? 'border-primary-neon/35 bg-primary-neon/15 text-primary-neon shadow-[0_0_22px_rgb(176_38_255_/_16%)]' : 'border-transparent text-muted-text hover:border-border hover:bg-elevated/70 hover:text-text'}`
-                    }
-                    end
-                    to={item.to}
-                  >
-                    <Icon className="h-5 w-5 shrink-0" />
-                    {!collapsed && <span className="truncate">{item.label}</span>}
-                    {!collapsed && Boolean(item.badgeCount) && (
-                      <span className="bg-neon-pink text-text ml-auto rounded-full px-1.5 text-[10px]">
-                        {item.badgeCount}
-                      </span>
-                    )}
-                  </NavLink>
-                ) : (
+              <section className="flex flex-col gap-1" key={group.id}>
+                {!collapsed && (
                   <button
-                    aria-label={item.label}
-                    className={`text-muted-text hover:text-text flex min-w-0 w-full items-center rounded-xl py-3 text-sm ${collapsed ? 'justify-center px-0' : 'gap-gap px-3'}`}
-                    onClick={item.callback}
+                    aria-controls={`sidebar-group-${group.id}`}
+                    aria-expanded={groupIsOpen}
+                    className="text-muted-text hover:border-primary-neon/35 hover:bg-primary-neon/10 hover:text-text flex min-w-0 cursor-pointer items-center justify-between rounded-[var(--radius-panel)] border border-transparent px-2.5 py-2 text-left text-xs font-medium uppercase tracking-[0.12em] transition-colors focus-visible:outline-2 focus-visible:outline-cyber-cyan"
+                    onClick={() =>
+                      setExpandedGroups((current) => ({
+                        ...current,
+                        [group.id]: !current[group.id],
+                      }))
+                    }
                     type="button"
                   >
-                    <Icon className="h-5 w-5 shrink-0" />
-                    {!collapsed && item.label}
+                    <span className="flex min-w-0 items-center gap-1.5 truncate">
+                      <GroupIcon
+                        aria-hidden="true"
+                        className="h-4 w-4 shrink-0"
+                        strokeWidth={1.8}
+                      />
+                      <span className="truncate">{group.label}</span>
+                    </span>
+                    <ChevronDown
+                      aria-hidden="true"
+                      className={`h-4 w-4 shrink-0 transition-transform ${groupIsOpen ? '' : '-rotate-90'}`}
+                    />
                   </button>
                 )}
-                {!collapsed && item.children && (
-                  <div className="border-border/70 ml-5 mt-1 space-y-1 border-l pl-3">
-                    {item.children.map((child) => {
-                      const ChildIcon = child.icon;
-                      return child.to ? (
-                        <NavLink
-                          className="text-muted-text hover:text-text flex items-center gap-gap rounded-lg px-2 py-2 text-xs"
-                          key={child.label}
-                          to={child.to}
+                {groupIsOpen && (
+                  <div
+                    className={`flex flex-col gap-1 ${collapsed ? '' : 'pl-5'}`}
+                    id={`sidebar-group-${group.id}`}
+                  >
+                    {group.items.map((item) => {
+                      const Icon = item.icon;
+                      const itemIsActive = isItemActive(item, pathname);
+
+                      return (
+                        <div
+                          className="group relative"
+                          key={`${item.to ?? 'callback'}-${item.label}`}
                         >
-                          <ChildIcon className="h-4 w-4 shrink-0" />
-                          {child.label}
-                        </NavLink>
-                      ) : (
-                        <button
-                          className="text-muted-text hover:text-text flex w-full items-center gap-gap rounded-lg px-2 py-2 text-xs"
-                          key={child.label}
-                          onClick={child.callback}
-                          type="button"
-                        >
-                          <ChildIcon className="h-4 w-4 shrink-0" />
-                          {child.label}
-                        </button>
+                          {item.to ? (
+                            <NavLink
+                              aria-label={item.label}
+                              className={() =>
+                                `flex min-w-0 items-center ${collapsed ? 'mx-auto h-10 w-10 justify-center rounded-full p-0' : 'gap-gap rounded-[var(--radius-panel)] px-2 py-2'} border text-sm transition-colors focus-visible:outline-2 focus-visible:outline-cyber-cyan ${itemIsActive ? 'border-primary-neon/35 bg-primary-neon/15 text-primary-neon shadow-[0_0_22px_rgb(176_38_255_/_16%)]' : 'border-transparent text-muted-text hover:border-border hover:bg-elevated/70 hover:text-text'}`
+                              }
+                              end={!item.children?.length}
+                              to={item.to}
+                            >
+                              <Icon className="h-5 w-5 shrink-0" />
+                              {!collapsed && <span className="truncate">{item.label}</span>}
+                              {!collapsed && Boolean(item.badgeCount) && (
+                                <span className="bg-neon-pink text-text ml-auto rounded-full px-1.5 text-[10px]">
+                                  {item.badgeCount}
+                                </span>
+                              )}
+                            </NavLink>
+                          ) : (
+                            <button
+                              aria-label={item.label}
+                              className={`text-muted-text hover:text-text flex min-w-0 w-full items-center rounded-xl py-2 text-sm ${collapsed ? 'justify-center px-0' : 'gap-gap px-2'}`}
+                              onClick={item.callback}
+                              type="button"
+                            >
+                              <Icon className="h-5 w-5 shrink-0" />
+                              {!collapsed && item.label}
+                            </button>
+                          )}
+                          {!collapsed && item.children && (
+                            <div className="border-border/70 ml-4 mt-0.5 space-y-0.5 border-l pl-2">
+                              {item.children.map((child) => {
+                                const ChildIcon = child.icon;
+                                const childIsActive = isItemActive(child, pathname);
+                                const childClassName = `flex items-center gap-gap rounded-lg px-1.5 py-1.5 text-xs transition-colors focus-visible:outline-2 focus-visible:outline-cyber-cyan ${childIsActive ? 'bg-primary-neon/10 text-primary-neon' : 'text-muted-text hover:text-text'}`;
+
+                                return child.to ? (
+                                  <NavLink
+                                    className={childClassName}
+                                    key={child.label}
+                                    to={child.to}
+                                  >
+                                    <ChildIcon className="h-4 w-4 shrink-0" />
+                                    {child.label}
+                                  </NavLink>
+                                ) : (
+                                  <button
+                                    className={`${childClassName} w-full`}
+                                    key={child.label}
+                                    onClick={child.callback}
+                                    type="button"
+                                  >
+                                    <ChildIcon className="h-4 w-4 shrink-0" />
+                                    {child.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
                 )}
-              </div>
+              </section>
             );
           })}
           <div className="mt-auto flex items-center gap-gap px-3 py-3 text-xs text-muted-text">

@@ -16,7 +16,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { clearCredentials } from '@/entities/user';
 import type { Notification } from '@/entities/notification';
 import { useLogoutMutation } from '@/features/auth';
-import { baseApi, useFindMyFamilyQuery, useList11Query } from '@/shared/api';
+import { baseApi, useFindMyFamilyQuery, useList12Query } from '@/shared/api';
 import { AppBackground, MainLayout } from '@/shared/ui';
 import { LogoIcon } from '@/shared/ui/logo/LogoIcon';
 import type { MenuItem } from '@/shared/ui';
@@ -27,7 +27,7 @@ export const MainRouteLayout = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [logout] = useLogoutMutation();
-  const notifications = useList11Query();
+  const notifications = useList12Query();
   const family = useFindMyFamilyQuery();
   const canSearchPartner =
     family.error && typeof family.error === 'object' && 'status' in family.error

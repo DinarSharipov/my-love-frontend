@@ -14,7 +14,7 @@ import {
   useRestore6Mutation,
   useUncheckMutation,
 } from '@/shared/api';
-import { AnimatedPanel, AsyncState, Button, Input, PageLayout } from '@/shared/ui';
+import { AnimatedPanel, AsyncState, Button, HeaderPanel, Input, PageLayout } from '@/shared/ui';
 
 type ItemDraft = {
   name: string;
@@ -108,15 +108,19 @@ export const ShoppingListsPage = () => {
 
   return (
     <PageLayout>
-      <AnimatedPanel className="page-header">
-        <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
-          Семейный стол
-        </p>
-        <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">Списки покупок</h1>
-        <p className="text-muted-text mt-1 text-sm">
-          Собирайте покупки вместе и отмечайте уже взятое.
-        </p>
-        <div className="mt-4">
+      <HeaderPanel
+        left={
+          <>
+            <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
+              Семейный стол
+            </p>
+            <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">Списки покупок</h1>
+            <p className="text-muted-text mt-1 text-sm">
+              Собирайте покупки вместе и отмечайте уже взятое.
+            </p>
+          </>
+        }
+        right={
           <Button onClick={() => setShowArchived((value) => !value)} size="s">
             {showArchived ? (
               <RotateCcw aria-hidden="true" className="size-4" />
@@ -125,8 +129,8 @@ export const ShoppingListsPage = () => {
             )}
             {showArchived ? '?????????? ????????????' : '?????????? ??????????'}
           </Button>
-        </div>
-      </AnimatedPanel>
+        }
+      />
 
       {!showArchived && (
         <AnimatedPanel className="p-5 sm:p-6">

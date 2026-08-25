@@ -13,7 +13,7 @@ import {
 } from '@/features/family-invitations';
 import type { FamilyInvitationResponseDto } from '@/shared/api';
 import { getApiErrorMessage } from '@/shared/api';
-import { AnimatedPanel, AsyncState, Button, PageLayout } from '@/shared/ui';
+import { AnimatedPanel, AsyncState, Button, HeaderPanel, PageLayout } from '@/shared/ui';
 
 type InvitationAction = 'accept' | 'cancel' | 'reject';
 type InvitationDirection = 'incoming' | 'outgoing';
@@ -317,31 +317,36 @@ export const FamilyInvitationsPage = () => {
   return (
     <PageLayout>
       <div className="w-full">
-        <AnimatedPanel className="page-header mb-5 flex flex-wrap items-end justify-between gap-gap">
-          <div>
-            <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
-              <MailCheck aria-hidden="true" className="h-4 w-4" />
-              Создание семьи
-            </div>
-            <h1 className="text-text text-2xl font-semibold sm:text-3xl">Приглашения</h1>
-            <p className="text-muted-text mt-1 text-sm">
-              Управляйте приглашениями и решениями о создании общего семейного пространства.
-            </p>
-          </div>
-          <Button
-            disabled={incoming.isFetching || outgoing.isFetching}
-            onClick={handleRefresh}
-            size="s"
-          >
-            <span className="flex items-center gap-gap">
-              <RefreshCw
-                aria-hidden="true"
-                className={`h-4 w-4 ${incoming.isFetching || outgoing.isFetching ? 'animate-spin' : ''}`}
-              />
-              Обновить
-            </span>
-          </Button>
-        </AnimatedPanel>
+        <HeaderPanel
+          className="mb-5"
+          left={
+            <>
+              <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
+                <MailCheck aria-hidden="true" className="h-4 w-4" />
+                Создание семьи
+              </div>
+              <h1 className="text-text text-2xl font-semibold sm:text-3xl">Приглашения</h1>
+              <p className="text-muted-text mt-1 text-sm">
+                Управляйте приглашениями и решениями о создании общего семейного пространства.
+              </p>
+            </>
+          }
+          right={
+            <Button
+              disabled={incoming.isFetching || outgoing.isFetching}
+              onClick={handleRefresh}
+              size="s"
+            >
+              <span className="flex items-center gap-gap">
+                <RefreshCw
+                  aria-hidden="true"
+                  className={`h-4 w-4 ${incoming.isFetching || outgoing.isFetching ? 'animate-spin' : ''}`}
+                />
+                Обновить
+              </span>
+            </Button>
+          }
+        />
 
         <AnimatePresence mode="wait">
           {notice && (

@@ -8,7 +8,7 @@ import {
   useCreateFamilyInvitationMutation,
   useFindUsersQuery,
 } from '@/shared/api';
-import { AnimatedPanel, Input, Table } from '@/shared/ui';
+import { HeaderPanel, Input, Table } from '@/shared/ui';
 import type { TableColumn } from '@/shared/ui';
 
 const PAGE_SIZE = 12;
@@ -167,34 +167,38 @@ export const AllUsersPage = () => {
 
   return (
     <main className="flex h-full min-h-0 flex-col gap-gap overflow-auto p-5">
-      <AnimatedPanel className="page-header flex shrink-0 flex-col gap-gap sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
-            <UsersRound aria-hidden="true" className="h-4 w-4" />
-            Поиск партнёра
+      <HeaderPanel
+        className="sm:flex-nowrap"
+        left={
+          <>
+            <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">
+              <UsersRound aria-hidden="true" className="h-4 w-4" />
+              Поиск партнёра
+            </div>
+            <h1 className="text-text text-2xl font-semibold sm:text-3xl">
+              Найдите близкого человека
+            </h1>
+            <p className="text-muted-text mt-1 text-sm">
+              Выберите пользователя и отправьте приглашение в семью.
+            </p>
+          </>
+        }
+        right={
+          <div className="relative w-full sm:w-96">
+            <Search
+              aria-hidden="true"
+              className="text-muted-text pointer-events-none absolute left-4 top-1/2 z-20 h-4 w-4 -translate-y-1/2"
+            />
+            <Input
+              aria-label="Поиск пользователей"
+              className="pl-11"
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Имя, фамилия или email"
+              value={search}
+            />
           </div>
-          <h1 className="text-text text-2xl font-semibold sm:text-3xl">
-            Найдите близкого человека
-          </h1>
-          <p className="text-muted-text mt-1 text-sm">
-            Выберите пользователя и отправьте приглашение в семью.
-          </p>
-        </div>
-
-        <div className="relative w-full">
-          <Search
-            aria-hidden="true"
-            className="text-muted-text pointer-events-none absolute left-4 top-1/2 z-20 h-4 w-4 -translate-y-1/2"
-          />
-          <Input
-            aria-label="Поиск пользователей"
-            className="pl-11"
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Имя, фамилия или email"
-            value={search}
-          />
-        </div>
-      </AnimatedPanel>
+        }
+      />
 
       <AnimatePresence mode="wait">
         {notice && (

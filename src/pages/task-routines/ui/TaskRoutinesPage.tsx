@@ -18,6 +18,7 @@ import {
   AsyncState,
   Button,
   DatePicker,
+  HeaderPanel,
   Input,
   Select,
   Textarea,
@@ -122,20 +123,26 @@ export const TaskRoutinesPage = () => {
   return (
     <main className="h-full overflow-auto p-5">
       <div className="mx-auto w-full space-y-5">
-        <AnimatedPanel className="page-header">
-          <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
-            Автоматизация быта
-          </p>
-          <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">Регулярные задачи</h1>
-          <p className="text-muted-text mt-1 text-sm">
-            Шаблоны дел, которые можно создавать по расписанию.
-          </p>
-          <div className="mt-4">
+        <HeaderPanel
+          left={
+            <>
+              <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
+                Автоматизация быта
+              </p>
+              <h1 className="text-text mt-1 text-2xl font-semibold sm:text-3xl">
+                Регулярные задачи
+              </h1>
+              <p className="text-muted-text mt-1 text-sm">
+                Шаблоны дел, которые можно создавать по расписанию.
+              </p>
+            </>
+          }
+          right={
             <Button onClick={() => setShowArchived((value) => !value)} size="s">
               {showArchived ? '?????????? ????????????' : '?????????? ??????????'}
             </Button>
-          </div>
-        </AnimatedPanel>
+          }
+        />
         {!showArchived && (
           <AnimatedPanel className="p-5">
             <form className="grid gap-gap md:grid-cols-2" onSubmit={submit}>

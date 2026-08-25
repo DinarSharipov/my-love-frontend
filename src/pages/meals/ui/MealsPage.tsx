@@ -34,6 +34,7 @@ import {
   AsyncState,
   Button,
   DatePicker,
+  HeaderPanel,
   Input,
   PageLayout,
   Select,
@@ -240,38 +241,44 @@ export const MealsPage = () => {
 
   return (
     <PageLayout>
-      <AnimatedPanel className="page-header">
-        <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
-          Семейная кухня
-        </p>
-        <h1 className="text-text mt-1 flex items-center gap-2 text-2xl font-semibold sm:text-3xl">
-          <ChefHat aria-hidden="true" className="text-primary-neon size-7" />
-          Рецепты и план питания
-        </h1>
-        <p className="text-muted-text mt-1 text-sm">
-          Храните семейные рецепты и заранее планируйте блюда на нужные даты.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-2" role="tablist" aria-label="Разделы питания">
-          <Button
-            aria-selected={tab === 'recipes'}
-            onClick={() => setTab('recipes')}
-            role="tab"
-            size="s"
-          >
-            <ListPlus aria-hidden="true" className="size-4" />
-            Рецепты
-          </Button>
-          <Button
-            aria-selected={tab === 'plans'}
-            onClick={() => setTab('plans')}
-            role="tab"
-            size="s"
-          >
-            <CalendarDays aria-hidden="true" className="size-4" />
-            План питания
-          </Button>
-        </div>
-      </AnimatedPanel>
+      <HeaderPanel
+        left={
+          <>
+            <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
+              Семейная кухня
+            </p>
+            <h1 className="text-text mt-1 flex items-center gap-2 text-2xl font-semibold sm:text-3xl">
+              <ChefHat aria-hidden="true" className="text-primary-neon size-7" />
+              Рецепты и план питания
+            </h1>
+            <p className="text-muted-text mt-1 text-sm">
+              Храните семейные рецепты и заранее планируйте блюда на нужные даты.
+            </p>
+          </>
+        }
+        right={
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Разделы питания">
+            <Button
+              aria-selected={tab === 'recipes'}
+              onClick={() => setTab('recipes')}
+              role="tab"
+              size="s"
+            >
+              <ListPlus aria-hidden="true" className="size-4" />
+              Рецепты
+            </Button>
+            <Button
+              aria-selected={tab === 'plans'}
+              onClick={() => setTab('plans')}
+              role="tab"
+              size="s"
+            >
+              <CalendarDays aria-hidden="true" className="size-4" />
+              План питания
+            </Button>
+          </div>
+        }
+      />
 
       {error && (
         <AnimatedPanel className="border-neon-pink/60 p-4" role="alert">
