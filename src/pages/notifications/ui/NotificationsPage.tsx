@@ -102,10 +102,10 @@ export const NotificationsPage = () => {
   ) => setPreferences((current) => (current ? { ...current, [key]: value } : current));
 
   return (
-    <main className="h-full overflow-y-auto lg:min-h-0 lg:overflow-hidden">
-      <div className="mx-auto grid w-full items-start gap-gap lg:h-full lg:min-h-0 lg:items-stretch lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
-        <section className="flex flex-col gap-5 lg:h-full lg:min-h-0">
-          <AnimatedPanel className="page-header">
+    <main className="min-h-full overflow-visible">
+      <div className="mx-auto grid min-h-full w-full items-start gap-gap lg:items-stretch lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
+        <section>
+          <AnimatedPanel className="!h-auto flex min-h-0 flex-col p-5 sm:p-6">
             <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
               Семейный inbox
             </p>
@@ -113,89 +113,90 @@ export const NotificationsPage = () => {
             <p className="text-muted-text mt-1 text-sm">
               Важные семейные события без лишнего шума.
             </p>
-          </AnimatedPanel>
+            {error && (
+              <p className="text-neon-pink mt-4 text-sm" role="alert">
+                {error}
+              </p>
+            )}
 
-          {error && (
-            <p className="text-neon-pink text-sm" role="alert">
-              {error}
-            </p>
-          )}
-
-          <AnimatedPanel className="flex min-h-0 flex-col p-5 sm:p-6 lg:flex-1">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-gap">
-              <div>
-                <h2 className="text-text flex items-center gap-gap font-semibold">
-                  <Bell className="text-cyber-cyan size-5" /> Входящие
-                </h2>
-                <p className="text-muted-text mt-1 text-xs">Непрочитанных: {unread.length}</p>
-              </div>
-              <Button
-                disabled={!unread.length || markAllState.isLoading}
-                icon={<CheckCheck className="size-4" />}
-                onClick={() => runInboxAction(() => markAllRead().unwrap())}
-                size="s"
-              >
-                Прочитать всё
-              </Button>
-            </div>
-            <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-              <AsyncState
-                empty={
-                  !inbox.isLoading && notifications.length === 0 ? (
-                    <p className="text-muted-text py-8 text-center text-sm">
-                      Новых уведомлений нет.
-                    </p>
-                  ) : undefined
-                }
-                error={inbox.error}
-                errorMessage="Не удалось загрузить уведомления"
-                hasData={Boolean(inbox.data)}
-                isLoading={inbox.isLoading}
-                loading={<p className="text-muted-text text-sm">Загружаем уведомления…</p>}
-                onRetry={() => inbox.refetch()}
-              >
-                <div className="h-full min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
-                  {notifications.map((notification) => (
-                    <article
-                      className={`border-border rounded-2xl border p-4 ${notification.readAt ? 'bg-elevated/25' : 'bg-primary-neon/10'}`}
-                      key={notification.id}
-                    >
-                      <div className="flex items-start gap-gap">
-                        <span
-                          aria-hidden="true"
-                          className={`mt-1 size-2 shrink-0 rounded-full ${notification.readAt ? 'bg-muted-text/40' : 'bg-primary-neon shadow-[0_0_10px_var(--color-primary-neon)]'}`}
-                        />
-                        <div className="min-w-0 flex-1">
-                          <h3 className="text-text text-sm font-semibold">{notification.title}</h3>
-                          {notification.body && (
-                            <p className="text-muted-text mt-1 text-sm">{notification.body}</p>
-                          )}
-                          <p className="text-muted-text mt-2 text-xs">
-                            {formatDate(notification.createdAt)}
-                          </p>
-                        </div>
-                        {!notification.readAt && (
-                          <Button
-                            aria-label={`Отметить уведомление «${notification.title}» прочитанным`}
-                            icon={<CheckCheck className="size-4" />}
-                            onClick={() =>
-                              runInboxAction(() => markRead({ id: notification.id }).unwrap())
-                            }
-                            size="s"
-                          >
-                            <span className="sr-only">Прочитать</span>
-                          </Button>
-                        )}
-                      </div>
-                    </article>
-                  ))}
+            <div className="mt-6">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-gap">
+                <div>
+                  <h2 className="text-text flex items-center gap-gap font-semibold">
+                    <Bell className="text-cyber-cyan size-5" /> Входящие
+                  </h2>
+                  <p className="text-muted-text mt-1 text-xs">Непрочитанных: {unread.length}</p>
                 </div>
-              </AsyncState>
+                <Button
+                  disabled={!unread.length || markAllState.isLoading}
+                  icon={<CheckCheck className="size-4" />}
+                  onClick={() => runInboxAction(() => markAllRead().unwrap())}
+                  size="s"
+                >
+                  Прочитать всё
+                </Button>
+              </div>
+              <div className="flex flex-col">
+                <AsyncState
+                  empty={
+                    !inbox.isLoading && notifications.length === 0 ? (
+                      <p className="text-muted-text py-8 text-center text-sm">
+                        Новых уведомлений нет.
+                      </p>
+                    ) : undefined
+                  }
+                  error={inbox.error}
+                  errorMessage="Не удалось загрузить уведомления"
+                  hasData={Boolean(inbox.data)}
+                  isLoading={inbox.isLoading}
+                  loading={<p className="text-muted-text text-sm">Загружаем уведомления…</p>}
+                  onRetry={() => inbox.refetch()}
+                >
+                  <div className="space-y-2 pr-1">
+                    {notifications.map((notification) => (
+                      <article
+                        className={`border-border rounded-2xl border p-4 ${notification.readAt ? 'bg-elevated/25' : 'bg-primary-neon/10'}`}
+                        key={notification.id}
+                      >
+                        <div className="flex items-start gap-gap">
+                          <span
+                            aria-hidden="true"
+                            className={`mt-1 size-2 shrink-0 rounded-full ${notification.readAt ? 'bg-muted-text/40' : 'bg-primary-neon shadow-[0_0_10px_var(--color-primary-neon)]'}`}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-text text-sm font-semibold">
+                              {notification.title}
+                            </h3>
+                            {notification.body && (
+                              <p className="text-muted-text mt-1 text-sm">{notification.body}</p>
+                            )}
+                            <p className="text-muted-text mt-2 text-xs">
+                              {formatDate(notification.createdAt)}
+                            </p>
+                          </div>
+                          {!notification.readAt && (
+                            <Button
+                              aria-label={`Отметить уведомление «${notification.title}» прочитанным`}
+                              icon={<CheckCheck className="size-4" />}
+                              onClick={() =>
+                                runInboxAction(() => markRead({ id: notification.id }).unwrap())
+                              }
+                              size="s"
+                            >
+                              <span className="sr-only">Прочитать</span>
+                            </Button>
+                          )}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </AsyncState>
+              </div>
             </div>
           </AnimatedPanel>
         </section>
 
-        <div className="min-h-0 lg:overflow-y-auto">
+        <div className="min-h-0">
           <AsyncState
             error={preferencesQuery.error}
             errorMessage="Не удалось загрузить настройки уведомлений"

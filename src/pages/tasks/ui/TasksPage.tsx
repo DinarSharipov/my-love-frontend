@@ -132,8 +132,8 @@ export const TasksPage = () => {
     setChildId(typeof task.childId === 'string' ? task.childId : '');
   };
   return (
-    <PageLayout>
-      <AnimatedPanel className="page-header">
+    <PageLayout contentClassName="overflow-hidden">
+      <AnimatedPanel className="page-header !h-auto">
         <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
           Семейный стол
         </p>
@@ -142,8 +142,8 @@ export const TasksPage = () => {
           Собирайте бытовые дела в одном понятном списке.
         </p>
       </AnimatedPanel>
-      <div className="grid items-start gap-gap lg:grid-cols-[minmax(20rem,1.5fr)_minmax(0,1fr)]">
-        <AnimatedPanel className="p-5 sm:p-6">
+      <div className="grid min-h-0 flex-1 items-stretch gap-gap lg:grid-cols-[minmax(20rem,1.5fr)_minmax(0,1fr)]">
+        <AnimatedPanel className="!h-auto min-h-0 p-5 sm:p-6">
           <form className="space-y-4" onSubmit={submit}>
             <div className="flex items-center justify-between gap-gap">
               <h2 className="text-text flex items-center gap-gap font-semibold">
@@ -214,7 +214,7 @@ export const TasksPage = () => {
             </Button>
           </form>
         </AnimatedPanel>
-        <AnimatedPanel className="p-5 sm:p-6">
+        <AnimatedPanel className="h-full min-h-0 p-5 sm:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-gap">
             <h2 className="text-text font-semibold">Список задач</h2>
             <Select
@@ -243,88 +243,92 @@ export const TasksPage = () => {
               ))}
             </div>
           </div>
-          <AsyncState
-            error={list.error}
-            errorMessage="Не удалось загрузить задачи"
-            hasData={Boolean(list.data)}
-            isLoading={list.isLoading}
-            loading={<p className="text-muted-text text-sm">Загружаем задачи…</p>}
-            onRetry={refresh}
-          >
-            <div className="space-y-2">
-              {visible.map((task) => (
-                <article
-                  className="border-border bg-elevated/35 flex items-center gap-gap rounded-2xl border p-3"
-                  key={task.id}
-                >
-                  <button
-                    aria-label={task.status === 'COMPLETED' ? 'Вернуть задачу' : 'Завершить задачу'}
-                    className="text-acid-green"
-                    onClick={() =>
-                      mutate(() =>
-                        task.status === 'COMPLETED'
-                          ? reopenTask({ id: task.id }).unwrap()
-                          : completeTask({
-                              id: task.id,
-                            }).unwrap(),
-                      )
-                    }
-                    type="button"
+          <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+            <AsyncState
+              error={list.error}
+              errorMessage="Не удалось загрузить задачи"
+              hasData={Boolean(list.data)}
+              isLoading={list.isLoading}
+              loading={<p className="text-muted-text text-sm">Загружаем задачи…</p>}
+              onRetry={refresh}
+            >
+              <div className="space-y-2">
+                {visible.map((task) => (
+                  <article
+                    className="border-border bg-elevated/35 flex items-center gap-gap rounded-2xl border p-3"
+                    key={task.id}
                   >
-                    {task.status === 'COMPLETED' ? (
-                      <RotateCcw className="h-4 w-4" />
-                    ) : (
-                      <Check className="h-4 w-4" />
-                    )}
-                  </button>
-                  <div className="min-w-0 flex-1">
-                    <p
-                      title={task.title}
-                      className={
-                        task.status === 'COMPLETED'
-                          ? 'text-muted-text truncate text-sm line-through'
-                          : 'text-text truncate text-sm'
+                    <button
+                      aria-label={
+                        task.status === 'COMPLETED' ? 'Вернуть задачу' : 'Завершить задачу'
                       }
+                      className="text-acid-green"
+                      onClick={() =>
+                        mutate(() =>
+                          task.status === 'COMPLETED'
+                            ? reopenTask({ id: task.id }).unwrap()
+                            : completeTask({
+                                id: task.id,
+                              }).unwrap(),
+                        )
+                      }
+                      type="button"
                     >
-                      {task.title}
-                    </p>
-                    <div className="mt-1 flex min-w-0 items-center gap-gap">
-                      {task.dueAt && (
-                        <p className="text-muted-text min-w-0 truncate text-xs">
-                          Срок: {new Date(String(task.dueAt)).toLocaleString('ru-RU')}
-                        </p>
+                      {task.status === 'COMPLETED' ? (
+                        <RotateCcw className="h-4 w-4" />
+                      ) : (
+                        <Check className="h-4 w-4" />
                       )}
-                      <p className="text-muted-text flex min-w-0 items-center gap-gap truncate text-xs">
-                        <UserRound aria-hidden="true" className="size-3.5" />
-                        {typeof task.assignedToId === 'string'
-                          ? (assigneeNames.get(task.assignedToId) ?? 'Участник семьи')
-                          : 'Свободная задача'}
+                    </button>
+                    <div className="min-w-0 flex-1">
+                      <p
+                        title={task.title}
+                        className={
+                          task.status === 'COMPLETED'
+                            ? 'text-muted-text truncate text-sm line-through'
+                            : 'text-text truncate text-sm'
+                        }
+                      >
+                        {task.title}
                       </p>
+                      <div className="mt-1 flex min-w-0 items-center gap-gap">
+                        {task.dueAt && (
+                          <p className="text-muted-text min-w-0 truncate text-xs">
+                            Срок: {new Date(String(task.dueAt)).toLocaleString('ru-RU')}
+                          </p>
+                        )}
+                        <p className="text-muted-text flex min-w-0 items-center gap-gap truncate text-xs">
+                          <UserRound aria-hidden="true" className="size-3.5" />
+                          {typeof task.assignedToId === 'string'
+                            ? (assigneeNames.get(task.assignedToId) ?? 'Участник семьи')
+                            : 'Свободная задача'}
+                        </p>
+                      </div>
+                      <TaskReminderPanel taskId={task.id} />
                     </div>
-                    <TaskReminderPanel taskId={task.id} />
-                  </div>
-                  <Button
-                    aria-label="Редактировать задачу"
-                    icon={<Edit3 className="h-4 w-4" />}
-                    onClick={() => startEdit(task)}
-                    size="s"
-                  />
-                  <Button
-                    aria-label="Архивировать задачу"
-                    className="text-neon-pink"
-                    icon={<Trash2 className="h-4 w-4" />}
-                    onClick={() => mutate(() => archiveTask({ id: task.id }).unwrap())}
-                    size="s"
-                  />
-                </article>
-              ))}
-              {!visible.length && (
-                <p className="text-muted-text py-5 text-center text-sm">
-                  В этом фильтре задач нет.
-                </p>
-              )}
-            </div>
-          </AsyncState>
+                    <Button
+                      aria-label="Редактировать задачу"
+                      icon={<Edit3 className="h-4 w-4" />}
+                      onClick={() => startEdit(task)}
+                      size="s"
+                    />
+                    <Button
+                      aria-label="Архивировать задачу"
+                      className="text-neon-pink"
+                      icon={<Trash2 className="h-4 w-4" />}
+                      onClick={() => mutate(() => archiveTask({ id: task.id }).unwrap())}
+                      size="s"
+                    />
+                  </article>
+                ))}
+                {!visible.length && (
+                  <p className="text-muted-text py-5 text-center text-sm">
+                    В этом фильтре задач нет.
+                  </p>
+                )}
+              </div>
+            </AsyncState>
+          </div>
         </AnimatedPanel>
       </div>
     </PageLayout>

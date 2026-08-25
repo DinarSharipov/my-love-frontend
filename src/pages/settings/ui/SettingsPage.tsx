@@ -18,7 +18,7 @@ export const SettingsPage = () => {
   return (
     <main className="h-full min-h-0 overflow-hidden">
       <div className="flex h-full min-h-0 w-full flex-col gap-gap">
-        <AnimatedPanel className="page-header shrink-0">
+        <AnimatedPanel className="page-header !h-auto shrink-0">
           <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
             Центр управления
           </p>

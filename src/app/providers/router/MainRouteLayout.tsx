@@ -6,37 +6,33 @@ import {
   Repeat2,
   ShoppingBasket,
   MailCheck,
-  Music2,
-  Settings,
-  UsersIcon,
+  UserRound,
+  UsersRound,
 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
-import type { ComponentProps } from 'react';
 import { useDispatch } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 import { clearCredentials } from '@/entities/user';
 import type { Notification } from '@/entities/notification';
 import { useLogoutMutation } from '@/features/auth';
-import { baseApi, useList11Query } from '@/shared/api';
+import { baseApi, useFindMyFamilyQuery, useList11Query } from '@/shared/api';
 import { AppBackground, MainLayout } from '@/shared/ui';
 import { LogoIcon } from '@/shared/ui/logo/LogoIcon';
 import type { MenuItem } from '@/shared/ui';
 import { ProtectedRoute } from '@/app/providers/router/ProtectedRoute';
 import type { AppDispatch } from '@/app/providers/store';
 
-const SettingsMenuIcon = ({ className, ...props }: ComponentProps<typeof Settings>) => (
-  <Settings
-    {...props}
-    className={`${className ?? ''} transition-transform duration-500 ease-out group-hover:rotate-180`}
-  />
-);
-
 export const MainRouteLayout = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [logout] = useLogoutMutation();
   const notifications = useList11Query();
+  const family = useFindMyFamilyQuery();
+  const canSearchPartner =
+    family.error && typeof family.error === 'object' && 'status' in family.error
+      ? family.error.status === 404
+      : false;
   const unreadNotifications = ((notifications.data as Notification[] | undefined) ?? []).filter(
     (notification) => !notification.readAt,
   ).length;
@@ -58,17 +54,20 @@ export const MainRouteLayout = () => {
       { icon: House, label: 'Главная', to: '/main' },
       {
         badgeCount: unreadNotifications,
-        icon: SettingsMenuIcon,
-        label: 'Настройки',
+        icon: UserRound,
+        label: 'Профиль',
         to: '/settings',
         children: [{ callback: handleLogout, icon: LogOut, label: 'Выйти' }],
       },
-      {
-        label: 'Поиск партнера',
-        icon: UsersIcon,
-        to: '/all_users',
-      },
-      { icon: Music2, label: 'Медиа', to: '/media' },
+      ...(canSearchPartner
+        ? [
+            {
+              label: 'Поиск партнера',
+              icon: UsersRound,
+              to: '/all_users',
+            },
+          ]
+        : []),
       {
         children: [
           { icon: CalendarDays, label: 'Календарь', to: '/my_family/calendar' },
@@ -82,7 +81,7 @@ export const MainRouteLayout = () => {
         to: '/my_family',
       },
     ],
-    [handleLogout, unreadNotifications],
+    [canSearchPartner, handleLogout, unreadNotifications],
   );
 
   return (

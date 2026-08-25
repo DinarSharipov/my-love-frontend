@@ -643,7 +643,7 @@ export const FamilyCalendar = () => {
                     const event = events.find((candidate) => candidate.id === id);
                     if (event) openEvent(event);
                   } else if (kind === 'task') {
-                    navigate('/tasks');
+                    navigate('/my_family/tasks');
                   }
                   return;
                 }

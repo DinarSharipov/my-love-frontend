@@ -1,5 +1,11 @@
 # My Love — статус реализации
 
+Устранено наложение блоков в settings: notification header/panel больше не наследуют `AnimatedPanel h-full`, а inbox/list переведены из nested flex/overflow в natural-flow. Весь контент теперь прокручивается единым settings scroll-контейнером. Checks: format, format:check, lint, typecheck, build, `git diff --check` — PASS; browser QA выполняет пользователь.
+
+Исправлен scroll `/settings`: `NotificationsPage` больше не клипает desktop-контент через `h-full/lg:overflow-hidden`; прокруткой управляет единый контейнер `SettingsPage`, поэтому нижние панели и Telegram-блок доступны скроллом. Checks: format, format:check, lint, typecheck, build, `git diff --check` — PASS; browser QA выполняет пользователь.
+
+Нижнее меню обновлено: «Настройки» переименованы в «Профиль» с иконкой пользователя, пункт «Медиа» удалён. «Поиск партнёра» показывается только при подтверждённом `404` от `GET /api/v1/families/me`, то есть когда пользователь ещё не состоит в семье. Исправлена пустая страница настроек: локальный header больше не наследует `AnimatedPanel h-full` и не перекрывает вкладки. Checks: format, format:check, lint, typecheck, build, `git diff --check` — PASS; browser QA выполняет пользователь.
+
 Главная страница упрощена до двух UX-блоков: календарь и быстрые действия в одной строке на широком экране, с адаптивным расположением на узких экранах. Остальные dashboard-виджеты удалены с главной; календарь использует события и задачи текущего видимого периода. Верхний хедер раздела сохранён отдельной панелью. `AnimatedPanel` по умолчанию занимает доступные ширину и высоту через `w-full h-full`. Календарный блок главной переведён на `min-h-0 flex-1`, чтобы сжиматься по высоте без вертикального overflow страницы. Проверки: format:check, typecheck, lint, build, git diff --check — PASS; browser QA выполняет пользователь.
 
 Ripple `Button` переработан без внешнего absolute-layer: волны снова являются дочерними элементами самой кнопки, имеют `inset-0` и не масштабируются за её границы. Убрана причина смещения border и растягивания по wrapper. Проверки: format, format:check, lint, typecheck, build, `git diff --check` — PASS; browser QA выполняет пользователь.
