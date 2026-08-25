@@ -1,19 +1,25 @@
-import { Plus, RotateCcw } from 'lucide-react';
+import { Archive, Plus, RotateCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import {
   useArchiveRecurringPaymentMutation,
   useCreateRecurringPaymentMutation,
   useListFinanceWalletsQuery,
+  useListArchivedRecurringPaymentsQuery,
   useListRecurringPaymentsQuery,
+  useRestoreRecurringPaymentMutation,
 } from '@/entities/finance';
 import { getApiErrorMessage } from '@/shared/api';
 import { AnimatedPanel, AsyncState, Button, DatePicker, Input, Select } from '@/shared/ui';
 
 export const RecurringTab = () => {
-  const query = useListRecurringPaymentsQuery();
+  const [showArchived, setShowArchived] = useState(false);
+  const activeQuery = useListRecurringPaymentsQuery(undefined, { skip: showArchived });
+  const archivedQuery = useListArchivedRecurringPaymentsQuery(undefined, { skip: !showArchived });
+  const query = showArchived ? archivedQuery : activeQuery;
   const wallets = useListFinanceWalletsQuery();
   const [create, state] = useCreateRecurringPaymentMutation();
   const [archive] = useArchiveRecurringPaymentMutation();
+  const [restore] = useRestoreRecurringPaymentMutation();
   const [walletId, setWalletId] = useState('');
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
@@ -54,7 +60,13 @@ export const RecurringTab = () => {
       }}
     >
       <AnimatedPanel className="p-5">
-        <h2 className="text-text mb-3 text-lg font-semibold">Регулярные платежи</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-text text-lg font-semibold">Регулярные платежи</h2>
+          <Button onClick={() => setShowArchived((value) => !value)} size="s">
+            {showArchived ? <RotateCcw className="size-4" /> : <Archive className="size-4" />}
+            {showArchived ? 'К активным' : 'Архив платежей'}
+          </Button>
+        </div>
         <div className="mb-3 grid gap-2 sm:grid-cols-2">
           {(query.data ?? []).map((payment) => (
             <div
@@ -69,8 +81,14 @@ export const RecurringTab = () => {
                 </div>
               </div>
               <Button
-                icon={<RotateCcw className="size-4" />}
-                onClick={() => archive({ id: payment.id, version: payment.version })}
+                icon={
+                  showArchived ? <RotateCcw className="size-4" /> : <Archive className="size-4" />
+                }
+                onClick={() =>
+                  showArchived
+                    ? restore({ id: payment.id, version: payment.version })
+                    : archive({ id: payment.id, version: payment.version })
+                }
                 size="s"
               >
                 Архивировать

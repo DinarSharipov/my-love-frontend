@@ -1,8 +1,14 @@
-import { AtSign, CalendarDays, Globe2, MapPin, UserRound } from 'lucide-react';
+import { AtSign, CalendarDays, Camera, Globe2, MapPin, UserRound } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 import { AccountSecurityPanel } from '@/features/account-security';
 import { FamilyActivityPanel } from '@/features/family-activity';
-import { ProfileForm, useFindCurrentUserQuery } from '@/features/profile';
+import {
+  ProfileForm,
+  useFindCurrentUserQuery,
+  useUploadAvatarFileMutation,
+} from '@/features/profile';
+import { getApiErrorMessage } from '@/shared/api';
 import { AnimatedPanel, AsyncState } from '@/shared/ui';
 
 const formatBirthDate = (value: string) =>
@@ -14,7 +20,36 @@ const formatBirthDate = (value: string) =>
 
 export const ProfilePage = () => {
   const profile = useFindCurrentUserQuery();
+  const [uploadAvatar, uploadState] = useUploadAvatarFileMutation();
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const user = profile.data;
+
+  const selectAvatar = () => avatarInputRef.current?.click();
+
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const input = event.currentTarget;
+    const [file] = input.files ?? [];
+    input.value = '';
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setAvatarError('Выберите изображение в поддерживаемом формате.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError('Размер изображения не должен превышать 5 МБ.');
+      return;
+    }
+
+    setAvatarError(null);
+    try {
+      await uploadAvatar(file).unwrap();
+    } catch (error) {
+      setAvatarError(getApiErrorMessage(error, 'Не удалось загрузить аватар.'));
+    }
+  };
 
   if (!user) {
     return (
@@ -48,8 +83,51 @@ export const ProfilePage = () => {
         >
           <div className="bg-primary-neon/10 pointer-events-none absolute -right-10 -top-16 h-44 w-44 rounded-full blur-3xl" />
           <div className="relative flex flex-col gap-gap sm:flex-row sm:items-center">
-            <div className="border-primary-neon/40 bg-primary-neon/10 text-primary-neon grid h-16 w-16 shrink-0 place-items-center rounded-3xl border shadow-[0_0_24px_rgba(176,38,255,0.2)]">
-              <UserRound aria-hidden="true" className="h-8 w-8" />
+            <div className="shrink-0">
+              <input
+                accept="image/*"
+                className="sr-only"
+                onChange={handleAvatarChange}
+                ref={avatarInputRef}
+                type="file"
+              />
+              <button
+                aria-describedby={avatarError ? 'avatar-upload-error' : undefined}
+                aria-label="Изменить фото профиля"
+                className="group border-primary-neon/40 bg-primary-neon/10 relative grid h-16 w-16 overflow-hidden rounded-3xl border text-primary-neon shadow-[0_0_24px_rgba(176,38,255,0.2)] outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-cyber-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-wait"
+                disabled={uploadState.isLoading}
+                onClick={selectAvatar}
+                type="button"
+              >
+                {user.avatarUrl ? (
+                  <img
+                    alt="Фото профиля"
+                    className="h-full w-full object-cover"
+                    src={user.avatarUrl}
+                  />
+                ) : (
+                  <UserRound aria-hidden="true" className="m-auto h-8 w-8" />
+                )}
+                <span className="bg-background/80 absolute inset-0 flex flex-col items-center justify-center gap-1 opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+                  <Camera aria-hidden="true" className="h-4 w-4" />
+                  <span className="text-[10px] font-semibold">Изменить</span>
+                </span>
+                {uploadState.isLoading && (
+                  <span className="bg-background/80 absolute inset-0 grid place-items-center backdrop-blur-sm">
+                    <span className="border-primary-neon h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" />
+                    <span className="sr-only">Загружаем фото</span>
+                  </span>
+                )}
+              </button>
+              {avatarError && (
+                <p
+                  className="text-neon-pink mt-2 max-w-48 text-xs"
+                  id="avatar-upload-error"
+                  role="alert"
+                >
+                  {avatarError}
+                </p>
+              )}
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">

@@ -7,7 +7,7 @@ import {
   useCompleteMutation,
   useCreateMutation,
   useFindMyFamilyQuery,
-  useList13Query,
+  useList14Query,
   useListQuery,
   useReopenMutation,
   useUpdateMutation,
@@ -40,7 +40,7 @@ const filterLabels: Record<Filter, string> = {
 export const TasksPage = () => {
   const list = useListQuery({ page: 1, limit: 100 });
   const family = useFindMyFamilyQuery();
-  const children = useList13Query();
+  const children = useList14Query();
   const [createTask, createState] = useCreateMutation();
   const [updateTask, updateState] = useUpdateMutation();
   const [completeTask] = useCompleteMutation();
@@ -132,8 +132,8 @@ export const TasksPage = () => {
     setChildId(typeof task.childId === 'string' ? task.childId : '');
   };
   return (
-    <PageLayout contentClassName="overflow-hidden">
-      <AnimatedPanel className="page-header !h-auto">
+    <PageLayout contentClassName="lg:overflow-hidden lg:[&>div]:h-full">
+      <AnimatedPanel className="page-header !h-auto shrink-0">
         <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
           Семейный стол
         </p>

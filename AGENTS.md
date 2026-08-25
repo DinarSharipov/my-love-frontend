@@ -28,17 +28,18 @@ Cyberpunk web app for creating a family and managing family life: household task
 
 - Backend repository: `/Users/dinarsaripov/projects/my-love`.
 - Backend is read-only for frontend tasks: never edit files, migrations, configuration, or run state-changing backend commands in `/Users/dinarsaripov/projects/my-love`.
+- Frontend contract source of truth is the deployed Swagger document `https://api.147.45.124.221.sslip.io/docs-json` (Swagger UI: `https://api.147.45.124.221.sslip.io/docs`). Use this document for every contract audit and API generation; local backend Swagger is not a generation source.
 - Before implementing API-dependent behavior, inspect the backend for an existing endpoint, DTO, validation, and domain rules. Match its contract; do not invent or mock an API silently.
 - If backend support is missing or does not meet the task requirements, stop that part and clearly warn the user about the gap, proposing the needed backend change or a better alternative.
 - Put backend-related configuration in `.env` and access client variables through `import.meta.env` (`VITE_` prefix). During development use the repository `.env`; never hard-code URLs or commit secrets.
-- Prefer generated RTK Query contracts where applicable (`npm run api:generate`). Do not edit generated code manually.
+- Prefer generated RTK Query contracts where applicable. `npm run api:generate` must fetch the fixed deployed Swagger source above before codegen. Do not edit generated code manually.
 
 ## Validation
 
 - Keep changes scoped and reuse existing patterns before adding abstractions or dependencies.
 - Format all project files according to the repository's Prettier configuration; run `npm run format` after code changes and confirm with `npm run format:check`.
 - Do not write unit or end-to-end tests for this project.
-- When backend contracts change, regenerate frontend API types through the repository scripts from `package.json`, using `npm run api:generate` before adapting the UI.
+- When backend contracts change, regenerate frontend API types from the deployed Swagger source through `npm run api:generate` before adapting the UI.
 - Browser QA is performed by the user. The agent must not open or interact with the browser for visual or interaction checks; limit validation to formatting, lint, typecheck, build, and relevant static checks, and clearly report that browser QA remains user-owned.
 
 ## Continuity

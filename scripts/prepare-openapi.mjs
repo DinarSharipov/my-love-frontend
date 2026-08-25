@@ -1,25 +1,11 @@
 import { writeFile } from 'node:fs/promises';
 
-const configuredTarget = (process.env.VITE_API_PROXY_TARGET || 'http://127.0.0.1:5000').replace(
-  /\/$/,
-  '',
-);
-const targets = [configuredTarget, 'http://127.0.0.1:5001'].filter(
-  (value, index, all) => all.indexOf(value) === index,
-);
-let document;
-for (const target of targets) {
-  try {
-    const response = await fetch(`${target}/docs-json`);
-    if (response.ok) {
-      document = await response.json();
-      break;
-    }
-  } catch {
-    // Try the next configured local backend target.
-  }
+const contractSourceUrl = 'https://api.147.45.124.221.sslip.io/docs-json';
+const response = await fetch(contractSourceUrl);
+if (!response.ok) {
+  throw new Error(`Swagger request failed: ${response.status} ${response.statusText}`);
 }
-if (!document) throw new Error('Swagger request failed for configured backend targets');
+const document = await response.json();
 
 const used = new Map();
 for (const path of Object.values(document.paths ?? {})) {

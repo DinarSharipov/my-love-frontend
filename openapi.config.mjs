@@ -1,17 +1,6 @@
-import { loadEnvFile } from 'node:process';
-
-try {
-  loadEnvFile('.env');
-} catch (error) {
-  if (error?.code !== 'ENOENT') {
-    throw error;
-  }
-}
-
-const apiTarget = (process.env.VITE_API_PROXY_TARGET || 'http://127.0.0.1:5000').replace(/\/$/, '');
-
 /** @type {import('@rtk-query/codegen-openapi').ConfigFile} */
 const config = {
+  // `.openapi.json` is prepared from the deployed source-of-truth Swagger URL.
   apiFile: '@/shared/api/baseApi',
   apiImport: 'baseApi',
   exportName: 'generatedApi',

@@ -9,7 +9,9 @@ import {
   useArchive7Mutation,
   useCheckMutation,
   useCreate9Mutation,
+  useArchived5Query,
   useListsQuery,
+  useRestore6Mutation,
   useUncheckMutation,
 } from '@/shared/api';
 import { AnimatedPanel, AsyncState, Button, Input, PageLayout } from '@/shared/ui';
@@ -22,21 +24,27 @@ type ItemDraft = {
 const emptyDraft: ItemDraft = { name: '', quantity: '' };
 
 export const ShoppingListsPage = () => {
-  const listsQuery = useListsQuery();
+  const [showArchived, setShowArchived] = useState(false);
+  const activeListsQuery = useListsQuery(undefined, { skip: showArchived });
+  const archivedListsQuery = useArchived5Query(undefined, { skip: !showArchived });
+  const listsQuery = showArchived ? archivedListsQuery : activeListsQuery;
   const [createList, createState] = useCreate9Mutation();
   const [addItem, addState] = useAddMutation();
   const [checkItem] = useCheckMutation();
   const [uncheckItem] = useUncheckMutation();
   const [archiveList] = useArchive7Mutation();
+  const [restoreList] = useRestore6Mutation();
   const [listName, setListName] = useState('');
   const [drafts, setDrafts] = useState<Record<string, ItemDraft>>({});
   const [pendingAction, setPendingAction] = useState<string>();
   const [error, setError] = useState<string>();
 
-  const lists = ((listsQuery.data as ShoppingList[] | undefined) ?? []).filter(
-    (list) => !list.archived,
+  const lists = ((listsQuery.data as ShoppingList[] | undefined) ?? []).filter((list) =>
+    showArchived ? list.archived : !list.archived,
   );
-  const refresh = () => listsQuery.refetch();
+  const refresh = async () => {
+    await (showArchived ? archivedListsQuery.refetch() : activeListsQuery.refetch());
+  };
 
   const submitList = async (event: FormEvent) => {
     event.preventDefault();
@@ -108,31 +116,43 @@ export const ShoppingListsPage = () => {
         <p className="text-muted-text mt-1 text-sm">
           Собирайте покупки вместе и отмечайте уже взятое.
         </p>
+        <div className="mt-4">
+          <Button onClick={() => setShowArchived((value) => !value)} size="s">
+            {showArchived ? (
+              <RotateCcw aria-hidden="true" className="size-4" />
+            ) : (
+              <Archive aria-hidden="true" className="size-4" />
+            )}
+            {showArchived ? '?????????? ????????????' : '?????????? ??????????'}
+          </Button>
+        </div>
       </AnimatedPanel>
 
-      <AnimatedPanel className="p-5 sm:p-6">
-        <form className="flex flex-col gap-gap sm:flex-row sm:items-end" onSubmit={submitList}>
-          <Input
-            label="Новый список"
-            maxLength={150}
-            onChange={(event) => setListName(event.target.value)}
-            placeholder="Например, продукты на неделю"
-            value={listName}
-          />
-          <Button
-            containerClassName="shrink-0"
-            disabled={createState.isLoading || !listName.trim()}
-            type="submit"
-          >
-            Создать список
-          </Button>
-        </form>
-        {error && (
-          <p className="text-neon-pink mt-3 text-sm" role="alert">
-            {error}
-          </p>
-        )}
-      </AnimatedPanel>
+      {!showArchived && (
+        <AnimatedPanel className="p-5 sm:p-6">
+          <form className="flex flex-col gap-gap sm:flex-row sm:items-end" onSubmit={submitList}>
+            <Input
+              label="Новый список"
+              maxLength={150}
+              onChange={(event) => setListName(event.target.value)}
+              placeholder="Например, продукты на неделю"
+              value={listName}
+            />
+            <Button
+              containerClassName="shrink-0"
+              disabled={createState.isLoading || !listName.trim()}
+              type="submit"
+            >
+              Создать список
+            </Button>
+          </form>
+          {error && (
+            <p className="text-neon-pink mt-3 text-sm" role="alert">
+              {error}
+            </p>
+          )}
+        </AnimatedPanel>
+      )}
 
       <AsyncState
         empty={
@@ -167,13 +187,23 @@ export const ShoppingListsPage = () => {
                   </div>
                   <Button
                     aria-label={`Архивировать список «${list.name}»`}
-                    className="text-neon-pink"
+                    className={showArchived ? undefined : 'text-neon-pink'}
                     disabled={Boolean(pendingAction)}
-                    icon={<Archive aria-hidden="true" className="size-4" />}
+                    icon={
+                      showArchived ? (
+                        <RotateCcw aria-hidden="true" className="size-4" />
+                      ) : (
+                        <Archive aria-hidden="true" className="size-4" />
+                      )
+                    }
                     onClick={() =>
                       runAction(
-                        `archive:${list.id}`,
-                        () => archiveList({ listId: list.id }).unwrap(),
+                        `${showArchived ? 'restore' : 'archive'}:${list.id}`,
+                        () =>
+                          (showArchived
+                            ? restoreList({ listId: list.id })
+                            : archiveList({ listId: list.id })
+                          ).unwrap(),
                         'Не удалось архивировать список',
                       )
                     }
@@ -181,35 +211,39 @@ export const ShoppingListsPage = () => {
                   />
                 </div>
 
-                <form
-                  className="mt-4 grid gap-gap sm:grid-cols-[minmax(0,1fr)_8rem_auto] sm:items-end"
-                  onSubmit={(event) => submitItem(event, list.id)}
-                >
-                  <Input
-                    aria-label={`Название товара для списка «${list.name}»`}
-                    maxLength={200}
-                    onChange={(event) => updateDraft(list.id, { name: event.target.value })}
-                    placeholder="Добавить товар"
-                    value={draft.name}
-                  />
-                  <Input
-                    aria-label={`Количество товара для списка «${list.name}»`}
-                    maxLength={80}
-                    onChange={(event) => updateDraft(list.id, { quantity: event.target.value })}
-                    placeholder="Количество"
-                    value={draft.quantity}
-                  />
-                  <Button
-                    aria-label={`Добавить товар в список «${list.name}»`}
-                    disabled={
-                      addState.isLoading || pendingAction === `add:${list.id}` || !draft.name.trim()
-                    }
-                    size="s"
-                    type="submit"
+                {!showArchived && (
+                  <form
+                    className="mt-4 grid gap-gap sm:grid-cols-[minmax(0,1fr)_8rem_auto] sm:items-end"
+                    onSubmit={(event) => submitItem(event, list.id)}
                   >
-                    <Plus aria-hidden="true" className="size-4" />
-                  </Button>
-                </form>
+                    <Input
+                      aria-label={`Название товара для списка «${list.name}»`}
+                      maxLength={200}
+                      onChange={(event) => updateDraft(list.id, { name: event.target.value })}
+                      placeholder="Добавить товар"
+                      value={draft.name}
+                    />
+                    <Input
+                      aria-label={`Количество товара для списка «${list.name}»`}
+                      maxLength={80}
+                      onChange={(event) => updateDraft(list.id, { quantity: event.target.value })}
+                      placeholder="Количество"
+                      value={draft.quantity}
+                    />
+                    <Button
+                      aria-label={`Добавить товар в список «${list.name}»`}
+                      disabled={
+                        addState.isLoading ||
+                        pendingAction === `add:${list.id}` ||
+                        !draft.name.trim()
+                      }
+                      size="s"
+                      type="submit"
+                    >
+                      <Plus aria-hidden="true" className="size-4" />
+                    </Button>
+                  </form>
+                )}
 
                 <div className="mt-4 space-y-2">
                   {[...activeItems, ...checkedItems].map((item) => (
@@ -224,7 +258,7 @@ export const ShoppingListsPage = () => {
                             : `Отметить товар «${item.name}»`
                         }
                         className="text-acid-green shrink-0 rounded-lg p-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-neon)] disabled:opacity-50"
-                        disabled={Boolean(pendingAction)}
+                        disabled={showArchived || Boolean(pendingAction)}
                         onClick={() =>
                           runAction(
                             `item:${item.id}`,

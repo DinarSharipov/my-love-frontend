@@ -1,4 +1,4 @@
-import { Archive, CalendarClock, Play, Plus, RefreshCw, UserRound } from 'lucide-react';
+import { Archive, CalendarClock, Play, Plus, RefreshCw, RotateCcw, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 
@@ -8,8 +8,10 @@ import {
   useCreate2Mutation,
   useFindMyFamilyQuery,
   useGenerateMutation,
-  useList13Query,
+  useListArchivedQuery,
+  useList14Query,
   useList2Query,
+  useRestoreMutation,
 } from '@/shared/api';
 import {
   AnimatedPanel,
@@ -28,12 +30,16 @@ const priorities = [
 ];
 
 export const TaskRoutinesPage = () => {
-  const list = useList2Query();
+  const [showArchived, setShowArchived] = useState(false);
+  const activeList = useList2Query(undefined, { skip: showArchived });
+  const archivedList = useListArchivedQuery(undefined, { skip: !showArchived });
+  const list = showArchived ? archivedList : activeList;
   const family = useFindMyFamilyQuery();
-  const children = useList13Query();
+  const children = useList14Query();
   const [createRoutine, createState] = useCreate2Mutation();
   const [generateTask] = useGenerateMutation();
   const [archiveRoutine] = useArchive2Mutation();
+  const [restoreRoutine] = useRestoreMutation();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<'LOW' | 'NORMAL' | 'HIGH'>('NORMAL');
@@ -124,68 +130,83 @@ export const TaskRoutinesPage = () => {
           <p className="text-muted-text mt-1 text-sm">
             Шаблоны дел, которые можно создавать по расписанию.
           </p>
+          <div className="mt-4">
+            <Button onClick={() => setShowArchived((value) => !value)} size="s">
+              {showArchived ? '?????????? ????????????' : '?????????? ??????????'}
+            </Button>
+          </div>
         </AnimatedPanel>
-        <AnimatedPanel className="p-5">
-          <form className="grid gap-gap md:grid-cols-2" onSubmit={submit}>
-            <Input
-              label="Название"
-              onChange={(event) => setTitle(event.target.value)}
-              required
-              value={title}
-            />
-            <Select
-              label="Приоритет"
-              onChange={(value) => setPriority(value as typeof priority)}
-              options={priorities}
-              value={priority}
-            />
-            <Textarea
-              className="md:col-span-2"
-              label="Описание"
-              onChange={(event) => setDescription(event.target.value)}
-              value={description}
-            />
-            <Select
-              label="Периодичность"
-              onChange={(value) => setFrequency(value as typeof frequency)}
-              options={[
-                { label: 'Каждый день', value: 'DAILY' },
-                { label: 'Каждую неделю', value: 'WEEKLY' },
-              ]}
-              value={frequency}
-            />
-            <Input
-              label="Интервал"
-              min="1"
-              onChange={(event) => setIntervalValue(event.target.value)}
-              type="number"
-              value={intervalValue}
-            />
-            <DatePicker
-              label="Следующий запуск"
-              onChange={(event) => setNextRunAt(event.target.value)}
-              required
-              value={nextRunAt}
-              withTime
-            />
-            <Select
-              label="Исполнитель"
-              onChange={setAssignedToId}
-              options={assigneeOptions}
-              value={assignedToId}
-            />
-            <Select label="Для кого" onChange={setChildId} options={childOptions} value={childId} />
-            <div className="md:col-span-2">
-              <Button disabled={createState.isLoading || !title.trim() || !nextRunAt} type="submit">
-                <span className="inline-flex items-center">
-                  <Plus className="size-4" />
-                  Создать правило
-                </span>
-              </Button>
-            </div>
-          </form>
-          {error && <p className="text-neon-pink mt-3 text-sm">{error}</p>}
-        </AnimatedPanel>
+        {!showArchived && (
+          <AnimatedPanel className="p-5">
+            <form className="grid gap-gap md:grid-cols-2" onSubmit={submit}>
+              <Input
+                label="Название"
+                onChange={(event) => setTitle(event.target.value)}
+                required
+                value={title}
+              />
+              <Select
+                label="Приоритет"
+                onChange={(value) => setPriority(value as typeof priority)}
+                options={priorities}
+                value={priority}
+              />
+              <Textarea
+                className="md:col-span-2"
+                label="Описание"
+                onChange={(event) => setDescription(event.target.value)}
+                value={description}
+              />
+              <Select
+                label="Периодичность"
+                onChange={(value) => setFrequency(value as typeof frequency)}
+                options={[
+                  { label: 'Каждый день', value: 'DAILY' },
+                  { label: 'Каждую неделю', value: 'WEEKLY' },
+                ]}
+                value={frequency}
+              />
+              <Input
+                label="Интервал"
+                min="1"
+                onChange={(event) => setIntervalValue(event.target.value)}
+                type="number"
+                value={intervalValue}
+              />
+              <DatePicker
+                label="Следующий запуск"
+                onChange={(event) => setNextRunAt(event.target.value)}
+                required
+                value={nextRunAt}
+                withTime
+              />
+              <Select
+                label="Исполнитель"
+                onChange={setAssignedToId}
+                options={assigneeOptions}
+                value={assignedToId}
+              />
+              <Select
+                label="Для кого"
+                onChange={setChildId}
+                options={childOptions}
+                value={childId}
+              />
+              <div className="md:col-span-2">
+                <Button
+                  disabled={createState.isLoading || !title.trim() || !nextRunAt}
+                  type="submit"
+                >
+                  <span className="inline-flex items-center">
+                    <Plus className="size-4" />
+                    Создать правило
+                  </span>
+                </Button>
+              </div>
+            </form>
+            {error && <p className="text-neon-pink mt-3 text-sm">{error}</p>}
+          </AnimatedPanel>
+        )}
         <AsyncState
           error={list.error}
           hasData={Boolean(list.data)}
@@ -258,14 +279,22 @@ export const TaskRoutinesPage = () => {
                   <Button
                     onClick={() =>
                       action(
-                        () => archiveRoutine({ id: routine.id }).unwrap(),
+                        () =>
+                          (showArchived
+                            ? restoreRoutine({ id: routine.id })
+                            : archiveRoutine({ id: routine.id })
+                          ).unwrap(),
                         'Не удалось архивировать правило',
                       )
                     }
                     size="s"
                   >
                     <span className="inline-flex items-center">
-                      <Archive className="size-3.5 mr-2" />
+                      {showArchived ? (
+                        <RotateCcw className="size-3.5 mr-2" />
+                      ) : (
+                        <Archive className="size-3.5 mr-2" />
+                      )}
                       Архивировать
                     </span>
                   </Button>

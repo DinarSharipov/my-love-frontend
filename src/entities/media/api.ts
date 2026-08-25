@@ -10,7 +10,7 @@ export type Media = {
   sizeBytes: number;
   createdAt: string;
   downloadUrl: string;
-  previewUrl?: string | null;
+  previewUrl?: unknown | null;
 };
 
 export type MediaUploadInit = {

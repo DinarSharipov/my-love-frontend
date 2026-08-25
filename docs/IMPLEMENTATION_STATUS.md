@@ -1,5 +1,31 @@
 # My Love — статус реализации
 
+## 25 августа 2026 — оптимизация `AnimatedPanel`
+
+Уменьшены лишние React-рендеры `AnimatedPanel`: surface-слой вынесен в memo-компонент, его style-объект стабилизирован, основной panel обёрнут в `React.memo`. Variant-контракты, hover/entry-анимации, timing, easing и визуальные параметры не изменены. Проверки: `format:check`, ESLint затронутого файла, `typecheck`, `build`; browser QA выполняет пользователь.
+
+Upload-панель media получила responsive flex-строку: кнопка «Выбрать файл» выравнивается справа при доступной ширине и переносится ниже на узком экране.
+
+## 25 августа 2026 — layout infinite scroll для «Наших моментов»
+
+На `/my_family/media` страница переведена в viewport-ограниченную flex-колонку: header, фильтры и загрузка сохраняют естественную высоту, а блок галереи занимает доступный остаток. Внешняя прокрутка страницы для media отключена; внутренний контейнер галереи растягивается по доступной высоте и прокручивается независимо. Фиксированное ограничение `70vh` удалено, поэтому галерея расширяется до нижней границы экрана без выхода за viewport. Проверки после изменения: Prettier, `format:check`, ESLint, `typecheck`, `build`, `git diff --check`; browser QA выполняет пользователь.
+
+Верхние `AnimatedPanel` получили явный `!h-auto`: базовый `h-full` общего компонента больше не растягивает header, фильтры и upload-панель на весь viewport. Галерея остаётся единственным `flex-1` блоком.
+
+## 25 августа 2026 — gallery для «Наших моментов»
+
+На `/my_family/media` табличное представление заменено на адаптивную блочную галерею в стиле iOS Photos: квадратные image/video-превью, audio-карточки, hover-метаданные, просмотр, воспроизведение и удаление. Фильтры, загрузка, подтверждение удаления и серверная пагинация сохранены. Пункт семейного меню переименован из «Мой альбом» в «Наши моменты». Проверки: Prettier для затронутых файлов, `format:check`, ESLint затронутых файлов, `typecheck`, `build` — PASS; browser QA выполняет пользователь.
+
+## 25 августа 2026 — единый Swagger source of truth
+
+Контрактным источником frontend теперь является только deployed Swagger `https://api.147.45.124.221.sslip.io/docs-json`; локальные backend Swagger endpoints больше не используются для генерации. `scripts/prepare-openapi.mjs` загружает фиксированный документ перед `npm run api:generate`, после чего обновляется только generated RTK Query client.
+
+Генерация выполнена из deployed Swagger: обновлён `src/shared/api/generated/api.ts` с актуальными media/avatar, upload-session, reminders, children и wellbeing operations. Из-за изменения operationId в удалённой схеме обновлён media compatibility alias (`List10`/`Remove2`); generated-файл не редактировался вручную. Проверки `format`, `format:check`, `typecheck`, `lint`, `build`, `git diff --check` — PASS; browser QA остаётся за пользователем.
+
+## 25 августа 2026 — wellbeing rituals и couple meetings
+
+На `/my_family/wellbeing` добавлен следующий контрактный срез: создание/список/пауза/возобновление/удаление семейных ритуалов и полный workflow парной встречи — планирование на будущую дату, темы, ответ участника, публикация ответов создателем и общее решение после публикации. UI использует существующие typed wellbeing endpoints, `DatePicker`, `AsyncState`, loading/error/empty states и соблюдает backend-ограничения creator/partner. Generated API не редактировался. Проверки: `format`, `format:check`, `typecheck`, `lint`, `build`, `git diff --check` — PASS; browser QA выполняет пользователь. Следующий отдельный срез: подтверждённое удаление всех wellbeing-данных через общий `Modal` либо прогнозы recurring payments.
+
 Устранено наложение блоков в settings: notification header/panel больше не наследуют `AnimatedPanel h-full`, а inbox/list переведены из nested flex/overflow в natural-flow. Весь контент теперь прокручивается единым settings scroll-контейнером. Checks: format, format:check, lint, typecheck, build, `git diff --check` — PASS; browser QA выполняет пользователь.
 
 Исправлен scroll `/settings`: `NotificationsPage` больше не клипает desktop-контент через `h-full/lg:overflow-hidden`; прокруткой управляет единый контейнер `SettingsPage`, поэтому нижние панели и Telegram-блок доступны скроллом. Checks: format, format:check, lint, typecheck, build, `git diff --check` — PASS; browser QA выполняет пользователь.
@@ -298,3 +324,13 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 # 2026-08-21 timeline click correction: добавлен финальный `click`-расчёт позиции по `clientX` поверх native range, чтобы обычный клик не откатывался controlled value к началу трека. Checks: format:check/lint/typecheck/build/diff-check PASS; browser QA выполняется пользователем.
 
 # 2026-08-21 timeline root fix: native `input[type=range]` полностью заменён на custom accessible `role=slider` с единым pointer capture lifecycle и keyboard seek. Это убирает конфликт browser native value с React controlled state, который возвращал позицию к началу. Checks: format:check/lint/typecheck/build/diff-check PASS; browser QA выполняется пользователем.
+
+Исправлена прокрутка списка на `/my_family/tasks`: на desktop-контейнере восстановлена ограниченная высота flex-цепочки, а заголовок страницы исключён из shrink. Прокрутка остаётся у списка задач; на мобильных сохранена прокрутка страницы. Проверки: `format`, `format:check`, `lint`, `typecheck`, `build` — PASS; browser QA выполняет пользователь.
+Добавлен avatar slice для личного кабинета: regenerated OpenAPI client содержит avatar DTO/hooks; upload отправляется `multipart/form-data` через typed feature endpoint, обновляет Redux и cache `findCurrentUser`. В header профиля добавлен hover/focus overlay «Изменить», выбор image-файла, client validation type/5 MB, loading/error states и мгновенная замена preview. После regeneration обновлены устойчивые aliases media/children; Swagger пока описывает `MediaResponseDto.previewUrl` как `object`, поэтому feature type допускает `unknown` до исправления backend annotation. Проверки: format, typecheck — PASS; следующий срез: удалить/заменить аватар из UI или применить avatarUrl в поиске партнёра. Browser QA выполняет пользователь.
+Реализован P0 meals-срез: добавлен `/my_family/meals` с typed `entities/meals` wrapper поверх generatedApi для recipes/meal plans. Доступны создание/редактирование/архив/restore рецептов с version-aware `If-Match`, планирование блюд по диапазону дат, изменение/удаление блюд и генерация ингредиентов в активный shopping list. Добавлены route/sidebar, loading/empty/error states и responsive forms/cards. Wrapper нормализует backend-поле `instructions` как `string|null`, поскольку Swagger сейчас генерирует его как `object`; generated API не редактировался. Checks: `format`, `format:check`, `lint`, `typecheck`, `build`, `git diff --check` — PASS; browser QA выполняет пользователь. Рекомендуемый следующий срез: архивы/restore для shopping/task-routines/finance.
+Завершён следующий P1-срез контрактов архивов: `/my_family/shopping-lists` получил просмотр архивных списков и restore; `/my_family/task-routines` — просмотр архивных регулярных задач и restore; finance tabs wallets/goals/recurring payments подключили archived endpoints и восстановление. Экранные active/archive состояния используют существующие version-aware mutations; generated API не редактировался. Checks: `format`, `format:check`, `lint`, `typecheck`, `build`, `git diff --check` — PASS; browser QA выполняет пользователь. Следующий срез: advanced wellbeing либо прогнозы recurring payments.
+Добавлен advanced wellbeing UI-срез: privacy-aware оценка из 5 ответов, история score, trends/export, благодарности с удалением и support requests со сменой статуса. Использованы существующие wellbeing aliases и family membership recipients; поля и ограничения сверены с backend DTO. Rituals/couple meetings и delete-all data намеренно оставлены отдельным следующим срезом из-за более сложного workflow/подтверждений. Checks: `format`, `format:check`, `lint`, `typecheck`, `build`, `git diff --check` — PASS; browser QA выполняет пользователь.
+
+## 25 августа 2026 — infinite scroll для «Наших моментов»
+
+На `/my_family/media` пагинация заменена на `react-infinite-scroll-component`: галерея получила фиксированный прокручиваемый контейнер, следующая страница media API подгружается при приближении к нижней границе, а загруженные страницы объединяются в единый grid. Сохранены фильтры, upload, preview, audio-player и удаление; после фильтрации/upload/delete список сбрасывается к первой странице. Добавлена зависимость `react-infinite-scroll-component`. Проверки: `format:check`, `lint`, `typecheck`, `build`, `git diff --check` — PASS; browser QA выполняет пользователь.

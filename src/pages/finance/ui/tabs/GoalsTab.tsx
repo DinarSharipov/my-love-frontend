@@ -1,4 +1,4 @@
-import { Archive, Plus, WalletCards } from 'lucide-react';
+import { Archive, Plus, RotateCcw, WalletCards } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import {
   useArchiveFinancialGoalMutation,
@@ -6,6 +6,8 @@ import {
   useCreateFinancialGoalMutation,
   useListFinanceWalletsQuery,
   useListFinancialGoalsQuery,
+  useListArchivedFinancialGoalsQuery,
+  useRestoreFinancialGoalMutation,
 } from '@/entities/finance';
 import { getApiErrorMessage } from '@/shared/api';
 import { AnimatedPanel, AsyncState, Button, DatePicker, Input, Select } from '@/shared/ui';
@@ -13,11 +15,15 @@ import { AnimatedPanel, AsyncState, Button, DatePicker, Input, Select } from '@/
 const positiveAmount = /^[1-9]\d{0,18}$/;
 
 export const GoalsTab = () => {
-  const query = useListFinancialGoalsQuery();
+  const [showArchived, setShowArchived] = useState(false);
+  const activeQuery = useListFinancialGoalsQuery(undefined, { skip: showArchived });
+  const archivedQuery = useListArchivedFinancialGoalsQuery(undefined, { skip: !showArchived });
+  const query = showArchived ? archivedQuery : activeQuery;
   const wallets = useListFinanceWalletsQuery();
   const [create, createState] = useCreateFinancialGoalMutation();
   const [contribute, contributeState] = useContributeFinancialGoalMutation();
   const [archive] = useArchiveFinancialGoalMutation();
+  const [restore] = useRestoreFinancialGoalMutation();
   const [title, setTitle] = useState('');
   const [target, setTarget] = useState('');
   const [date, setDate] = useState('');
@@ -85,16 +91,32 @@ export const GoalsTab = () => {
           <WalletCards className="text-cyber-cyan size-5" />
           <h2 className="text-text text-lg font-semibold">Финансовые цели</h2>
         </div>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <Button onClick={() => setShowArchived((value) => !value)} size="s">
+            {showArchived ? <RotateCcw className="size-4" /> : <Archive className="size-4" />}
+            {showArchived ? 'К активным' : 'Архив целей'}
+          </Button>
+        </div>
         <div className="mb-3 grid gap-2 sm:grid-cols-2">
           {(query.data ?? [])
-            .filter((goal) => !goal.archived)
+            .filter((goal) => (showArchived ? goal.archived : !goal.archived))
             .map((goal) => (
               <div className="bg-surface rounded-panel p-3" key={goal.id}>
                 <div className="flex items-center justify-between gap-2">
                   <div className="text-text truncate">{goal.title}</div>
                   <Button
-                    icon={<Archive className="size-4" />}
-                    onClick={() => archive({ id: goal.id, version: goal.version })}
+                    icon={
+                      showArchived ? (
+                        <RotateCcw className="size-4" />
+                      ) : (
+                        <Archive className="size-4" />
+                      )
+                    }
+                    onClick={() =>
+                      showArchived
+                        ? restore({ id: goal.id, version: goal.version })
+                        : archive({ id: goal.id, version: goal.version })
+                    }
                     size="s"
                     title="Архивировать цель"
                   />

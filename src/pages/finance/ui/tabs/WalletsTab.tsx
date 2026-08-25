@@ -1,19 +1,29 @@
-import { Plus, WalletCards } from 'lucide-react';
+import { Archive, Plus, RotateCcw, WalletCards } from 'lucide-react';
 import { useState } from 'react';
 import {
+  useArchiveFinanceWalletMutation,
   useCreateFinanceWalletMutation,
   useGetExpenseStatisticsQuery,
   useGetFinancialSummaryQuery,
   useListFinanceWalletsQuery,
+  useListArchivedFinanceWalletsQuery,
+  useRestoreFinanceWalletMutation,
 } from '@/entities/finance';
 import { getApiErrorMessage } from '@/shared/api';
 import { AnimatedPanel, AsyncState, Button, Input } from '@/shared/ui';
 
 export const WalletsTab = () => {
-  const walletsQuery = useListFinanceWalletsQuery();
+  const [showArchived, setShowArchived] = useState(false);
+  const activeWalletsQuery = useListFinanceWalletsQuery(undefined, { skip: showArchived });
+  const archivedWalletsQuery = useListArchivedFinanceWalletsQuery(undefined, {
+    skip: !showArchived,
+  });
+  const walletsQuery = showArchived ? archivedWalletsQuery : activeWalletsQuery;
   const summaryQuery = useGetFinancialSummaryQuery();
   const statisticsQuery = useGetExpenseStatisticsQuery();
   const [createWallet, state] = useCreateFinanceWalletMutation();
+  const [archiveWallet] = useArchiveFinanceWalletMutation();
+  const [restoreWallet] = useRestoreFinanceWalletMutation();
   const [name, setName] = useState('');
   const [error, setError] = useState<string>();
   const submit = async (event: React.FormEvent) => {
@@ -36,9 +46,13 @@ export const WalletsTab = () => {
     >
       <div className="grid gap-gap">
         <AnimatedPanel className="p-5">
-          <div className="mb-4 flex items-center gap-gap">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-gap">
             <WalletCards className="text-cyber-cyan" />
             <h2 className="text-text text-lg font-semibold">Кошельки</h2>
+            <Button onClick={() => setShowArchived((value) => !value)} size="s">
+              {showArchived ? <RotateCcw className="size-4" /> : <Archive className="size-4" />}
+              {showArchived ? 'К активным' : 'Архив кошельков'}
+            </Button>
           </div>
           {(walletsQuery.data ?? []).map((wallet) => (
             <div
@@ -47,6 +61,17 @@ export const WalletsTab = () => {
             >
               <span>{wallet.name}</span>
               <span className="text-muted-text text-sm">{wallet.currency}</span>
+              <Button
+                icon={
+                  showArchived ? <RotateCcw className="size-4" /> : <Archive className="size-4" />
+                }
+                onClick={() =>
+                  showArchived
+                    ? restoreWallet({ id: wallet.id, version: wallet.version })
+                    : archiveWallet({ id: wallet.id, version: wallet.version })
+                }
+                size="s"
+              />
             </div>
           ))}
           <form className="mt-3 flex items-end gap-gap" onSubmit={submit}>

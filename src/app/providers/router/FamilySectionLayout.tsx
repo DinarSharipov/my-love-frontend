@@ -1,6 +1,7 @@
 import {
   CalendarDays,
   Baby,
+  ChefHat,
   HeartPulse,
   Images,
   ListChecks,
@@ -20,10 +21,11 @@ const familyMenuItems: readonly MenuItem[] = [
   { icon: ListChecks, label: 'Задачи', to: '/my_family/tasks' },
   { icon: Repeat2, label: 'Регулярные задачи', to: '/my_family/task-routines' },
   { icon: ShoppingBasket, label: 'Покупки', to: '/my_family/shopping-lists' },
+  { icon: ChefHat, label: 'Питание', to: '/my_family/meals' },
   { icon: WalletCards, label: 'Финансы', to: '/my_family/finance' },
   { icon: HeartPulse, label: 'Благополучие', to: '/my_family/wellbeing' },
   { icon: Baby, label: 'Дети', to: '/my_family/children' },
-  { icon: Images, label: 'Мой альбом', to: '/my_family/media' },
+  { icon: Images, label: 'Наши моменты', to: '/my_family/media' },
   { icon: MailCheck, label: 'Приглашения', to: '/my_family/family-invitations' },
 ];
 

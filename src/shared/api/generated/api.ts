@@ -3,6 +3,7 @@ export const addTagTypes = [
   'tasks',
   'task-routines',
   'finance',
+  'media',
   'shopping',
   'meals',
   'notifications',
@@ -17,7 +18,6 @@ export const addTagTypes = [
   'first date',
   'calendar',
   'wellbeing',
-  'media',
   'health',
 ] as const;
 const injectedRtkApi = api
@@ -475,6 +475,91 @@ const injectedRtkApi = api
         }),
         providesTags: ['finance'],
       }),
+      upload: build.mutation<UploadApiResponse, UploadApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/media/upload`, method: 'POST', body: queryArg.body }),
+        invalidatesTags: ['media'],
+      }),
+      initiateUpload: build.mutation<InitiateUploadApiResponse, InitiateUploadApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/media/uploads/initiate`,
+          method: 'POST',
+          body: queryArg.mediaUploadInitDto,
+        }),
+        invalidatesTags: ['media'],
+      }),
+      uploadStatus: build.query<UploadStatusApiResponse, UploadStatusApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/media/uploads/${queryArg.id}/status` }),
+        providesTags: ['media'],
+      }),
+      completeUpload: build.mutation<CompleteUploadApiResponse, CompleteUploadApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/media/uploads/${queryArg.id}/complete`,
+          method: 'POST',
+          body: queryArg.mediaUploadCompleteDto,
+        }),
+        invalidatesTags: ['media'],
+      }),
+      abortUpload: build.mutation<AbortUploadApiResponse, AbortUploadApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/media/uploads/${queryArg.id}`, method: 'DELETE' }),
+        invalidatesTags: ['media'],
+      }),
+      list10: build.query<List10ApiResponse, List10ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/media`,
+          params: {
+            page: queryArg.page,
+            limit: queryArg.limit,
+            name: queryArg.name,
+            dateFrom: queryArg.dateFrom,
+            dateTo: queryArg.dateTo,
+          },
+        }),
+        providesTags: ['media'],
+      }),
+      streamVideo: build.query<StreamVideoApiResponse, StreamVideoApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/media/videos/${queryArg.id}/stream`,
+          headers: {
+            Range: queryArg.range,
+          },
+        }),
+        providesTags: ['media'],
+      }),
+      streamAudio: build.query<StreamAudioApiResponse, StreamAudioApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/media/audio/${queryArg.id}/stream`,
+          headers: {
+            Range: queryArg.range,
+          },
+        }),
+        providesTags: ['media'],
+      }),
+      downloadVideo: build.query<DownloadVideoApiResponse, DownloadVideoApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/media/videos/${queryArg.id}/download`,
+          headers: {
+            Range: queryArg.range,
+          },
+        }),
+        providesTags: ['media'],
+      }),
+      downloadAudio: build.query<DownloadAudioApiResponse, DownloadAudioApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/media/audio/${queryArg.id}/download`,
+          headers: {
+            Range: queryArg.range,
+          },
+        }),
+        providesTags: ['media'],
+      }),
+      findOne: build.query<FindOneApiResponse, FindOneApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/media/${queryArg.id}` }),
+        providesTags: ['media'],
+      }),
+      remove2: build.mutation<Remove2ApiResponse, Remove2ApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/media/${queryArg.id}`, method: 'DELETE' }),
+        invalidatesTags: ['media'],
+      }),
       lists: build.query<ListsApiResponse, ListsApiArg>({
         query: () => ({ url: `/api/v1/families/me/shopping-lists` }),
         providesTags: ['shopping'],
@@ -527,7 +612,7 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['shopping'],
       }),
-      list10: build.query<List10ApiResponse, List10ApiArg>({
+      list11: build.query<List11ApiResponse, List11ApiArg>({
         query: () => ({ url: `/api/v1/families/me/recipes` }),
         providesTags: ['meals'],
       }),
@@ -628,7 +713,7 @@ const injectedRtkApi = api
         }),
         providesTags: ['notifications'],
       }),
-      list11: build.query<List11ApiResponse, List11ApiArg>({
+      list12: build.query<List12ApiResponse, List12ApiArg>({
         query: () => ({ url: `/api/v1/notifications` }),
         providesTags: ['notifications'],
       }),
@@ -651,11 +736,11 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['reminders'],
       }),
-      list12: build.query<List12ApiResponse, List12ApiArg>({
+      list13: build.query<List13ApiResponse, List13ApiArg>({
         query: (queryArg) => ({ url: `/api/v1/families/me/tasks/${queryArg.taskId}/reminders` }),
         providesTags: ['reminders'],
       }),
-      remove2: build.mutation<Remove2ApiResponse, Remove2ApiArg>({
+      remove3: build.mutation<Remove3ApiResponse, Remove3ApiArg>({
         query: (queryArg) => ({
           url: `/api/v1/families/me/tasks/reminders/${queryArg.id}`,
           method: 'DELETE',
@@ -781,6 +866,18 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/v1/users/me/export` }),
         providesTags: ['users'],
       }),
+      uploadAvatar: build.mutation<UploadAvatarApiResponse, UploadAvatarApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/users/me/avatar`,
+          method: 'POST',
+          body: queryArg.body,
+        }),
+        invalidatesTags: ['users'],
+      }),
+      removeAvatar: build.mutation<RemoveAvatarApiResponse, RemoveAvatarApiArg>({
+        query: () => ({ url: `/api/v1/users/me/avatar`, method: 'DELETE' }),
+        invalidatesTags: ['users'],
+      }),
       findUsers: build.query<FindUsersApiResponse, FindUsersApiArg>({
         query: (queryArg) => ({
           url: `/api/v1/users`,
@@ -794,6 +891,18 @@ const injectedRtkApi = api
       }),
       findUserById: build.query<FindUserByIdApiResponse, FindUserByIdApiArg>({
         query: (queryArg) => ({ url: `/api/v1/users/${queryArg.id}` }),
+        providesTags: ['users'],
+      }),
+      getAvatar: build.query<GetAvatarApiResponse, GetAvatarApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/users/${queryArg.id}/avatar`,
+          headers: {
+            Range: queryArg.range,
+          },
+          params: {
+            token: queryArg.token,
+          },
+        }),
         providesTags: ['users'],
       }),
       create12: build.mutation<Create12ApiResponse, Create12ApiArg>({
@@ -1011,7 +1120,7 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['child-profiles'],
       }),
-      list13: build.query<List13ApiResponse, List13ApiArg>({
+      list14: build.query<List14ApiResponse, List14ApiArg>({
         query: () => ({ url: `/api/v1/families/me/children` }),
         providesTags: ['child-profiles'],
       }),
@@ -1030,7 +1139,7 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['child-profiles'],
       }),
-      remove3: build.mutation<Remove3ApiResponse, Remove3ApiArg>({
+      remove4: build.mutation<Remove4ApiResponse, Remove4ApiArg>({
         query: (queryArg) => ({
           url: `/api/v1/families/me/children/${queryArg.id}`,
           method: 'DELETE',
@@ -1141,7 +1250,7 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['wellbeing'],
       }),
-      list14: build.query<List14ApiResponse, List14ApiArg>({
+      list15: build.query<List15ApiResponse, List15ApiArg>({
         query: () => ({ url: `/api/v1/families/me/wellbeing/check-ins` }),
         providesTags: ['wellbeing'],
       }),
@@ -1149,11 +1258,11 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/v1/families/me/wellbeing/check-ins`, method: 'DELETE' }),
         invalidatesTags: ['wellbeing'],
       }),
-      findOne: build.query<FindOneApiResponse, FindOneApiArg>({
+      findOne2: build.query<FindOne2ApiResponse, FindOne2ApiArg>({
         query: (queryArg) => ({ url: `/api/v1/families/me/wellbeing/check-ins/${queryArg.id}` }),
         providesTags: ['wellbeing'],
       }),
-      remove4: build.mutation<Remove4ApiResponse, Remove4ApiArg>({
+      remove5: build.mutation<Remove5ApiResponse, Remove5ApiArg>({
         query: (queryArg) => ({
           url: `/api/v1/families/me/wellbeing/check-ins/${queryArg.id}`,
           method: 'DELETE',
@@ -1332,31 +1441,6 @@ const injectedRtkApi = api
           body: queryArg.wellbeingCoupleMeetingDecisionDto,
         }),
         invalidatesTags: ['wellbeing'],
-      }),
-      upload: build.mutation<UploadApiResponse, UploadApiArg>({
-        query: (queryArg) => ({ url: `/api/v1/media/upload`, method: 'POST', body: queryArg.body }),
-        invalidatesTags: ['media'],
-      }),
-      list15: build.query<List15ApiResponse, List15ApiArg>({
-        query: (queryArg) => ({
-          url: `/api/v1/media`,
-          params: {
-            page: queryArg.page,
-            limit: queryArg.limit,
-            name: queryArg.name,
-            dateFrom: queryArg.dateFrom,
-            dateTo: queryArg.dateTo,
-          },
-        }),
-        providesTags: ['media'],
-      }),
-      findOne2: build.query<FindOne2ApiResponse, FindOne2ApiArg>({
-        query: (queryArg) => ({ url: `/api/v1/media/${queryArg.id}` }),
-        providesTags: ['media'],
-      }),
-      remove5: build.mutation<Remove5ApiResponse, Remove5ApiArg>({
-        query: (queryArg) => ({ url: `/api/v1/media/${queryArg.id}`, method: 'DELETE' }),
-        invalidatesTags: ['media'],
       }),
       checkHealth: build.query<CheckHealthApiResponse, CheckHealthApiArg>({
         query: () => ({ url: `/api/v1/health` }),
@@ -1622,6 +1706,70 @@ export type Get5ApiArg = {
   /** Inclusive UTC calendar date. */
   dateTo?: string;
 };
+export type UploadApiResponse = /** status 200  */ MediaResponseDto;
+export type UploadApiArg = {
+  body: {
+    file: Blob;
+  };
+};
+export type InitiateUploadApiResponse = /** status 200  */ MediaUploadResponseDto;
+export type InitiateUploadApiArg = {
+  mediaUploadInitDto: MediaUploadInitDto;
+};
+export type UploadStatusApiResponse = /** status 200  */ MediaUploadStatusDto;
+export type UploadStatusApiArg = {
+  id: string;
+};
+export type CompleteUploadApiResponse = /** status 200  */ MediaResponseDto;
+export type CompleteUploadApiArg = {
+  id: string;
+  mediaUploadCompleteDto: MediaUploadCompleteDto;
+};
+export type AbortUploadApiResponse = unknown;
+export type AbortUploadApiArg = {
+  id: string;
+};
+export type List10ApiResponse = /** status 200  */ PaginatedMediaResponseDto;
+export type List10ApiArg = {
+  page?: number;
+  limit?: number;
+  /** Case-insensitive substring of the original filename */
+  name?: string;
+  dateFrom?: string;
+  dateTo?: string;
+};
+export type StreamVideoApiResponse = unknown;
+export type StreamVideoApiArg = {
+  id: string;
+  /** Optional byte range for playback/seek */
+  range?: string;
+};
+export type StreamAudioApiResponse = unknown;
+export type StreamAudioApiArg = {
+  id: string;
+  /** Optional byte range for playback/seek */
+  range?: string;
+};
+export type DownloadVideoApiResponse = unknown;
+export type DownloadVideoApiArg = {
+  id: string;
+  /** Optional byte range */
+  range?: string;
+};
+export type DownloadAudioApiResponse = unknown;
+export type DownloadAudioApiArg = {
+  id: string;
+  /** Optional byte range */
+  range?: string;
+};
+export type FindOneApiResponse = /** status 200  */ MediaResponseDto;
+export type FindOneApiArg = {
+  id: string;
+};
+export type Remove2ApiResponse = /** status 200  */ any;
+export type Remove2ApiArg = {
+  id: string;
+};
 export type ListsApiResponse = /** status 200  */ ShoppingListResponseDto[];
 export type ListsApiArg = void;
 export type Create9ApiResponse = /** status 200  */ ShoppingListResponseDto;
@@ -1653,8 +1801,8 @@ export type Restore6ApiResponse = /** status 200  */ ShoppingListResponseDto;
 export type Restore6ApiArg = {
   listId: string;
 };
-export type List10ApiResponse = /** status 200  */ RecipeResponseDto[];
-export type List10ApiArg = void;
+export type List11ApiResponse = /** status 200  */ RecipeResponseDto[];
+export type List11ApiArg = void;
 export type Create10ApiResponse = /** status 200  */ RecipeResponseDto;
 export type Create10ApiArg = {
   createRecipeDto: CreateRecipeDto;
@@ -1708,8 +1856,8 @@ export type ListPaginatedApiArg = {
   page?: number;
   limit?: number;
 };
-export type List11ApiResponse = /** status 200  */ NotificationResponseDto[];
-export type List11ApiArg = void;
+export type List12ApiResponse = /** status 200  */ NotificationResponseDto[];
+export type List12ApiArg = void;
 export type ReadApiResponse = unknown;
 export type ReadApiArg = {
   id: string;
@@ -1721,12 +1869,12 @@ export type Create11ApiArg = {
   taskId: string;
   createTaskReminderDto: CreateTaskReminderDto;
 };
-export type List12ApiResponse = /** status 200  */ TaskReminderResponseDto[];
-export type List12ApiArg = {
+export type List13ApiResponse = /** status 200  */ TaskReminderResponseDto[];
+export type List13ApiArg = {
   taskId: string;
 };
-export type Remove2ApiResponse = unknown;
-export type Remove2ApiArg = {
+export type Remove3ApiResponse = unknown;
+export type Remove3ApiArg = {
   id: string;
 };
 export type RegisterApiResponse = /** status 201  */ AuthResponseDto;
@@ -1786,6 +1934,14 @@ export type UpdateCurrentUserApiArg = {
 };
 export type ExportCurrentUserApiResponse = /** status 200  */ AccountExportResponseDto;
 export type ExportCurrentUserApiArg = void;
+export type UploadAvatarApiResponse = /** status 200  */ UserResponseDto;
+export type UploadAvatarApiArg = {
+  body: {
+    file: Blob;
+  };
+};
+export type RemoveAvatarApiResponse = /** status 200  */ any;
+export type RemoveAvatarApiArg = void;
 export type FindUsersApiResponse = /** status 200  */ PaginatedUsersResponseDto;
 export type FindUsersApiArg = {
   page?: number;
@@ -1796,6 +1952,14 @@ export type FindUsersApiArg = {
 export type FindUserByIdApiResponse = /** status 200  */ PublicUserResponseDto;
 export type FindUserByIdApiArg = {
   id: string;
+};
+export type GetAvatarApiResponse = unknown;
+export type GetAvatarApiArg = {
+  id: string;
+  /** Optional byte range for preview loading */
+  range?: string;
+  /** Avatar preview capability token */
+  token: string;
 };
 export type Create12ApiResponse = /** status 201  */ TelegramLinkTokenResponseDto;
 export type Create12ApiArg = void;
@@ -1894,8 +2058,8 @@ export type Create13ApiResponse = /** status 201  */ ChildProfileResponseDto;
 export type Create13ApiArg = {
   createChildProfileDto: CreateChildProfileDto;
 };
-export type List13ApiResponse = /** status 200  */ ChildProfileResponseDto[];
-export type List13ApiArg = void;
+export type List14ApiResponse = /** status 200  */ ChildProfileResponseDto[];
+export type List14ApiArg = void;
 export type GetApiV1FamiliesMeChildrenByIdExportApiResponse =
   /** status 200  */ ChildProfileExportDto;
 export type GetApiV1FamiliesMeChildrenByIdExportApiArg = {
@@ -1906,8 +2070,8 @@ export type Update10ApiArg = {
   id: string;
   updateChildProfileDto: UpdateChildProfileDto;
 };
-export type Remove3ApiResponse = unknown;
-export type Remove3ApiArg = {
+export type Remove4ApiResponse = unknown;
+export type Remove4ApiArg = {
   id: string;
 };
 export type CreateFamilyEventApiResponse = /** status 201  */ FamilyEventResponseDto;
@@ -1975,16 +2139,16 @@ export type Create14ApiResponse = /** status 201  */ WellbeingCheckInResponseDto
 export type Create14ApiArg = {
   createWellbeingCheckInDto: CreateWellbeingCheckInDto;
 };
-export type List14ApiResponse = /** status 200  */ WellbeingCheckInResponseDto[];
-export type List14ApiArg = void;
+export type List15ApiResponse = /** status 200  */ WellbeingCheckInResponseDto[];
+export type List15ApiArg = void;
 export type DeleteAllApiResponse = unknown;
 export type DeleteAllApiArg = void;
-export type FindOneApiResponse = /** status 200  */ WellbeingCheckInResponseDto;
-export type FindOneApiArg = {
+export type FindOne2ApiResponse = /** status 200  */ WellbeingCheckInResponseDto;
+export type FindOne2ApiArg = {
   id: string;
 };
-export type Remove4ApiResponse = unknown;
-export type Remove4ApiArg = {
+export type Remove5ApiResponse = unknown;
+export type Remove5ApiArg = {
   id: string;
 };
 export type GrantConsentApiResponse = /** status 201  */ WellbeingConsentResponseDto;
@@ -2072,29 +2236,6 @@ export type SetCoupleMeetingDecisionApiResponse =
 export type SetCoupleMeetingDecisionApiArg = {
   id: string;
   wellbeingCoupleMeetingDecisionDto: WellbeingCoupleMeetingDecisionDto;
-};
-export type UploadApiResponse = /** status 200  */ MediaResponseDto;
-export type UploadApiArg = {
-  body: {
-    file: Blob;
-  };
-};
-export type List15ApiResponse = /** status 200  */ PaginatedMediaResponseDto;
-export type List15ApiArg = {
-  page?: number;
-  limit?: number;
-  /** Case-insensitive substring of the original filename */
-  name?: string;
-  dateFrom?: string;
-  dateTo?: string;
-};
-export type FindOne2ApiResponse = /** status 200  */ MediaResponseDto;
-export type FindOne2ApiArg = {
-  id: string;
-};
-export type Remove5ApiResponse = /** status 200  */ any;
-export type Remove5ApiArg = {
-  id: string;
 };
 export type CheckHealthApiResponse = /** status 200  */ any;
 export type CheckHealthApiArg = void;
@@ -2430,6 +2571,54 @@ export type ExpenseStatisticsResponseDto = {
   totals: ExpenseStatisticsAmountDto[];
   members: ExpenseStatisticsMemberDto[];
 };
+export type MediaResponseDto = {
+  id: string;
+  userId: string;
+  originalName: string;
+  mimeType: string;
+  kind: 'IMAGE' | 'VIDEO' | 'AUDIO';
+  sizeBytes: number;
+  createdAt: string;
+  /** Short-lived URL for downloading the private object */
+  downloadUrl: string;
+  /** Short-lived URL for a 320px WebP image preview; null for video and audio */
+  previewUrl: object | null;
+};
+export type MediaUploadPartResponseDto = {
+  partNumber: number;
+  url: string;
+};
+export type MediaUploadResponseDto = {
+  sessionId: string;
+  objectKey: string;
+  partSizeBytes: number;
+  parts: MediaUploadPartResponseDto[];
+  expiresAt: string;
+};
+export type MediaUploadInitDto = {
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+};
+export type MediaUploadStatusDto = {
+  status: 'INITIATED' | 'COMPLETED' | 'ABORTED';
+  uploadedBytes: number;
+  totalBytes: number;
+};
+export type MediaUploadPartDto = {
+  partNumber: number;
+  etag: string;
+};
+export type MediaUploadCompleteDto = {
+  parts: MediaUploadPartDto[];
+};
+export type PaginatedMediaResponseDto = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  data: MediaResponseDto[];
+};
 export type ShoppingItemResponseDto = {
   id: string;
   listId: string;
@@ -2576,6 +2765,7 @@ export type UserResponseDto = {
   description?: string | null;
   birthDate: string;
   phone?: string | null;
+  avatarUrl?: string | null;
   locale: string;
   timeZone: string;
   version: number;
@@ -2684,6 +2874,7 @@ export type PublicUserResponseDto = {
   email: string;
   /** Whether the user already belongs to a family */
   hasFamily: boolean;
+  avatarUrl?: string | null;
 };
 export type PaginatedUsersResponseDto = {
   total: number;
@@ -3039,23 +3230,6 @@ export type WellbeingCoupleMeetingResponseInputDto = {
 export type WellbeingCoupleMeetingDecisionDto = {
   decision: string;
 };
-export type MediaResponseDto = {
-  id: string;
-  userId: string;
-  originalName: string;
-  mimeType: string;
-  sizeBytes: number;
-  createdAt: string;
-  /** Short-lived URL for downloading the private object */
-  downloadUrl: string;
-};
-export type PaginatedMediaResponseDto = {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  data: MediaResponseDto[];
-};
 export const {
   useCreateMutation,
   useListQuery,
@@ -3117,6 +3291,18 @@ export const {
   useCreateDecisionMutation,
   useRespondMutation,
   useGet5Query,
+  useUploadMutation,
+  useInitiateUploadMutation,
+  useUploadStatusQuery,
+  useCompleteUploadMutation,
+  useAbortUploadMutation,
+  useList10Query,
+  useStreamVideoQuery,
+  useStreamAudioQuery,
+  useDownloadVideoQuery,
+  useDownloadAudioQuery,
+  useFindOneQuery,
+  useRemove2Mutation,
   useListsQuery,
   useCreate9Mutation,
   useArchived5Query,
@@ -3125,7 +3311,7 @@ export const {
   useUncheckMutation,
   useArchive7Mutation,
   useRestore6Mutation,
-  useList10Query,
+  useList11Query,
   useCreate10Mutation,
   useListArchived2Query,
   useUpdate9Mutation,
@@ -3139,12 +3325,12 @@ export const {
   usePreferencesGetQuery,
   usePreferencesUpdateMutation,
   useListPaginatedQuery,
-  useList11Query,
+  useList12Query,
   useReadMutation,
   useReadAllMutation,
   useCreate11Mutation,
-  useList12Query,
-  useRemove2Mutation,
+  useList13Query,
+  useRemove3Mutation,
   useRegisterMutation,
   useLoginMutation,
   useLogoutMutation,
@@ -3161,8 +3347,11 @@ export const {
   useFindCurrentUserQuery,
   useUpdateCurrentUserMutation,
   useExportCurrentUserQuery,
+  useUploadAvatarMutation,
+  useRemoveAvatarMutation,
   useFindUsersQuery,
   useFindUserByIdQuery,
+  useGetAvatarQuery,
   useCreate12Mutation,
   useStatusQuery,
   useUnlinkMutation,
@@ -3190,10 +3379,10 @@ export const {
   useRejectFamilyInvitationMutation,
   useCancelFamilyInvitationMutation,
   useCreate13Mutation,
-  useList13Query,
+  useList14Query,
   useGetApiV1FamiliesMeChildrenByIdExportQuery,
   useUpdate10Mutation,
-  useRemove3Mutation,
+  useRemove4Mutation,
   useCreateFamilyEventMutation,
   useFindFamilyEventsQuery,
   useFindFamilyEventByIdQuery,
@@ -3207,10 +3396,10 @@ export const {
   useRemoveFirstDateMutation,
   useProjectQuery,
   useCreate14Mutation,
-  useList14Query,
+  useList15Query,
   useDeleteAllMutation,
-  useFindOneQuery,
-  useRemove4Mutation,
+  useFindOne2Query,
+  useRemove5Mutation,
   useGrantConsentMutation,
   useListConsentsQuery,
   useRevokeConsentMutation,
@@ -3235,9 +3424,5 @@ export const {
   useRespondToCoupleMeetingMutation,
   usePublishCoupleMeetingMutation,
   useSetCoupleMeetingDecisionMutation,
-  useUploadMutation,
-  useList15Query,
-  useFindOne2Query,
-  useRemove5Mutation,
   useCheckHealthQuery,
 } = injectedRtkApi;

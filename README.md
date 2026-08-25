@@ -24,6 +24,12 @@ npm run build
 
 Для запуска требуется Node.js 22.12 или новее.
 
+## Контрактный источник API
+
+Frontend-контракты генерируются только из deployed Swagger: `https://api.147.45.124.221.sslip.io/docs-json`.
+Команда `npm run api:generate` сначала загружает этот документ, затем обновляет `src/shared/api/generated/api.ts`.
+Сгенерированный файл не редактируется вручную.
+
 ## Структура
 
 ```text

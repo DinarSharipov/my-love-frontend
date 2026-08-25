@@ -1,6 +1,10 @@
 import { HeartPulse } from 'lucide-react';
 import { AnimatedPanel, PageLayout } from '@/shared/ui';
-import { WellbeingPanel } from '@/features/wellbeing';
+import {
+  WellbeingAdvancedPanel,
+  WellbeingPanel,
+  WellbeingRitualsMeetingsPanel,
+} from '@/features/wellbeing';
 
 export const WellbeingPage = () => (
   <PageLayout>
@@ -17,5 +21,7 @@ export const WellbeingPage = () => (
       </p>
     </AnimatedPanel>
     <WellbeingPanel />
+    <WellbeingAdvancedPanel />
+    <WellbeingRitualsMeetingsPanel />
   </PageLayout>
 );
