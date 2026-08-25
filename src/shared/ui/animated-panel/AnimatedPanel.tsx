@@ -1,5 +1,5 @@
 import { motion, type HTMLMotionProps, type Variants } from 'motion/react';
-import type { ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 
 type AnimatedPanelProps = Omit<HTMLMotionProps<'section'>, 'children'> & {
   children: ReactNode;
@@ -32,7 +32,24 @@ const surfaceVariants: Variants = {
   },
 };
 
-export const AnimatedPanel = ({ children, className = '', ...props }: AnimatedPanelProps) => (
+const panelSurfaceStyle = {
+  backgroundColor:
+    'color-mix(in srgb, var(--color-surface) calc(var(--animated-panel-opacity, 0.9) * 100%), transparent)',
+  backdropFilter: 'blur(var(--animated-panel-blur, 12px))',
+} as const;
+
+const AnimatedPanelSurface = memo(() => (
+  <motion.div
+    aria-hidden="true"
+    className="absolute inset-0 -z-10 rounded-3xl border backdrop-blur-md"
+    style={panelSurfaceStyle}
+    variants={surfaceVariants}
+  />
+));
+
+AnimatedPanelSurface.displayName = 'AnimatedPanelSurface';
+
+const AnimatedPanelComponent = ({ children, className = '', ...props }: AnimatedPanelProps) => (
   <motion.section
     animate="visible"
     className={`relative isolate h-full w-full p-4 ${className}`}
@@ -41,16 +58,11 @@ export const AnimatedPanel = ({ children, className = '', ...props }: AnimatedPa
     whileHover="hover"
     {...props}
   >
-    <motion.div
-      aria-hidden="true"
-      className="absolute inset-0 -z-10 rounded-3xl border backdrop-blur-md"
-      style={{
-        backgroundColor:
-          'color-mix(in srgb, var(--color-surface) calc(var(--animated-panel-opacity, 0.9) * 100%), transparent)',
-        backdropFilter: 'blur(var(--animated-panel-blur, 12px))',
-      }}
-      variants={surfaceVariants}
-    />
+    <AnimatedPanelSurface />
     <div className="relative z-10 h-full min-h-0 flex flex-col">{children}</div>
   </motion.section>
 );
+
+export const AnimatedPanel = memo(AnimatedPanelComponent);
+
+AnimatedPanel.displayName = 'AnimatedPanel';
