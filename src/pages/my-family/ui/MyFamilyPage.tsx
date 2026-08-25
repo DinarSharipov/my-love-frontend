@@ -129,7 +129,7 @@ export const MyFamilyPage = () => {
 
       <FirstDateTracker />
       <ChildProfilesPanel />
-      <FamilyLifecyclePanel status={data.status} />
+      <FamilyLifecyclePanel onFamilyChanged={() => refetch()} status={data.status} />
     </PageLayout>
   );
 };

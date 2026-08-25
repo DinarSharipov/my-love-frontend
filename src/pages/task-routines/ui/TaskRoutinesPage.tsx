@@ -120,7 +120,7 @@ export const TaskRoutinesPage = () => {
     }
   };
   return (
-    <main className="h-full overflow-auto">
+    <main className="h-full overflow-auto p-5">
       <div className="mx-auto w-full space-y-5">
         <AnimatedPanel className="page-header">
           <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">

@@ -166,7 +166,7 @@ export const AllUsersPage = () => {
   );
 
   return (
-    <main className="flex h-full min-h-0 flex-col gap-gap">
+    <main className="flex h-full min-h-0 flex-col gap-gap overflow-auto p-5">
       <AnimatedPanel className="page-header flex shrink-0 flex-col gap-gap sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="text-primary-neon mb-2 flex items-center gap-gap text-xs font-semibold uppercase tracking-[0.2em]">

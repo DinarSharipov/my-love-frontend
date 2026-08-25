@@ -17,7 +17,7 @@ export const SettingsPage = () => {
 
   return (
     <main className="h-full min-h-0 overflow-hidden">
-      <div className="flex h-full min-h-0 w-full flex-col gap-gap">
+      <div className="flex h-full min-h-0 w-full flex-col gap-gap p-5">
         <AnimatedPanel className="page-header !h-auto shrink-0">
           <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
             Центр управления
@@ -38,7 +38,9 @@ export const SettingsPage = () => {
             onChange={(id) => setActiveTab(id as SettingsTab)}
           />
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto">{content}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto" id="settings-content-scroll">
+          {content}
+        </div>
       </div>
     </main>
   );

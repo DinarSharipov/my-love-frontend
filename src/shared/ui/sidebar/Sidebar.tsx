@@ -12,12 +12,12 @@ export const Sidebar = ({ items }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   return (
     <aside
-      className={`min-h-0 min-w-20 shrink-0 overflow-hidden transition-[width] duration-300 lg:block ${collapsed ? 'w-20' : 'w-64'}`}
+      className={`min-h-0 min-w-20 shrink-0 overflow-visible transition-[width] duration-300 lg:block ${collapsed ? 'w-20' : 'w-64'}`}
     >
       <AnimatedPanel className={`h-full min-w-0 ${collapsed ? '!p-2' : ''}`}>
         <nav
           aria-label="Основная навигация"
-          className={`flex h-full min-w-0 flex-col gap-gap ${collapsed ? '!p-1' : 'p-page'}`}
+          className={`flex h-full min-w-0 flex-col gap-gap overflow-hidden ${collapsed ? '!p-1' : 'p-page'}`}
         >
           <button
             aria-label={collapsed ? 'Развернуть меню' : 'Свернуть меню'}

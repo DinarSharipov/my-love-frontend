@@ -1,6 +1,6 @@
 import { FileAudio, ImagePlus, Play, Trash2, Upload, X } from 'lucide-react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   useFindMediaQuery,
@@ -262,6 +262,7 @@ export const MediaPage = () => {
   const [pendingDelete, setPendingDelete] = useState<Media | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [listError, setListError] = useState<string | null>(null);
+  const uploadInputRef = useRef<HTMLInputElement | null>(null);
   const [upload, uploadState] = useMediaUploadDirectMutation();
   const [remove, removeState] = useRemoveMediaMutation();
   const { addTrack, play } = useMediaPlayer();
@@ -317,8 +318,11 @@ export const MediaPage = () => {
     if (!file) return;
     setUploadError(null);
     try {
-      await upload(file).unwrap();
-      resetMediaList();
+      const uploadedMedia = await upload(file).unwrap();
+      setMediaPages((previous) => ({
+        ...previous,
+        1: [uploadedMedia, ...(previous[1] ?? []).filter((media) => media.id !== uploadedMedia.id)],
+      }));
     } catch (uploadRequestError) {
       setUploadError(getApiErrorMessage(uploadRequestError, 'Не удалось загрузить файл'));
     }
@@ -344,20 +348,32 @@ export const MediaPage = () => {
     if (!pendingDelete) return;
     try {
       await remove({ id: pendingDelete.id }).unwrap();
+      setMediaPages((previous) =>
+        Object.fromEntries(
+          Object.entries(previous).map(([currentPage, items]) => [
+            currentPage,
+            items.filter((media) => media.id !== pendingDelete.id),
+          ]),
+        ),
+      );
       setPendingDelete(null);
-      resetMediaList();
     } catch (deleteError) {
       setListError(getApiErrorMessage(deleteError, 'Не удалось удалить файл'));
     }
   };
 
-  const media = useMemo(
-    () =>
-      Object.keys(mediaPages)
-        .sort((left, right) => Number(left) - Number(right))
-        .flatMap((key) => mediaPages[Number(key)] ?? []),
-    [mediaPages],
-  );
+  const media = useMemo(() => {
+    const mediaIds = new Set<string>();
+
+    return Object.keys(mediaPages)
+      .sort((left, right) => Number(left) - Number(right))
+      .flatMap((key) => mediaPages[Number(key)] ?? [])
+      .filter((item) => {
+        if (mediaIds.has(item.id)) return false;
+        mediaIds.add(item.id);
+        return true;
+      });
+  }, [mediaPages]);
   const previewMedia = selectedId ? (detailData ?? selected) : null;
 
   return (
@@ -408,20 +424,23 @@ export const MediaPage = () => {
               Изображение до 10 МБ, аудио до 100 МБ или видео до 500 МБ.
             </p>
           </div>
-          <label className="inline-flex shrink-0" htmlFor="media-upload-file">
+          <div className="inline-flex shrink-0">
             <input
               accept="image/*,video/*,audio/*"
               className="sr-only"
               disabled={uploadState.isLoading}
-              id="media-upload-file"
               onChange={handleUpload}
+              ref={uploadInputRef}
               type="file"
             />
-            <span className="border-[var(--color-button)] bg-surface/20 text-text inline-flex h-10 cursor-pointer items-center justify-center gap-1 rounded-xl border px-5 text-sm font-semibold shadow-[0_0_10px_color-mix(in_srgb,var(--color-button)_55%,transparent)] transition hover:scale-[1.025] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-cyber-cyan">
-              <Upload aria-hidden="true" className="h-4 w-4" />
+            <Button
+              icon={<Upload aria-hidden="true" className="h-4 w-4" />}
+              isLoading={uploadState.isLoading}
+              onClick={() => uploadInputRef.current?.click()}
+            >
               {uploadState.isLoading ? 'Загрузка…' : 'Выбрать файл'}
-            </span>
-          </label>
+            </Button>
+          </div>
         </div>
         {uploadError && (
           <p className="text-neon-pink basis-full text-sm" role="alert">

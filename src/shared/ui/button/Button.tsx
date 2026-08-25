@@ -14,6 +14,7 @@ type ButtonProps = Omit<HTMLMotionProps<'button'>, 'children'> & {
   children?: ReactNode;
   containerClassName?: string;
   icon?: ReactNode;
+  isLoading?: boolean;
   size?: ButtonSize;
   clickEffect?: boolean;
 };
@@ -56,6 +57,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       className = '',
       containerClassName = '',
       icon,
+      isLoading = false,
       disabled,
       onClick,
       size = 'm',
@@ -70,6 +72,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const burstId = useRef(0);
     const cleanupTimers = useRef<number[]>([]);
     const [bursts, setBursts] = useState<HeartBurst[]>([]);
+    const isDisabled = disabled || isLoading;
 
     useImperativeHandle(forwardedRef, () => buttonRef.current as HTMLButtonElement);
 
@@ -83,7 +86,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           !magneticTarget ||
           !contextSafe ||
           animateVariant !== 'magnetic' ||
-          disabled
+          isDisabled
         ) {
           if (magneticTarget) {
             gsap.set(magneticTarget, { clearProps: 'x,y' });
@@ -184,7 +187,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         };
       },
       {
-        dependencies: [animateVariant, disabled],
+        dependencies: [animateVariant, isDisabled],
         revertOnUpdate: true,
         scope: magneticContainerRef,
       },
@@ -198,6 +201,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     );
 
     const handleClick = (event: ReactMouseEvent<HTMLButtonElement>) => {
+      if (isDisabled) return;
+
       if (clickEffect) {
         burstId.current += 1;
         const nextBurst: HeartBurst = {
@@ -245,14 +250,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               {...buttonProps}
               ref={buttonRef}
               className={`border-[var(--color-button)] cursor-pointer bg-surface/20 text-text group relative isolate inline-flex items-center justify-center overflow-hidden rounded-xl border font-semibold leading-none shadow-[0_0_10px_color-mix(in_srgb,var(--color-button)_55%,transparent),0_0_28px_color-mix(in_srgb,var(--color-button)_22%,transparent),inset_0_0_16px_color-mix(in_srgb,var(--color-button)_10%,transparent)] outline-none backdrop-blur-xl transition-[color,background-color,border-color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 ${sizeClassNames[size]} ${className}`}
-              disabled={disabled}
+              aria-busy={isLoading || undefined}
+              disabled={isDisabled}
               onClick={handleClick}
               transition={{ duration: 0.18, ease: 'easeOut' }}
               type={type}
               whileHover={
-                disabled || animateVariant === 'magnetic' ? undefined : { scale: 1.025, y: -2 }
+                isDisabled || animateVariant === 'magnetic' ? undefined : { scale: 1.025, y: -2 }
               }
-              whileTap={disabled ? undefined : { scale: 0.96, y: 0 }}
+              whileTap={isDisabled ? undefined : { scale: 0.96, y: 0 }}
             >
               <motion.span
                 aria-hidden="true"
@@ -287,8 +293,24 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                   </motion.span>
                 ))}
               </AnimatePresence>
-              <span className="relative z-10 inline-flex items-center justify-center gap-1">
-                {icon}
+              <span className="relative z-10 inline-flex items-center justify-center gap-2">
+                {isLoading ? (
+                  <span
+                    aria-hidden="true"
+                    className="relative inline-grid h-5 w-5 shrink-0 place-items-center"
+                  >
+                    {[0, 0.26, 0.52].map((delay) => (
+                      <motion.span
+                        animate={{ opacity: [0.95, 0], scale: [0.2, 1.35] }}
+                        className="border-primary-neon absolute inset-0 rounded-full border shadow-[0_0_8px_var(--color-primary-neon)]"
+                        key={delay}
+                        transition={{ delay, duration: 1.15, ease: 'easeOut', repeat: Infinity }}
+                      />
+                    ))}
+                  </span>
+                ) : (
+                  icon
+                )}
                 {children}
               </span>
             </motion.button>

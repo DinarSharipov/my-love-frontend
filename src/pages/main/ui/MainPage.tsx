@@ -1,12 +1,12 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
-import { CalendarDays, ListChecks, Plus, ShoppingBasket } from 'lucide-react';
+import { Bell, CalendarDays, ListChecks, Plus, ShoppingBasket, TriangleAlert } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { getCalendarTasks } from '@/entities/task';
 import { useFindFamilyEventsQuery } from '@/features/family-events';
-import { useListQuery } from '@/shared/api';
+import { type FamilyDashboardResponseDto, useDashboardQuery, useListQuery } from '@/shared/api';
 import type { CalendarVisiblePeriod, PlannedItem } from '@/shared/ui';
 import { AnimatedPanel, AsyncState, Button, Calendar } from '@/shared/ui';
 
@@ -16,23 +16,55 @@ const getInitialPeriod = (): CalendarVisiblePeriod => {
   return { from: from.toDate(), toExclusive: from.add(42, 'day').toDate() };
 };
 
-const QuickActions = () => {
+const QuickActions = ({ dashboard }: { dashboard?: FamilyDashboardResponseDto }) => {
   const navigate = useNavigate();
   const actions = [
-    { icon: ListChecks, label: 'Новая задача', to: '/tasks' },
+    { icon: ListChecks, label: 'Новая задача', to: '/my_family/tasks' },
     { icon: CalendarDays, label: 'Новое событие', to: '/my_family/calendar' },
     { icon: ShoppingBasket, label: 'Добавить покупку', to: '/my_family/shopping-lists' },
   ];
 
   return (
-    <div className="grid gap-gap sm:grid-cols-3 lg:grid-cols-1">
-      {actions.map(({ icon: Icon, label, to }) => (
-        <Button className="w-full justify-start" key={to} onClick={() => navigate(to)} size="s">
-          <Icon aria-hidden="true" className="size-4" />
-          {label}
-        </Button>
-      ))}
-    </div>
+    <>
+      {dashboard && (
+        <div className="mb-4 grid grid-cols-2 gap-gap">
+          <div className="border-border bg-elevated/30 rounded-2xl border p-3">
+            <p className="text-muted-text flex items-center gap-1 text-xs">
+              <ListChecks aria-hidden="true" className="size-3.5" /> Открытые задачи
+            </p>
+            <p className="text-text mt-1 text-xl font-semibold">{dashboard.openTasks}</p>
+          </div>
+          <div className="border-border bg-elevated/30 rounded-2xl border p-3">
+            <p className="text-muted-text flex items-center gap-1 text-xs">
+              <TriangleAlert aria-hidden="true" className="size-3.5" /> Просрочено
+            </p>
+            <p className="text-text mt-1 text-xl font-semibold">{dashboard.overdueTasks}</p>
+          </div>
+          <div className="border-border bg-elevated/30 rounded-2xl border p-3">
+            <p className="text-muted-text flex items-center gap-1 text-xs">
+              <ShoppingBasket aria-hidden="true" className="size-3.5" /> Покупки
+            </p>
+            <p className="text-text mt-1 text-xl font-semibold">
+              {dashboard.uncheckedShoppingItems}
+            </p>
+          </div>
+          <div className="border-border bg-elevated/30 rounded-2xl border p-3">
+            <p className="text-muted-text flex items-center gap-1 text-xs">
+              <Bell aria-hidden="true" className="size-3.5" /> Непрочитанные
+            </p>
+            <p className="text-text mt-1 text-xl font-semibold">{dashboard.unreadNotifications}</p>
+          </div>
+        </div>
+      )}
+      <div className="grid gap-gap sm:grid-cols-3 lg:grid-cols-1">
+        {actions.map(({ icon: Icon, label, to }) => (
+          <Button className="w-full justify-start" key={to} onClick={() => navigate(to)} size="s">
+            <Icon aria-hidden="true" className="size-4" />
+            {label}
+          </Button>
+        ))}
+      </div>
+    </>
   );
 };
 
@@ -46,6 +78,7 @@ export const MainPage = () => {
     page: 1,
   });
   const tasksQuery = useListQuery({ limit: 100, page: 1 });
+  const dashboardQuery = useDashboardQuery();
   const events = useMemo(() => eventsQuery.data?.data ?? [], [eventsQuery.data?.data]);
   const tasks = getCalendarTasks(tasksQuery.data);
   const plannedItems = useMemo<PlannedItem[]>(
@@ -75,7 +108,7 @@ export const MainPage = () => {
 
   return (
     <main className="text-text flex h-full min-h-0 flex-col overflow-hidden">
-      <div className="flex min-h-0 w-full flex-1 flex-col p-1">
+      <div className="flex min-h-0 w-full flex-1 flex-col p-5">
         <AnimatedPanel className="page-header !h-fit mb-5 shrink-0">
           <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
             Семейный стол
@@ -124,7 +157,7 @@ export const MainPage = () => {
                 <Plus aria-hidden="true" className="text-cyber-cyan size-5" />
                 <h2 className="text-text text-lg font-semibold">Быстрые действия</h2>
               </div>
-              <QuickActions />
+              <QuickActions dashboard={dashboardQuery.data} />
             </AnimatedPanel>
           </div>
         </AsyncState>

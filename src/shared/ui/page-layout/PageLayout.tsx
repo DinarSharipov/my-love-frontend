@@ -13,7 +13,9 @@ export const PageLayout = ({
   contentClassName = '',
 }: PageLayoutProps) => (
   <main className={`h-full min-h-0 overflow-hidden ${className}`}>
-    <div className={`h-full min-h-0 w-full min-w-0 max-w-full overflow-auto ${contentClassName}`}>
+    <div
+      className={`h-full min-h-0 w-full min-w-0 max-w-full overflow-auto p-5 ${contentClassName}`}
+    >
       <div className="flex min-h-full w-full min-w-0 max-w-full flex-col gap-gap">{children}</div>
     </div>
   </main>

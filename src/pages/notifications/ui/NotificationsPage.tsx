@@ -1,5 +1,6 @@
 import { Bell, CheckCheck, Mail, Send } from 'lucide-react';
-import { useEffect, useId, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useEffect, useId, useMemo, useState } from 'react';
 
 import type { Notification, NotificationPreferences } from '@/entities/notification';
 import {
@@ -9,11 +10,14 @@ import {
 import { TelegramConnectionPanel } from '@/features/telegram';
 import {
   getApiErrorMessage,
-  useList11Query,
+  type NotificationResponseDto,
+  useListPaginatedQuery,
   useReadAllMutation,
   useReadMutation,
 } from '@/shared/api';
 import { AnimatedPanel, AsyncState, Button, Input } from '@/shared/ui';
+
+const PAGE_SIZE = 20;
 
 const formatDate = (value: string) =>
   new Intl.DateTimeFormat('ru-RU', {
@@ -22,6 +26,12 @@ const formatDate = (value: string) =>
     minute: '2-digit',
     month: 'short',
   }).format(new Date(value));
+
+const normalizeNotification = (notification: NotificationResponseDto): Notification => ({
+  ...notification,
+  body: typeof notification.body === 'string' ? notification.body : null,
+  familyId: typeof notification.familyId === 'string' ? notification.familyId : null,
+});
 
 const PreferenceToggle = ({
   checked,
@@ -60,7 +70,10 @@ const PreferenceToggle = ({
 };
 
 export const NotificationsPage = () => {
-  const inbox = useList11Query();
+  const [page, setPage] = useState(1);
+  const [notificationPages, setNotificationPages] = useState<Record<number, Notification[]>>({});
+  const [hasMore, setHasMore] = useState(true);
+  const inbox = useListPaginatedQuery({ limit: PAGE_SIZE, page });
   const preferencesQuery = useGetNotificationPreferencesQuery();
   const [markRead] = useReadMutation();
   const [markAllRead, markAllState] = useReadAllMutation();
@@ -68,21 +81,52 @@ export const NotificationsPage = () => {
   const [preferences, setPreferences] = useState<NotificationPreferences>();
   const [error, setError] = useState<string>();
 
-  const notifications = (inbox.data as Notification[] | undefined) ?? [];
+  const notifications = useMemo(
+    () =>
+      Object.keys(notificationPages)
+        .sort((left, right) => Number(left) - Number(right))
+        .flatMap((key) => notificationPages[Number(key)] ?? []),
+    [notificationPages],
+  );
   const unread = notifications.filter((notification) => !notification.readAt);
+
+  useEffect(() => {
+    const pageData = inbox.currentData;
+    if (!pageData) return;
+    const currentPage = pageData.page ?? page;
+    setNotificationPages((current) => ({
+      ...current,
+      [currentPage]: pageData.data.map(normalizeNotification),
+    }));
+    setHasMore(currentPage < pageData.totalPages);
+  }, [inbox.currentData, page]);
 
   useEffect(() => {
     if (preferencesQuery.data) setPreferences(preferencesQuery.data);
   }, [preferencesQuery.data]);
 
-  const runInboxAction = async (action: () => Promise<unknown>) => {
+  const runInboxAction = async (
+    action: () => Promise<unknown>,
+    updateLocally: (notification: Notification) => Notification,
+  ) => {
     setError(undefined);
     try {
       await action();
-      await inbox.refetch();
+      setNotificationPages((current) =>
+        Object.fromEntries(
+          Object.entries(current).map(([currentPage, currentNotifications]) => [
+            currentPage,
+            currentNotifications.map(updateLocally),
+          ]),
+        ),
+      );
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, 'Не удалось обновить уведомления'));
     }
+  };
+
+  const loadMore = () => {
+    if (!inbox.isFetching && hasMore) setPage((current) => current + 1);
   };
 
   const savePreferences = async () => {
@@ -102,7 +146,7 @@ export const NotificationsPage = () => {
   ) => setPreferences((current) => (current ? { ...current, [key]: value } : current));
 
   return (
-    <main className="min-h-full overflow-visible">
+    <main className="min-h-full overflow-visible p-5">
       <div className="mx-auto grid min-h-full w-full items-start gap-gap lg:items-stretch lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
         <section>
           <AnimatedPanel className="!h-auto flex min-h-0 flex-col p-5 sm:p-6">
@@ -130,7 +174,15 @@ export const NotificationsPage = () => {
                 <Button
                   disabled={!unread.length || markAllState.isLoading}
                   icon={<CheckCheck className="size-4" />}
-                  onClick={() => runInboxAction(() => markAllRead().unwrap())}
+                  onClick={() =>
+                    runInboxAction(
+                      () => markAllRead().unwrap(),
+                      (notification) =>
+                        notification.readAt
+                          ? notification
+                          : { ...notification, readAt: new Date().toISOString() },
+                    )
+                  }
                   size="s"
                 >
                   Прочитать всё
@@ -147,49 +199,72 @@ export const NotificationsPage = () => {
                   }
                   error={inbox.error}
                   errorMessage="Не удалось загрузить уведомления"
-                  hasData={Boolean(inbox.data)}
+                  hasData={Boolean(inbox.currentData)}
                   isLoading={inbox.isLoading}
                   loading={<p className="text-muted-text text-sm">Загружаем уведомления…</p>}
                   onRetry={() => inbox.refetch()}
                 >
-                  <div className="space-y-2 pr-1">
-                    {notifications.map((notification) => (
-                      <article
-                        className={`border-border rounded-2xl border p-4 ${notification.readAt ? 'bg-elevated/25' : 'bg-primary-neon/10'}`}
-                        key={notification.id}
-                      >
-                        <div className="flex items-start gap-gap">
-                          <span
-                            aria-hidden="true"
-                            className={`mt-1 size-2 shrink-0 rounded-full ${notification.readAt ? 'bg-muted-text/40' : 'bg-primary-neon shadow-[0_0_10px_var(--color-primary-neon)]'}`}
-                          />
-                          <div className="min-w-0 flex-1">
-                            <h3 className="text-text text-sm font-semibold">
-                              {notification.title}
-                            </h3>
-                            {notification.body && (
-                              <p className="text-muted-text mt-1 text-sm">{notification.body}</p>
+                  <InfiniteScroll
+                    dataLength={notifications.length}
+                    endMessage={
+                      notifications.length > 0 ? (
+                        <p className="text-muted-text py-4 text-center text-xs">
+                          Все уведомления загружены
+                        </p>
+                      ) : undefined
+                    }
+                    hasMore={hasMore}
+                    loader={
+                      <p className="text-muted-text py-4 text-center text-xs">Загружаем ещё…</p>
+                    }
+                    next={loadMore}
+                    scrollableTarget="settings-content-scroll"
+                  >
+                    <div className="space-y-2 pr-1">
+                      {notifications.map((notification) => (
+                        <article
+                          className={`border-border rounded-2xl border p-4 ${notification.readAt ? 'bg-elevated/25' : 'bg-primary-neon/10'}`}
+                          key={notification.id}
+                        >
+                          <div className="flex items-start gap-gap">
+                            <span
+                              aria-hidden="true"
+                              className={`mt-1 size-2 shrink-0 rounded-full ${notification.readAt ? 'bg-muted-text/40' : 'bg-primary-neon shadow-[0_0_10px_var(--color-primary-neon)]'}`}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <h3 className="text-text text-sm font-semibold">
+                                {notification.title}
+                              </h3>
+                              {notification.body && (
+                                <p className="text-muted-text mt-1 text-sm">{notification.body}</p>
+                              )}
+                              <p className="text-muted-text mt-2 text-xs">
+                                {formatDate(notification.createdAt)}
+                              </p>
+                            </div>
+                            {!notification.readAt && (
+                              <Button
+                                aria-label={`Отметить уведомление «${notification.title}» прочитанным`}
+                                icon={<CheckCheck className="size-4" />}
+                                onClick={() =>
+                                  runInboxAction(
+                                    () => markRead({ id: notification.id }).unwrap(),
+                                    (current) =>
+                                      current.id === notification.id
+                                        ? { ...current, readAt: new Date().toISOString() }
+                                        : current,
+                                  )
+                                }
+                                size="s"
+                              >
+                                <span className="sr-only">Прочитать</span>
+                              </Button>
                             )}
-                            <p className="text-muted-text mt-2 text-xs">
-                              {formatDate(notification.createdAt)}
-                            </p>
                           </div>
-                          {!notification.readAt && (
-                            <Button
-                              aria-label={`Отметить уведомление «${notification.title}» прочитанным`}
-                              icon={<CheckCheck className="size-4" />}
-                              onClick={() =>
-                                runInboxAction(() => markRead({ id: notification.id }).unwrap())
-                              }
-                              size="s"
-                            >
-                              <span className="sr-only">Прочитать</span>
-                            </Button>
-                          )}
-                        </div>
-                      </article>
-                    ))}
-                  </div>
+                        </article>
+                      ))}
+                    </div>
+                  </InfiniteScroll>
                 </AsyncState>
               </div>
             </div>

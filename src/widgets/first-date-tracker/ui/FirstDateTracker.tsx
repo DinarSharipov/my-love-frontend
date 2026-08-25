@@ -106,39 +106,41 @@ type EmptyFirstDateProps = {
 };
 
 const EmptyFirstDate = ({ canCreate, notice, onCreate, onRetry }: EmptyFirstDateProps) => (
-  <AnimatedPanel className="relative grid min-h-64 place-items-center overflow-hidden p-6 text-center">
-    <div className="bg-primary-neon/10 absolute h-36 w-36 rounded-full blur-3xl" />
-    <div className="relative w-full">
-      <NoticeBanner notice={notice} />
-      <Heart className="text-primary-neon mx-auto mb-3 h-8 w-8" strokeWidth={1.5} />
-      <p className="text-text text-sm font-medium">
-        {canCreate
-          ? 'Дата первой встречи пока не добавлена'
-          : 'Не удалось загрузить историю вашей встречи'}
-      </p>
-      <p className="text-muted-text mt-1 text-xs">
-        {canCreate
-          ? 'Сохраните момент, с которого началась ваша общая история'
-          : 'Попробуйте запросить данные ещё раз'}
-      </p>
-      <div className="mt-5 flex justify-center">
-        {canCreate ? (
-          <Button
-            icon={<Plus aria-hidden="true" className="h-4 w-4" />}
-            onClick={onCreate}
-            size="s"
-          >
-            <span>Добавить встречу</span>
-          </Button>
-        ) : (
-          <Button
-            icon={<RefreshCw aria-hidden="true" className="h-4 w-4" />}
-            onClick={onRetry}
-            size="s"
-          >
-            <span>Повторить</span>
-          </Button>
-        )}
+  <AnimatedPanel className="relative grid min-h-64 place-items-center p-6 text-center">
+    <div className="relative w-full overflow-hidden rounded-3xl">
+      <div className="bg-primary-neon/10 absolute h-36 w-36 rounded-full blur-3xl" />
+      <div className="relative w-full">
+        <NoticeBanner notice={notice} />
+        <Heart className="text-primary-neon mx-auto mb-3 h-8 w-8" strokeWidth={1.5} />
+        <p className="text-text text-sm font-medium">
+          {canCreate
+            ? 'Дата первой встречи пока не добавлена'
+            : 'Не удалось загрузить историю вашей встречи'}
+        </p>
+        <p className="text-muted-text mt-1 text-xs">
+          {canCreate
+            ? 'Сохраните момент, с которого началась ваша общая история'
+            : 'Попробуйте запросить данные ещё раз'}
+        </p>
+        <div className="mt-5 flex justify-center">
+          {canCreate ? (
+            <Button
+              icon={<Plus aria-hidden="true" className="h-4 w-4" />}
+              onClick={onCreate}
+              size="s"
+            >
+              <span>Добавить встречу</span>
+            </Button>
+          ) : (
+            <Button
+              icon={<RefreshCw aria-hidden="true" className="h-4 w-4" />}
+              onClick={onRetry}
+              size="s"
+            >
+              <span>Повторить</span>
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   </AnimatedPanel>

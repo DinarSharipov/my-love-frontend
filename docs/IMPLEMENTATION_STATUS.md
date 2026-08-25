@@ -1,5 +1,27 @@
 # My Love — статус реализации
 
+## 25 августа 2026 — cyberpunk loader общего Button
+
+Общий `Button` получил проп `isLoading`: кнопка становится недоступной, сообщает `aria-busy` и заменяет переданную иконку на ripple-лоадер Motion — три неоновых кольца расходятся с увеличенным отступом от текста. Загрузка медиа на `/my_family/media` переведена с локального label/span на общий `Button`: повторный выбор файла блокируется, а состояние загрузки отображается единообразно. Проверки: Prettier, `format:check`, `typecheck`, ESLint и `git diff --check` — PASS; browser QA остаётся за пользователем.
+
+## 25 августа 2026 — исправление обновления галереи медиа
+
+После прямой загрузки или удаления медиа галерея больше не очищает накопленные страницы и не размонтируется на время повторного запроса. Ответ `mediaUploadDirect` немедленно добавляется в начало первой страницы, удалённый элемент локально исключается из всех уже загруженных страниц, а объединённый поток дедуплицируется по `id`. RTK Query продолжает фоновую инвалидацию media-кэша, но UI остаётся непрерывным. Проверки: Prettier, `format:check`, `typecheck`, ESLint и `git diff --check` — PASS; browser QA остаётся за пользователем.
+
+## 25 августа 2026 — lifecycle, dashboard и notifications pagination
+
+На `/my_family` подключён безопасный UI для доступного lifecycle-контракта family dissolution: запрос, подтверждение вторым партнёром и отмена используют общий `ConfirmDialog`, loading/error-состояния и явные тексты о сохранении общих данных. Backend не публикует `GET` для текущего dissolution request, поэтому состояние ожидания отображается сразу после собственного запроса, а второй партнёр получает существующее in-app уведомление и может подтвердить или отменить запрос на странице семьи. После подтверждения данные семьи перезапрашиваются.
+
+На `/main` подключён `GET /api/v1/families/me/dashboard`: компактные показатели открытых/просроченных задач, покупок и непрочитанных уведомлений показываются рядом с быстрыми действиями, не блокируя календарь при отдельной ошибке dashboard. Одновременно исправлен маршрут quick action «Новая задача» на `/my_family/tasks`.
+
+Inbox `/settings` переведён с непагинированного `GET /notifications` на `GET /notifications/page`: страницы накапливаются, следующие записи загружаются через `react-infinite-scroll-component` внутри единственного settings scroll-container. После `read`/`read-all` список оптимистично обновляется, а RTK Query invalidation сохраняет cache свежим.
+
+Media stream/download endpoints остаются отдельным срезом: Swagger объявляет их ответ как `unknown`, а native `<audio>`/`<video>` не могут приложить Bearer header. Текущий album безопасно использует signed `downloadUrl`; для перехода на stream API backend должен явно задокументировать browser-consumable response/URL policy. Проверки после среза: Prettier, `typecheck`, ESLint. Browser QA запрошен, но в текущем окружении browser runtime не получил обязательный `sandboxPolicy`.
+
+## 25 августа 2026 — исправление обрезания тени `AnimatedPanel`
+
+Причина clipping была в родительских route/layout-контейнерах, а не в `AnimatedPanel`: `PageLayout`-scrollport и локальные page scroll-контейнеры не имели visual gutter, а `Sidebar` задавал `overflow-hidden` непосредственно над panel. `AnimatedPanel` возвращён к исходному shadow-layer поведению; изменения применены к владельцам clipping. Visual gutter добавлен для `PageLayout`, sidebar и маршрутов `/main`, `/all_users`, `/settings`, `/profile`, `/notifications`, `/my_family/task-routines`. Guest routes уже имели внешние `px/py`-отступы. Проверки после изменения: Prettier, `format:check`, ESLint, `typecheck`, `build`, `git diff --check`; browser QA выполняет пользователь.
+
 ## 25 августа 2026 — оптимизация `AnimatedPanel`
 
 Уменьшены лишние React-рендеры `AnimatedPanel`: surface-слой вынесен в memo-компонент, его style-объект стабилизирован, основной panel обёрнут в `React.memo`. Variant-контракты, hover/entry-анимации, timing, easing и визуальные параметры не изменены. Проверки: `format:check`, ESLint затронутого файла, `typecheck`, `build`; browser QA выполняет пользователь.

@@ -160,7 +160,7 @@ export const PrivateFamilyInvitationPanel = () => {
   }
 
   return (
-    <AnimatedPanel className="mb-5 overflow-hidden p-4 sm:p-5">
+    <AnimatedPanel className="mb-5 p-4 sm:p-5">
       <div className="grid gap-gap lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.95fr)]">
         <div>
           <header className="mb-4 flex items-start gap-gap">
