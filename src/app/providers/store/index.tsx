@@ -3,12 +3,14 @@ import type { PropsWithChildren } from 'react';
 import { Provider } from 'react-redux';
 
 import { userReducer } from '@/entities/user';
+import { messengerRealtimeReducer } from '@/features/messenger-realtime';
 import { baseApi } from '@/shared/api';
 import { authMiddleware } from '@/app/providers/store/authMiddleware';
 
 export const store = configureStore({
   reducer: {
     [baseApi.reducerPath]: baseApi.reducer,
+    messengerRealtime: messengerRealtimeReducer,
     user: userReducer,
   },
   middleware: (getDefaultMiddleware) =>

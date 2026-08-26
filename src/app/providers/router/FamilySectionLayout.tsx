@@ -6,6 +6,7 @@ import {
   Images,
   ListChecks,
   MailCheck,
+  MessageCircleMore,
   Repeat2,
   ShoppingBasket,
   WalletCards,
@@ -51,6 +52,7 @@ const familyMenuGroups: readonly SidebarMenuGroup[] = [
     items: [
       { icon: Baby, label: 'Дети', to: '/my_family/children' },
       { icon: HeartPulse, label: 'Благополучие', to: '/my_family/wellbeing' },
+      { icon: MessageCircleMore, label: 'Сообщения', to: '/my_family/messenger' },
       { icon: Images, label: 'Наши моменты', to: '/my_family/media' },
     ],
     label: 'Семья',

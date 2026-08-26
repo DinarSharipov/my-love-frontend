@@ -213,6 +213,84 @@ My Love — приватный «семейный центр управлени�
 
 Результат: у семьи появляется причина сохранять приложение годами.
 
+### Этап 7. Messenger — чаты и realtime
+
+Статус: **в работе**. Backend-контракты сверены с обновлённым deployed Swagger 26 августа 2026; реализованы фундамент realtime и основной текстовый сценарий. Следующие срезы: создание/управление чатами, медиа и voice, затем адаптивность и offline UX.
+
+#### Доступный backend-контур
+
+- HTTP API для создания direct/group conversation, списка и карточки чата, изменения названия, управления участниками и выхода из группы.
+- Cursor-history сообщений, отправка, редактирование, soft-delete и message-scoped media endpoints для просмотра, streaming и скачивания вложений.
+- Типы сообщений: `TEXT`, `IMAGE`, `VIDEO`, `VOICE`; media сначала загружается через общий multipart S3 pipeline, затем передаётся в сообщение как `mediaIds`.
+- Socket.IO namespace `/messenger` с JWT/session authentication через `handshake.auth.token`.
+- Client events: `conversation.join`, `conversation.leave`, `message.send`, `message.edit`, `message.delete`, `message.read`, `typing.start`, `typing.stop`.
+- Server events: `message.created`, `message.updated`, `message.deleted`, `message.read`, `typing.updated`, `presence.updated`.
+- Сохранение сообщения выполняется до broadcast; `clientMessageId` обеспечивает идемпотентность; Redis adapter обеспечивает multi-instance fan-out.
+
+#### Обязательные backend-доработки до старта frontend
+
+1. Добавить в deployed Swagger response DTO для conversation, conversation list, message и cursor page; сейчас большинство успешных ответов не имеют schema и не дают codegen полезных типов.
+2. Описать в Swagger query-параметры `limit`, `beforeId`, `afterId` для истории сообщений и закрепить семантику порядка/курсоров.
+3. Исправить `nextCursor` для backward pagination: следующая страница старых сообщений должна продолжаться от самого старого элемента загруженной страницы без повторов.
+4. Добавить `conversationId` в `presence.updated`, чтобы одно соединение могло корректно обслуживать несколько комнат.
+5. Зафиксировать единый acknowledgement envelope для успеха и ошибки с correlation ID; глобальный `exception` без идентификатора нельзя надёжно сопоставить параллельной команде.
+6. Зафиксировать WebSocket-контракт вне OpenAPI: AsyncAPI или версионированные схемы client/server events с payload и ack.
+7. Реализовать broadcast `conversation.created`/`conversation.updated` для изменений названия и состава участников.
+8. Добавить в conversation list `lastMessage`, `unreadCount` и `avatarUrl` участников, чтобы frontend не выполнял N+1 запросы.
+9. Добавить HTTP fallback для mark-read и endpoint передачи роли `OWNER`; сейчас владелец не может выйти из группы и не может передать владение.
+10. Ограничить production Socket.IO CORS явным allowlist frontend origins.
+
+#### Frontend-архитектура
+
+- Использовать `socket.io-client` совместимой ветки `4.8.x`, а не native `WebSocket`.
+- Держать одно Socket.IO-соединение на авторизованную вкладку приложения: `autoConnect: false`, connect после появления access token, disconnect и очистка realtime-state при logout.
+- Передавать JWT через `auth`, не через query string; при обновлении credentials менять `socket.auth` до reconnect.
+- Типизировать transport через `Socket<ServerToClientEvents, ClientToServerEvents>`; входящие payload дополнительно проверять Zod-схемами на runtime boundary.
+- Регистрировать listeners централизованно в app-level provider/bridge именованными функциями с точным cleanup; UI-компоненты не должны владеть соединением или глобальными listeners.
+- Считать RTK Query единственным источником persisted server state. Socket events обновляют или инвалидируют query cache через streaming lifecycle/manual cache updates; отдельная копия истории в Redux не создаётся.
+- В Redux slice хранить только ephemeral state: connection status, presence, typing и optimistic delivery status.
+- Использовать `build.infiniteQuery` для cursor-history, ограничить `maxPages`, сохранять scroll anchor при добавлении старых страниц и дедуплицировать сообщения по `id`/`clientMessageId`.
+
+Целевая FSD-структура:
+
+```text
+src/app/providers/messenger/
+src/entities/messenger/api/
+src/entities/messenger/model/
+src/features/messenger-realtime/
+src/features/send-message/
+src/features/manage-conversation/
+src/widgets/messenger/
+src/pages/messenger/
+```
+
+#### Надёжность realtime
+
+- Создавать `clientMessageId` до optimistic insert; отправлять durable command с timeout acknowledgement.
+- После ack или `message.created` заменять optimistic запись серверной и исключать дубли; retry использует тот же `clientMessageId`.
+- Не включать глобальный retry для всех событий: typing/presence должны быть volatile, durable commands повторяются отдельно и идемпотентно.
+- После reconnect выполнять HTTP catch-up через message cursor, потому что Socket.IO гарантирует порядок, но по умолчанию не replay-ит пропущенные server events.
+- Отображать состояния `connecting`, `online`, `reconnecting`, `offline`, `pending`, `failed`; ошибка отправки не должна удалять пользовательский текст.
+
+#### Transport и deployment
+
+- Добавить в Vite proxy маршрут `/socket.io` с `ws: true` на `VITE_API_PROXY_TARGET`.
+- Добавить в production Nginx отдельный `/socket.io/` proxy с HTTP/1.1 и заголовками `Upgrade`/`Connection`.
+- Использовать same-origin transport path `/socket.io/` и namespace `/messenger`, чтобы development и production не расходились по CORS и URL.
+
+#### Порядок frontend-срезов после разблокировки
+
+1. Перегенерировать API из deployed Swagger; добавить dependency, typed event contracts, Zod validation, socket manager/provider и Vite/Nginx proxy.
+2. Реализовать `/my_family/messenger`, пункт меню «Сообщения», список чатов и read-only бесконечную историю.
+3. Подключить realtime text: optimistic send, acknowledgement, dedupe, reconnect catch-up, edit/delete и retry.
+4. Добавить unread/read receipts, presence и debounced/volatile typing indicators.
+5. Добавить создание direct/group chats и управление участниками с учётом ролей `OWNER`/`ADMIN`/`MEMBER`.
+6. Подключить изображения и видео через существующий media upload pipeline и message-scoped preview/stream/download.
+7. Добавить запись и отправку voice messages с корректным состоянием upload/send/playback.
+8. Завершить responsive UX: desktop split-view, mobile stack/navigation, scroll anchoring, keyboard/accessibility, reduced motion и offline/reconnect состояния.
+
+Критерий завершения: persisted HTTP history и realtime events дают один дедуплицированный поток сообщений; reconnect восстанавливает пропуски; unread/read, typing, presence и media работают без второго источника server state. Проверки frontend выполняются через format, format check, typecheck, lint, build и static checks; browser QA остаётся за пользователем.
+
 ## 6. Приоритеты
 
 ### P0 — продукт должен уметь

@@ -19,6 +19,7 @@ export const baseApi = createApi({
     'finance-meetings',
     'wellbeing',
     'child-profiles',
+    'messenger',
   ],
   baseQuery: fetchBaseQuery({
     baseUrl: '/',

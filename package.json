@@ -32,6 +32,7 @@
     "react-infinite-scroll-component": "^7.2.1",
     "react-redux": "^9.3.0",
     "react-router-dom": "^7.18.2",
+    "socket.io-client": "^4.8.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {

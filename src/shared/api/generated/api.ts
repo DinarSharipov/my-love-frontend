@@ -19,6 +19,7 @@ export const addTagTypes = [
   'calendar',
   'wellbeing',
   'health',
+  'messenger',
 ] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
@@ -177,6 +178,25 @@ const injectedRtkApi = api
       get2: build.query<Get2ApiResponse, Get2ApiArg>({
         query: (queryArg) => ({ url: `/api/v1/families/me/ledger/${queryArg.id}` }),
         providesTags: ['finance'],
+      }),
+      listMedia: build.query<ListMediaApiResponse, ListMediaApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/families/me/ledger/${queryArg.id}/media` }),
+        providesTags: ['finance'],
+      }),
+      attachMedia: build.mutation<AttachMediaApiResponse, AttachMediaApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/ledger/${queryArg.id}/media`,
+          method: 'POST',
+          body: queryArg.attachLedgerTransactionMediaDto,
+        }),
+        invalidatesTags: ['finance'],
+      }),
+      detachMedia: build.mutation<DetachMediaApiResponse, DetachMediaApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/ledger/${queryArg.id}/media/${queryArg.mediaId}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['finance'],
       }),
       income: build.mutation<IncomeApiResponse, IncomeApiArg>({
         query: (queryArg) => ({
@@ -627,6 +647,25 @@ const injectedRtkApi = api
       listArchived2: build.query<ListArchived2ApiResponse, ListArchived2ApiArg>({
         query: () => ({ url: `/api/v1/families/me/recipes/archived` }),
         providesTags: ['meals'],
+      }),
+      listMedia2: build.query<ListMedia2ApiResponse, ListMedia2ApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/families/me/recipes/${queryArg.id}/media` }),
+        providesTags: ['meals'],
+      }),
+      attachMedia2: build.mutation<AttachMedia2ApiResponse, AttachMedia2ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/recipes/${queryArg.id}/media`,
+          method: 'POST',
+          body: queryArg.attachRecipeMediaDto,
+        }),
+        invalidatesTags: ['meals'],
+      }),
+      detachMedia2: build.mutation<DetachMedia2ApiResponse, DetachMedia2ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/recipes/${queryArg.id}/media/${queryArg.mediaId}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['meals'],
       }),
       update9: build.mutation<Update9ApiResponse, Update9ApiArg>({
         query: (queryArg) => ({
@@ -1200,6 +1239,25 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/v1/family-events/${queryArg.id}`, method: 'DELETE' }),
         invalidatesTags: ['family events'],
       }),
+      listEventMedia: build.query<ListEventMediaApiResponse, ListEventMediaApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/family-events/${queryArg.id}/media` }),
+        providesTags: ['family events'],
+      }),
+      attachEventMedia: build.mutation<AttachEventMediaApiResponse, AttachEventMediaApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/family-events/${queryArg.id}/media`,
+          method: 'POST',
+          body: queryArg.attachFamilyEventMediaDto,
+        }),
+        invalidatesTags: ['family events'],
+      }),
+      detachEventMedia: build.mutation<DetachEventMediaApiResponse, DetachEventMediaApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/family-events/${queryArg.id}/media/${queryArg.mediaId}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['family events'],
+      }),
       confirmFamilyEvent: build.mutation<ConfirmFamilyEventApiResponse, ConfirmFamilyEventApiArg>({
         query: (queryArg) => ({
           url: `/api/v1/family-events/${queryArg.id}/confirm`,
@@ -1458,6 +1516,128 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/v1/health` }),
         providesTags: ['health'],
       }),
+      create15: build.mutation<Create15ApiResponse, Create15ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations`,
+          method: 'POST',
+          body: queryArg.createConversationDto,
+        }),
+        invalidatesTags: ['messenger'],
+      }),
+      list16: build.query<List16ApiResponse, List16ApiArg>({
+        query: () => ({ url: `/api/v1/conversations` }),
+        providesTags: ['messenger'],
+      }),
+      get6: build.query<Get6ApiResponse, Get6ApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/conversations/${queryArg.conversationId}` }),
+        providesTags: ['messenger'],
+      }),
+      update11: build.mutation<Update11ApiResponse, Update11ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}`,
+          method: 'PATCH',
+          body: queryArg.updateConversationDto,
+        }),
+        invalidatesTags: ['messenger'],
+      }),
+      addMember: build.mutation<AddMemberApiResponse, AddMemberApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}/members`,
+          method: 'POST',
+          body: queryArg.conversationMemberDto,
+        }),
+        invalidatesTags: ['messenger'],
+      }),
+      removeMember: build.mutation<RemoveMemberApiResponse, RemoveMemberApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}/members/${queryArg.userId}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['messenger'],
+      }),
+      transferOwnership: build.mutation<TransferOwnershipApiResponse, TransferOwnershipApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}/ownership`,
+          method: 'POST',
+          body: queryArg.transferConversationOwnershipDto,
+        }),
+        invalidatesTags: ['messenger'],
+      }),
+      leave: build.mutation<LeaveApiResponse, LeaveApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}/leave`,
+          method: 'POST',
+        }),
+        invalidatesTags: ['messenger'],
+      }),
+      messages: build.query<MessagesApiResponse, MessagesApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}/messages`,
+          params: {
+            limit: queryArg.limit,
+            beforeId: queryArg.beforeId,
+            afterId: queryArg.afterId,
+          },
+        }),
+        providesTags: ['messenger'],
+      }),
+      message: build.mutation<MessageApiResponse, MessageApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}/messages`,
+          method: 'POST',
+          body: queryArg.createMessageDto,
+        }),
+        invalidatesTags: ['messenger'],
+      }),
+      messageMedia: build.query<MessageMediaApiResponse, MessageMediaApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}/messages/${queryArg.messageId}/media`,
+        }),
+        providesTags: ['messenger'],
+      }),
+      streamMessageMedia: build.query<StreamMessageMediaApiResponse, StreamMessageMediaApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}/messages/${queryArg.messageId}/media/${queryArg.mediaId}/stream`,
+          headers: {
+            Range: queryArg.range,
+          },
+        }),
+        providesTags: ['messenger'],
+      }),
+      downloadMessageMedia: build.query<
+        DownloadMessageMediaApiResponse,
+        DownloadMessageMediaApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}/messages/${queryArg.messageId}/media/${queryArg.mediaId}/download`,
+          headers: {
+            Range: queryArg.range,
+          },
+        }),
+        providesTags: ['messenger'],
+      }),
+      markRead: build.mutation<MarkReadApiResponse, MarkReadApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}/messages/${queryArg.messageId}/read`,
+          method: 'POST',
+        }),
+        invalidatesTags: ['messenger'],
+      }),
+      updateMessage: build.mutation<UpdateMessageApiResponse, UpdateMessageApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}/messages/${queryArg.messageId}`,
+          method: 'PATCH',
+          body: queryArg.updateMessageDto,
+        }),
+        invalidatesTags: ['messenger'],
+      }),
+      deleteMessage: build.mutation<DeleteMessageApiResponse, DeleteMessageApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/conversations/${queryArg.conversationId}/messages/${queryArg.messageId}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['messenger'],
+      }),
     }),
     overrideExisting: false,
   });
@@ -1548,6 +1728,20 @@ export type List4ApiArg = {
 export type Get2ApiResponse = /** status 200  */ LedgerTransactionResponseDto;
 export type Get2ApiArg = {
   id: string;
+};
+export type ListMediaApiResponse = /** status 200  */ MediaResponseDto[];
+export type ListMediaApiArg = {
+  id: string;
+};
+export type AttachMediaApiResponse = /** status 200  */ MediaResponseDto[];
+export type AttachMediaApiArg = {
+  id: string;
+  attachLedgerTransactionMediaDto: AttachLedgerTransactionMediaDto;
+};
+export type DetachMediaApiResponse = unknown;
+export type DetachMediaApiArg = {
+  id: string;
+  mediaId: string;
 };
 export type IncomeApiResponse = /** status 201  */ LedgerTransactionResponseDto;
 export type IncomeApiArg = {
@@ -1821,6 +2015,20 @@ export type Create10ApiArg = {
 };
 export type ListArchived2ApiResponse = /** status 200  */ RecipeResponseDto[];
 export type ListArchived2ApiArg = void;
+export type ListMedia2ApiResponse = /** status 200  */ MediaResponseDto[];
+export type ListMedia2ApiArg = {
+  id: string;
+};
+export type AttachMedia2ApiResponse = /** status 200  */ MediaResponseDto[];
+export type AttachMedia2ApiArg = {
+  id: string;
+  attachRecipeMediaDto: AttachRecipeMediaDto;
+};
+export type DetachMedia2ApiResponse = unknown;
+export type DetachMedia2ApiArg = {
+  id: string;
+  mediaId: string;
+};
 export type Update9ApiResponse = /** status 200  */ RecipeResponseDto;
 export type Update9ApiArg = {
   id: string;
@@ -2124,6 +2332,20 @@ export type RemoveFamilyEventApiResponse = unknown;
 export type RemoveFamilyEventApiArg = {
   id: string;
 };
+export type ListEventMediaApiResponse = /** status 200  */ MediaResponseDto[];
+export type ListEventMediaApiArg = {
+  id: string;
+};
+export type AttachEventMediaApiResponse = /** status 200  */ MediaResponseDto[];
+export type AttachEventMediaApiArg = {
+  id: string;
+  attachFamilyEventMediaDto: AttachFamilyEventMediaDto;
+};
+export type DetachEventMediaApiResponse = unknown;
+export type DetachEventMediaApiArg = {
+  id: string;
+  mediaId: string;
+};
 export type ConfirmFamilyEventApiResponse = /** status 200  */ FamilyEventResponseDto;
 export type ConfirmFamilyEventApiArg = {
   id: string;
@@ -2259,6 +2481,91 @@ export type Remove5ApiArg = {
 };
 export type CheckHealthApiResponse = /** status 200  */ any;
 export type CheckHealthApiArg = void;
+export type Create15ApiResponse = /** status 201  */ ConversationResponseDto;
+export type Create15ApiArg = {
+  createConversationDto: CreateConversationDto;
+};
+export type List16ApiResponse = /** status 200  */ ConversationResponseDto[];
+export type List16ApiArg = void;
+export type Get6ApiResponse = /** status 200  */ ConversationResponseDto;
+export type Get6ApiArg = {
+  conversationId: string;
+};
+export type Update11ApiResponse = /** status 200  */ ConversationResponseDto;
+export type Update11ApiArg = {
+  conversationId: string;
+  updateConversationDto: UpdateConversationDto;
+};
+export type AddMemberApiResponse = /** status 201  */ ConversationResponseDto;
+export type AddMemberApiArg = {
+  conversationId: string;
+  conversationMemberDto: ConversationMemberDto;
+};
+export type RemoveMemberApiResponse = /** status 200  */ ConversationResponseDto;
+export type RemoveMemberApiArg = {
+  conversationId: string;
+  userId: string;
+};
+export type TransferOwnershipApiResponse = /** status 200  */ ConversationResponseDto;
+export type TransferOwnershipApiArg = {
+  conversationId: string;
+  transferConversationOwnershipDto: TransferConversationOwnershipDto;
+};
+export type LeaveApiResponse = /** status 200  */ OperationSuccessResponseDto;
+export type LeaveApiArg = {
+  conversationId: string;
+};
+export type MessagesApiResponse = /** status 200  */ MessagePageResponseDto;
+export type MessagesApiArg = {
+  conversationId: string;
+  limit?: number;
+  /** Load messages older than this message */
+  beforeId?: string;
+  /** Load messages newer than this message */
+  afterId?: string;
+};
+export type MessageApiResponse = /** status 201  */ MessageResponseDto;
+export type MessageApiArg = {
+  conversationId: string;
+  createMessageDto: CreateMessageDto;
+};
+export type MessageMediaApiResponse = /** status 200  */ MediaResponseDto[];
+export type MessageMediaApiArg = {
+  conversationId: string;
+  messageId: string;
+};
+export type StreamMessageMediaApiResponse = unknown;
+export type StreamMessageMediaApiArg = {
+  conversationId: string;
+  messageId: string;
+  mediaId: string;
+  /** Optional byte range */
+  range?: string;
+};
+export type DownloadMessageMediaApiResponse = unknown;
+export type DownloadMessageMediaApiArg = {
+  conversationId: string;
+  messageId: string;
+  mediaId: string;
+  /** Optional byte range */
+  range?: string;
+};
+export type MarkReadApiResponse = /** status 200  */ ReadStateResponseDto;
+export type MarkReadApiArg = {
+  conversationId: string;
+  messageId: string;
+};
+export type UpdateMessageApiResponse = /** status 200  */ MessageResponseDto;
+export type UpdateMessageApiArg = {
+  conversationId: string;
+  messageId: string;
+  updateMessageDto: UpdateMessageDto;
+};
+export type DeleteMessageApiResponse = /** status 200  */ MessageResponseDto;
+export type DeleteMessageApiArg = {
+  conversationId: string;
+  messageId: string;
+};
 export type TaskResponseDto = {
   id: string;
   familyId: string;
@@ -2379,6 +2686,22 @@ export type PaginatedLedgerTransactionsResponseDto = {
   limit: number;
   totalPages: number;
   data: LedgerTransactionResponseDto[];
+};
+export type MediaResponseDto = {
+  id: string;
+  userId: string;
+  originalName: string;
+  mimeType: string;
+  kind: 'IMAGE' | 'VIDEO' | 'AUDIO';
+  sizeBytes: number;
+  createdAt: string;
+  /** Short-lived URL for downloading the private object */
+  downloadUrl: string;
+  /** Short-lived URL for a 320px WebP image preview; null for video and audio */
+  previewUrl: object | null;
+};
+export type AttachLedgerTransactionMediaDto = {
+  mediaId: string;
 };
 export type CreateLedgerCommandDto = {
   walletId: string;
@@ -2591,19 +2914,6 @@ export type ExpenseStatisticsResponseDto = {
   totals: ExpenseStatisticsAmountDto[];
   members: ExpenseStatisticsMemberDto[];
 };
-export type MediaResponseDto = {
-  id: string;
-  userId: string;
-  originalName: string;
-  mimeType: string;
-  kind: 'IMAGE' | 'VIDEO' | 'AUDIO';
-  sizeBytes: number;
-  createdAt: string;
-  /** Short-lived URL for downloading the private object */
-  downloadUrl: string;
-  /** Short-lived URL for a 320px WebP image preview; null for video and audio */
-  previewUrl: object | null;
-};
 export type MediaUploadPartResponseDto = {
   partNumber: number;
   url: string;
@@ -2697,6 +3007,9 @@ export type CreateRecipeDto = {
   instructions?: string;
   ingredients: RecipeIngredientDto[];
   dietaryLabels?: string[];
+};
+export type AttachRecipeMediaDto = {
+  mediaId: string;
 };
 export type UpdateRecipeDto = {
   name?: string;
@@ -3070,6 +3383,7 @@ export type FamilyEventResponseDto = {
   version: number;
   createdAt: string;
   updatedAt: string;
+  mediaIds: string[];
 };
 export type CreateFamilyEventDto = {
   /** Optional child profile this event concerns */
@@ -3107,6 +3421,9 @@ export type UpdateFamilyEventDto = {
   reminderRecipientIds?: string[] | null;
   /** Optional second reminder time in ISO 8601 format */
   repeatReminderAt?: object | null;
+};
+export type AttachFamilyEventMediaDto = {
+  mediaId: string;
 };
 export type FirstDateResponseDto = {
   id: string;
@@ -3255,6 +3572,87 @@ export type WellbeingCoupleMeetingResponseInputDto = {
 export type WellbeingCoupleMeetingDecisionDto = {
   decision: string;
 };
+export type ConversationParticipantResponseDto = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl?: object | null;
+};
+export type ConversationMemberResponseDto = {
+  userId: string;
+  role: 'OWNER' | 'ADMIN' | 'MEMBER';
+  joinedAt: string;
+  lastReadAt?: string | null;
+  lastReadMessageId?: object | null;
+  user: ConversationParticipantResponseDto;
+};
+export type MessageMediaResponseDto = {
+  mediaId: string;
+  createdAt: string;
+  media: MediaResponseDto;
+};
+export type MessageResponseDto = {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  clientMessageId: string;
+  type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE';
+  text?: object | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+  sender: ConversationParticipantResponseDto;
+  media: MessageMediaResponseDto[];
+};
+export type ConversationResponseDto = {
+  id: string;
+  familyId: string;
+  createdById: string;
+  type: 'DIRECT' | 'GROUP';
+  title?: object | null;
+  status: 'ACTIVE' | 'ARCHIVED';
+  createdAt: string;
+  updatedAt: string;
+  members: ConversationMemberResponseDto[];
+  lastMessage?: MessageResponseDto | null;
+  unreadCount: number;
+};
+export type CreateConversationDto = {
+  type: 'DIRECT' | 'GROUP';
+  title?: string;
+  memberIds: string[];
+};
+export type UpdateConversationDto = {
+  title: string;
+};
+export type ConversationMemberDto = {
+  userId: string;
+};
+export type TransferConversationOwnershipDto = {
+  userId: string;
+};
+export type OperationSuccessResponseDto = {
+  ok: boolean;
+};
+export type MessagePageResponseDto = {
+  items: MessageResponseDto[];
+  hasMore: boolean;
+  nextCursor?: object | null;
+};
+export type CreateMessageDto = {
+  clientMessageId: string;
+  type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE';
+  text?: string;
+  mediaIds?: string[];
+};
+export type ReadStateResponseDto = {
+  conversationId: string;
+  messageId: string;
+  readAt: string;
+};
+export type UpdateMessageDto = {
+  text: string;
+};
 export const {
   useCreateMutation,
   useListQuery,
@@ -3278,6 +3676,9 @@ export const {
   useRestore2Mutation,
   useList4Query,
   useGet2Query,
+  useListMediaQuery,
+  useAttachMediaMutation,
+  useDetachMediaMutation,
   useIncomeMutation,
   useExpenseMutation,
   useTransferMutation,
@@ -3339,6 +3740,9 @@ export const {
   useList11Query,
   useCreate10Mutation,
   useListArchived2Query,
+  useListMedia2Query,
+  useAttachMedia2Mutation,
+  useDetachMedia2Mutation,
   useUpdate9Mutation,
   useArchive8Mutation,
   useRestore7Mutation,
@@ -3414,6 +3818,9 @@ export const {
   useFindFamilyEventByIdQuery,
   useUpdateFamilyEventMutation,
   useRemoveFamilyEventMutation,
+  useListEventMediaQuery,
+  useAttachEventMediaMutation,
+  useDetachEventMediaMutation,
   useConfirmFamilyEventMutation,
   useRejectFamilyEventMutation,
   useCreateFirstDateMutation,
@@ -3451,4 +3858,20 @@ export const {
   useFindOne2Query,
   useRemove5Mutation,
   useCheckHealthQuery,
+  useCreate15Mutation,
+  useList16Query,
+  useGet6Query,
+  useUpdate11Mutation,
+  useAddMemberMutation,
+  useRemoveMemberMutation,
+  useTransferOwnershipMutation,
+  useLeaveMutation,
+  useMessagesQuery,
+  useMessageMutation,
+  useMessageMediaQuery,
+  useStreamMessageMediaQuery,
+  useDownloadMessageMediaQuery,
+  useMarkReadMutation,
+  useUpdateMessageMutation,
+  useDeleteMessageMutation,
 } = injectedRtkApi;

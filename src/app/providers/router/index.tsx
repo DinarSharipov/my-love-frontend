@@ -29,6 +29,7 @@ const MyFamilyPage = lazyPage(() => import('@/pages/my-family'), 'MyFamilyPage')
 const WellbeingPage = lazyPage(() => import('@/pages/wellbeing'), 'WellbeingPage');
 const ChildProfilesPage = lazyPage(() => import('@/pages/child-profiles'), 'ChildProfilesPage');
 const MediaPage = lazyPage(() => import('@/pages/media'), 'MediaPage');
+const MessengerPage = lazyPage(() => import('@/pages/messenger'), 'MessengerPage');
 const MediaHubPage = lazyPage(() => import('@/pages/media'), 'MediaHubPage');
 const RestorePage = lazyPage(() => import('@/pages/restore'), 'RestorePage');
 const ResetPasswordPage = lazyPage(() => import('@/pages/reset-password'), 'ResetPasswordPage');
@@ -90,6 +91,7 @@ export const router = createBrowserRouter([
               { path: 'wellbeing', element: withSuspense(<WellbeingPage />) },
               { path: 'children', element: withSuspense(<ChildProfilesPage />) },
               { path: 'media', element: withSuspense(<MediaPage />) },
+              { path: 'messenger', element: withSuspense(<MessengerPage />) },
             ],
           },
           { path: '/settings', element: withSuspense(<SettingsPage />) },
