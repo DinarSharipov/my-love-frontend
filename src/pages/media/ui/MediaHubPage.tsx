@@ -2,6 +2,7 @@ import { FileAudio, Link2, Music2, Play, Trash2, Upload } from 'lucide-react';
 import { useState } from 'react';
 
 import { useMediaPlayer } from '@/features/media-player';
+import { createId } from '@/shared/lib/id';
 import { AnimatedPanel, Button, HeaderPanel, Input, PageLayout, Table, Tabs } from '@/shared/ui';
 
 const formatTrackType = (track: { sourceType: 'file' | 'url' }) =>
@@ -34,7 +35,7 @@ export const MediaHubPage = () => {
     }
     addTrack({
       artist: artist.trim() || 'Без исполнителя',
-      id: `url-${crypto.randomUUID()}`,
+      id: `url-${createId()}`,
       sourceType: 'url',
       src: url.trim(),
       title: title.trim() || url.split('/').pop() || 'Новый трек',
@@ -56,7 +57,7 @@ export const MediaHubPage = () => {
     }
     addTrack({
       artist: 'Локальный файл',
-      id: `file-${crypto.randomUUID()}`,
+      id: `file-${createId()}`,
       sourceType: 'file',
       src: URL.createObjectURL(file),
       title: file.name,

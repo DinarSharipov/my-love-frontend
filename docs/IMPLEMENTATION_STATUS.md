@@ -22,6 +22,12 @@ Socket-команда `message.send` теперь принимает сгене�
 
 Проверки после среза: `format`, `format:check`, `typecheck`, `lint`, `build` — PASS. Browser QA выполняется пользователем. Следующий рекомендуемый срез Messenger: адаптивность для мобильной ширины, отдельные состояния reconnect/offline и финальная ручная проверка сценариев realtime.
 
+# 27 августа 2026 — fallback для client UUID
+
+Добавлен shared `createId()`: сначала использует `crypto.randomUUID()`, затем `crypto.getRandomValues()`, а в устаревших WebView/HTTP-контекстах — timestamp+random fallback. Все прямые вызовы `crypto.randomUUID()` заменены в Messenger, медиа-плеере, принятии приглашения и finance operations. Это устраняет runtime-падение стенда `crypto.randomUUID is not a function`.
+
+Проверки: format/format:check/typecheck/lint/build/diff-check — PASS; browser QA выполняет пользователь.
+
 # 26 августа 2026 — Messenger: корректный выбор собеседника и компактная модалка
 
 В форме «Новый чат» текущий пользователь теперь определяется через `GET /api/v1/users/me`, а не только из Redux session state. После перезагрузки приложения в Redux может быть только access token, из-за чего прежний фильтр сравнивал family member ID с `undefined` и показывал автора в списке. Пока ID не получен, показывается loading-state; после получения автор исключается из списка для direct и group. Модалка создания чата ограничена шириной 34rem и центрируется через shared `Modal`.

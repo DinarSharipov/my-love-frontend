@@ -42,6 +42,7 @@ import {
   useFindCurrentUserQuery,
   useFindMyFamilyQuery,
 } from '@/shared/api';
+import { createId } from '@/shared/lib/id';
 import {
   AnimatedPanel,
   AsyncState,
@@ -431,7 +432,7 @@ export const MessengerWorkspace = () => {
   const onSend = async () => {
     const text = draft.trim();
     if (!selectedId || !text) return;
-    const clientMessageId = crypto.randomUUID();
+    const clientMessageId = createId();
     setDraft('');
     setSendError(null);
     setPending((items) => [...items, { clientMessageId, status: 'pending', text }]);
@@ -481,7 +482,7 @@ export const MessengerWorkspace = () => {
     if (!selectedId) return;
     setSendError(null);
     setIsSendingAttachment(true);
-    const clientMessageId = crypto.randomUUID();
+    const clientMessageId = createId();
     try {
       const media = await uploadMedia(file).unwrap();
       const createMessageDto: CreateMessageDto = {

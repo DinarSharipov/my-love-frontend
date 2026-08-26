@@ -2,6 +2,7 @@ import { RotateCcw } from 'lucide-react';
 
 import type { LedgerTransaction } from '@/entities/finance';
 import { useListLedgerQuery, useReverseLedgerMutation } from '@/entities/finance';
+import { createId } from '@/shared/lib/id';
 import { AnimatedPanel, AsyncState, Button, DownloadLoader } from '@/shared/ui';
 
 const labels: Record<LedgerTransaction['type'], string> = {
@@ -10,7 +11,7 @@ const labels: Record<LedgerTransaction['type'], string> = {
   TRANSFER: 'Перевод',
   REVERSAL: 'Отмена',
 };
-const makeKey = () => `${Date.now()}-${crypto.randomUUID()}`;
+const makeKey = () => `${Date.now()}-${createId()}`;
 
 const escapeCsv = (value: string) => `"${value.replaceAll('"', '""')}"`;
 

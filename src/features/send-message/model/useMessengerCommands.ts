@@ -3,8 +3,9 @@ import { useCallback } from 'react';
 import type { MessengerMessage } from '@/entities/messenger';
 import { emitMessengerCommand } from '@/features/messenger-realtime';
 import type { CreateMessageDto } from '@/shared/api';
+import { createId } from '@/shared/lib/id';
 
-const requestId = () => crypto.randomUUID();
+const requestId = () => createId();
 
 export const useMessengerCommands = () => {
   const joinConversation = useCallback(
@@ -35,7 +36,7 @@ export const useMessengerCommands = () => {
     [],
   );
   const sendText = useCallback(
-    (conversationId: string, text: string, clientMessageId: string = crypto.randomUUID()) =>
+    (conversationId: string, text: string, clientMessageId: string = createId()) =>
       sendMessage(conversationId, { clientMessageId, text, type: 'TEXT' }),
     [sendMessage],
   );

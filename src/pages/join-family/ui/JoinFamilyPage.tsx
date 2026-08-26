@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { selectAccessToken } from '@/entities/user';
 import { useAcceptPrivateFamilyInvitationMutation } from '@/features/family-invitations';
 import { getApiErrorMessage } from '@/shared/api';
+import { createId } from '@/shared/lib/id';
 import { AnimatedPanel, Button } from '@/shared/ui';
 
 const getInvitationToken = (hash: string) => new URLSearchParams(hash.slice(1)).get('token') ?? '';
@@ -17,7 +18,7 @@ export const JoinFamilyPage = () => {
   const navigate = useNavigate();
   const isAuthenticated = Boolean(useSelector(selectAccessToken));
   const token = getInvitationToken(location.hash);
-  const idempotencyKey = useRef(`closed-invite-${crypto.randomUUID()}`);
+  const idempotencyKey = useRef(`closed-invite-${createId()}`);
   const [acceptInvitation, { isLoading }] = useAcceptPrivateFamilyInvitationMutation();
   const [error, setError] = useState<string | null>(null);
   const returnTo = `${location.pathname}${location.hash}`;

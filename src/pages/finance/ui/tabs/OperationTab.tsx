@@ -8,9 +8,10 @@ import {
   useListFinancialCategoriesQuery,
 } from '@/entities/finance';
 import { getApiErrorMessage } from '@/shared/api';
+import { createId } from '@/shared/lib/id';
 import { AnimatedPanel, AsyncState, Button, DatePicker, Input, Select } from '@/shared/ui';
 
-const makeKey = () => `${Date.now()}-${crypto.randomUUID()}`;
+const makeKey = () => `${Date.now()}-${createId()}`;
 export const OperationTab = () => {
   const wallets = useListFinanceWalletsQuery();
   const categories = useListFinancialCategoriesQuery();
