@@ -1,4 +1,4 @@
-import { Download, History, RefreshCw } from 'lucide-react';
+import { History, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 
 import {
@@ -7,7 +7,7 @@ import {
   useListAuditEventsQuery,
 } from '@/shared/api';
 import { formatDateTime } from '@/shared/lib/date';
-import { AnimatedPanel, AsyncState, Button } from '@/shared/ui';
+import { AnimatedPanel, AsyncState, Button, DownloadLoader } from '@/shared/ui';
 
 export const FamilyActivityPanel = () => {
   const audit = useListAuditEventsQuery({ page: 1, limit: 8 });
@@ -73,10 +73,12 @@ export const FamilyActivityPanel = () => {
         <p className="text-muted-text text-xs">
           Скачайте копию профиля, семейных данных и событий.
         </p>
-        <Button disabled={exportData.isFetching} onClick={handleExport} size="s">
-          <Download aria-hidden="true" className="h-4 w-4" />
-          {exportData.isFetching ? 'Готовим…' : 'Экспортировать данные'}
-        </Button>
+        <DownloadLoader
+          aria-label="Экспортировать данные"
+          onClick={handleExport}
+          size="s"
+          status={exportData.isFetching ? 'loading' : 'idle'}
+        />
       </div>
       {exportError && <p className="text-neon-pink mt-2 text-xs">{exportError}</p>}
     </AnimatedPanel>

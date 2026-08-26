@@ -2,15 +2,28 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  CalendarDays,
+  CheckSquare2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  List,
+  X,
+} from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useState } from 'react';
 import type { KeyboardEvent, MouseEvent } from 'react';
+
+import { Modal } from '@/shared/ui/modal';
+
+export type PlannedItemType = 'event' | 'task' | 'shopping' | 'reminder' | 'other';
 
 export type PlannedItem = {
   readonly date: Date;
   readonly id: number | string;
   readonly name: string;
+  readonly type?: PlannedItemType;
 };
 
 export type CalendarPeriod = {
@@ -27,6 +40,7 @@ type CalendarProps = {
   className?: string;
   onChangePeriod?: (period: CalendarPeriod) => void;
   onClickDay?: (day: Date, item?: PlannedItem) => void;
+  onSelectItem?: (item: PlannedItem, day: Date) => void;
   onVisiblePeriodChange?: (period: CalendarVisiblePeriod) => void;
   plannedItems?: readonly PlannedItem[];
   selectionMode?: 'range' | 'single';
@@ -78,6 +92,38 @@ const getDayNumberClassName = ({
   return isCurrentMonth ? 'text-text' : 'text-muted-text/45';
 };
 
+const getItemsCountLabel = (count: number) => {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  let noun = 'событий';
+
+  if (mod10 === 1 && mod100 !== 11) noun = 'событие';
+  else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) noun = 'события';
+
+  return `${count} ${noun}`;
+};
+
+const getItemTypeLabel = (item: PlannedItem) => {
+  if (item.type === 'task') return 'Задача';
+  if (item.type === 'shopping') return 'Покупки';
+  if (item.type === 'reminder') return 'Напоминание';
+  if (item.type === 'event') return 'Событие';
+
+  const prefix = String(item.id).split(':', 1)[0];
+  if (prefix === 'task') return 'Задача';
+  if (prefix === 'shopping') return 'Покупки';
+  if (prefix === 'reminder') return 'Напоминание';
+  if (prefix === 'event') return 'Событие';
+
+  return 'План';
+};
+
+const getItemTypeIcon = (item: PlannedItem) => {
+  const type = item.type ?? String(item.id).split(':', 1)[0];
+
+  return type === 'task' ? CheckSquare2 : CalendarDays;
+};
+
 const getRangeHighlightClassName = ({
   isRangeEnd,
   isRangeStart,
@@ -107,6 +153,7 @@ export const Calendar = ({
   className = '',
   onChangePeriod,
   onClickDay,
+  onSelectItem,
   onVisiblePeriodChange,
   plannedItems = [],
   selectionMode = 'range',
@@ -120,6 +167,9 @@ export const Calendar = ({
   );
   const [rangeStart, setRangeStart] = useState<Date | null>(null);
   const [isYearPickerOpen, setIsYearPickerOpen] = useState(false);
+  const [selectedDayItems, setSelectedDayItems] = useState<
+    { day: Date; items: PlannedItem[] } | undefined
+  >();
   const [yearPageStart, setYearPageStart] = useState(
     () => Math.floor(dayjs(initialDate).year() / yearsPerPage) * yearsPerPage,
   );
@@ -222,8 +272,8 @@ export const Calendar = ({
     onChangePeriod?.({ from: copyDate(nextPeriod.from), to: copyDate(nextPeriod.to) });
   };
 
-  const openItem = (day: dayjs.Dayjs, item: PlannedItem) => {
-    onClickDay?.(day.startOf('day').toDate(), item);
+  const openItems = (day: dayjs.Dayjs, items: PlannedItem[]) => {
+    setSelectedDayItems({ day: day.startOf('day').toDate(), items });
   };
 
   const handleDayKeyDown = (event: KeyboardEvent<HTMLDivElement>, day: dayjs.Dayjs) => {
@@ -238,10 +288,19 @@ export const Calendar = ({
   const handleItemClick = (
     event: MouseEvent<HTMLButtonElement>,
     day: dayjs.Dayjs,
-    item: PlannedItem,
+    items: PlannedItem[],
   ) => {
     event.stopPropagation();
-    openItem(day, item);
+    openItems(day, items);
+  };
+
+  const handleModalItemClick = (item: PlannedItem) => {
+    if (!selectedDayItems) return;
+
+    const day = copyDate(selectedDayItems.day);
+    setSelectedDayItems(undefined);
+    if (onSelectItem) onSelectItem(item, day);
+    else onClickDay?.(day, item);
   };
 
   const openYearPicker = () => {
@@ -392,7 +451,6 @@ export const Calendar = ({
             !day.isBefore(activePeriod.from, 'day') &&
             !day.isAfter(activePeriod.to, 'day'),
           );
-          const hiddenItemsCount = Math.max(dayItems.length - 2, 0);
           const rangeHighlightClassName = getRangeHighlightClassName({
             isRangeEnd,
             isRangeStart,
@@ -432,36 +490,71 @@ export const Calendar = ({
               </AnimatePresence>
 
               <div className="pointer-events-none relative flex h-full min-h-0 min-w-0 flex-col">
-                <span
-                  className={`mb-0.5 grid size-4 shrink-0 place-items-center rounded-full text-[9px] font-medium sm:mb-1 sm:size-6 sm:text-xs ${dayNumberClassName}`}
-                >
-                  {day.date()}
-                </span>
-
-                <div className="flex min-h-0 min-w-0 flex-col gap-2.5 overflow-hidden">
-                  {dayItems.slice(0, 2).map((item) => (
+                <div className="mb-0.5 flex min-w-0 items-center gap-1 sm:mb-1">
+                  <span
+                    className={`grid size-4 shrink-0 place-items-center rounded-full text-[9px] font-medium sm:size-6 sm:text-xs ${dayNumberClassName}`}
+                  >
+                    {day.date()}
+                  </span>
+                  {dayItems.length > 0 && (
                     <motion.button
-                      aria-label={`${item.name}, ${(timeZone ? dayjs(item.date).tz(timeZone) : dayjs(item.date)).locale('ru').format('HH:mm')}`}
-                      className="border-primary-neon/30 bg-primary-neon/10 text-text pointer-events-auto min-w-0 cursor-pointer truncate rounded border-l-2 px-1 py-0.5 text-left text-[8px] leading-tight outline-none hover:border-neon-pink hover:bg-primary-neon/20 focus-visible:border-cyber-cyan sm:px-1.5 sm:py-1 sm:text-[11px]"
-                      key={item.id}
-                      onClick={(event) => handleItemClick(event, day, item)}
-                      title={`${(timeZone ? dayjs(item.date).tz(timeZone) : dayjs(item.date)).format('HH:mm')} · ${item.name}`}
+                      aria-label={`Открыть список: ${
+                        dayItems.length > 1 ? getItemsCountLabel(dayItems.length) : dayItems[0].name
+                      }`}
+                      className="border-primary-neon/40 bg-primary-neon/10 text-text pointer-events-auto flex min-w-0 flex-1 items-center gap-0.5 overflow-hidden rounded border px-1 py-0.5 text-left text-[7px] leading-none outline-none hover:border-neon-pink hover:bg-primary-neon/20 focus-visible:border-cyber-cyan sm:hidden"
+                      onClick={(event) => handleItemClick(event, day, dayItems)}
+                      title={
+                        dayItems.length > 1 ? getItemsCountLabel(dayItems.length) : dayItems[0].name
+                      }
+                      type="button"
+                      whileTap={{ scale: 0.96 }}
+                    >
+                      {dayItems.length > 1 && (
+                        <List aria-hidden="true" className="text-cyber-cyan size-2.5 shrink-0" />
+                      )}
+                      <span className="truncate">
+                        {dayItems.length > 1
+                          ? getItemsCountLabel(dayItems.length)
+                          : dayItems[0].name}
+                      </span>
+                    </motion.button>
+                  )}
+                </div>
+
+                <div className="hidden min-h-0 min-w-0 flex-col gap-2.5 overflow-hidden sm:flex">
+                  {dayItems.length > 1 ? (
+                    <motion.button
+                      aria-label={`Открыть список: ${getItemsCountLabel(dayItems.length)}`}
+                      className="border-primary-neon/30 bg-primary-neon/10 text-text pointer-events-auto flex min-w-0 cursor-pointer items-center gap-1 truncate rounded border-l-2 px-1 py-1 text-left text-[8px] leading-tight outline-none hover:border-neon-pink hover:bg-primary-neon/20 focus-visible:border-cyber-cyan sm:px-1.5 sm:text-[11px]"
+                      onClick={(event) => handleItemClick(event, day, dayItems)}
+                      title={`Открыть список: ${getItemsCountLabel(dayItems.length)}`}
                       type="button"
                       whileHover={{ x: 2 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <span className="text-cyber-cyan mr-1 hidden font-medium sm:inline">
-                        {(timeZone ? dayjs(item.date).tz(timeZone) : dayjs(item.date)).format(
-                          'HH:mm',
-                        )}
-                      </span>
-                      {item.name}
+                      <List aria-hidden="true" className="text-cyber-cyan size-3.5 shrink-0" />
+                      <span className="truncate">{getItemsCountLabel(dayItems.length)}</span>
                     </motion.button>
-                  ))}
-                  {hiddenItemsCount > 0 && (
-                    <span className="text-muted-text truncate px-1 text-[8px] sm:text-[10px]">
-                      +{hiddenItemsCount} ещё
-                    </span>
+                  ) : (
+                    dayItems.map((item) => (
+                      <motion.button
+                        aria-label={`${item.name}, ${(timeZone ? dayjs(item.date).tz(timeZone) : dayjs(item.date)).locale('ru').format('HH:mm')}`}
+                        className="border-primary-neon/30 bg-primary-neon/10 text-text pointer-events-auto min-w-0 cursor-pointer truncate rounded border-l-2 px-1 py-0.5 text-left text-[8px] leading-tight outline-none hover:border-neon-pink hover:bg-primary-neon/20 focus-visible:border-cyber-cyan sm:px-1.5 sm:py-1 sm:text-[11px]"
+                        key={item.id}
+                        onClick={(event) => handleItemClick(event, day, [item])}
+                        title={`${(timeZone ? dayjs(item.date).tz(timeZone) : dayjs(item.date)).format('HH:mm')} · ${item.name}`}
+                        type="button"
+                        whileHover={{ x: 2 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <span className="text-cyber-cyan mr-1 hidden font-medium sm:inline">
+                          {(timeZone ? dayjs(item.date).tz(timeZone) : dayjs(item.date)).format(
+                            'HH:mm',
+                          )}
+                        </span>
+                        {item.name}
+                      </motion.button>
+                    ))
                   )}
                 </div>
               </div>
@@ -487,6 +580,62 @@ export const Calendar = ({
           Сегодня
         </button>
       </footer>
+
+      <Modal
+        ariaLabel="События выбранного дня"
+        contentClassName="max-w-lg p-5 sm:p-6"
+        onClose={() => setSelectedDayItems(undefined)}
+        open={Boolean(selectedDayItems)}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-primary-neon text-xs font-semibold uppercase tracking-[0.16em]">
+              План на день
+            </p>
+            <h2 className="text-text mt-1 text-xl font-semibold">
+              {selectedDayItems
+                ? dayjs(selectedDayItems.day).locale('ru').format('D MMMM YYYY')
+                : ''}
+            </h2>
+          </div>
+          <button
+            aria-label="Закрыть список"
+            className="text-muted-text hover:text-text rounded-lg p-1 outline-none focus-visible:text-cyber-cyan"
+            onClick={() => setSelectedDayItems(undefined)}
+            type="button"
+          >
+            <X aria-hidden="true" className="size-5" />
+          </button>
+        </div>
+        <div className="mt-4 space-y-2">
+          {(selectedDayItems?.items ?? []).map((item) => {
+            const Icon = getItemTypeIcon(item);
+            const itemDate = timeZone ? dayjs(item.date).tz(timeZone) : dayjs(item.date);
+
+            return (
+              <button
+                className="border-border bg-elevated/50 hover:border-primary-neon/70 hover:bg-primary-neon/10 flex w-full items-center gap-3 rounded-xl border p-3 text-left outline-none transition-colors focus-visible:border-cyber-cyan"
+                key={item.id}
+                onClick={() => handleModalItemClick(item)}
+                type="button"
+              >
+                <span className="bg-primary-neon/15 text-primary-neon grid size-9 shrink-0 place-items-center rounded-lg">
+                  <Icon aria-hidden="true" className="size-4" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="text-muted-text block text-[11px] uppercase tracking-wide">
+                    {getItemTypeLabel(item)} · {itemDate.format('HH:mm')}
+                  </span>
+                  <span className="text-text mt-0.5 block truncate text-sm font-medium">
+                    {item.name}
+                  </span>
+                </span>
+                <ChevronRight aria-hidden="true" className="text-muted-text size-4 shrink-0" />
+              </button>
+            );
+          })}
+        </div>
+      </Modal>
     </section>
   );
 };

@@ -28,7 +28,7 @@ export type MediaUploadInitResponse = {
 };
 
 export type MediaUploadStatus = {
-  status: 'INITIATED' | 'COMPLETED' | 'ABORTED';
+  status: 'INITIATED' | 'COMPLETED' | 'ABORTED' | 'FAILED';
   uploadedBytes: number;
   totalBytes: number;
 };

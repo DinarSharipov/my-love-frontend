@@ -1,4 +1,4 @@
-import { AtSign, CalendarDays, Camera, Globe2, MapPin, UserRound } from 'lucide-react';
+import { AtSign, CalendarDays, Camera, Globe2, MapPin, Trash2, UserRound } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 import { AccountSecurityPanel } from '@/features/account-security';
@@ -6,10 +6,11 @@ import { FamilyActivityPanel } from '@/features/family-activity';
 import {
   ProfileForm,
   useFindCurrentUserQuery,
+  useRemoveAvatarMutation,
   useUploadAvatarFileMutation,
 } from '@/features/profile';
 import { getApiErrorMessage } from '@/shared/api';
-import { AnimatedPanel, AsyncState } from '@/shared/ui';
+import { AnimatedPanel, AsyncState, Button, ConfirmDialog } from '@/shared/ui';
 
 const formatBirthDate = (value: string) =>
   new Intl.DateTimeFormat('ru-RU', {
@@ -20,12 +21,24 @@ const formatBirthDate = (value: string) =>
 
 export const ProfilePage = () => {
   const profile = useFindCurrentUserQuery();
+  const [removeAvatar, removeAvatarState] = useRemoveAvatarMutation();
   const [uploadAvatar, uploadState] = useUploadAvatarFileMutation();
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const user = profile.data;
 
   const selectAvatar = () => avatarInputRef.current?.click();
+
+  const handleRemoveAvatar = async () => {
+    setAvatarError(null);
+    try {
+      await removeAvatar().unwrap();
+      setIsRemoveDialogOpen(false);
+    } catch (error) {
+      setAvatarError(getApiErrorMessage(error, 'Не удалось удалить аватар.'));
+    }
+  };
 
   const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget;
@@ -120,6 +133,17 @@ export const ProfilePage = () => {
                     </span>
                   )}
                 </button>
+                {user.avatarUrl && (
+                  <Button
+                    className="mt-2 w-16 px-1 text-[10px]"
+                    disabled={uploadState.isLoading || removeAvatarState.isLoading}
+                    onClick={() => setIsRemoveDialogOpen(true)}
+                    size="s"
+                  >
+                    <Trash2 aria-hidden="true" className="size-3.5" />
+                    Удалить
+                  </Button>
+                )}
                 {avatarError && (
                   <p
                     className="text-neon-pink mt-2 max-w-48 text-xs"
@@ -173,6 +197,15 @@ export const ProfilePage = () => {
         <AccountSecurityPanel />
         <FamilyActivityPanel />
       </div>
+      <ConfirmDialog
+        confirmLabel="Удалить фото"
+        description="Фото профиля будет удалено. Вы сможете загрузить новое в любой момент."
+        isLoading={removeAvatarState.isLoading}
+        onCancel={() => setIsRemoveDialogOpen(false)}
+        onConfirm={handleRemoveAvatar}
+        open={isRemoveDialogOpen}
+        title="Удалить фото профиля?"
+      />
     </main>
   );
 };

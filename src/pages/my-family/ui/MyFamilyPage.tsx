@@ -1,9 +1,11 @@
 import { HeartHandshake, Search, UsersRound } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { FamilyLifecyclePanel } from '@/features/family-lifecycle';
 import { ChildProfilesPanel } from '@/features/child-profiles';
+import type { FamilyMemberResponseDto } from '@/shared/api';
 import { useFindMyFamilyQuery } from '@/shared/api';
 import { AnimatedPanel, AsyncState, Button, HeaderPanel, PageLayout } from '@/shared/ui';
 import { FirstDateTracker } from '@/widgets/first-date-tracker';
@@ -18,6 +20,49 @@ const formatDate = (date: string) =>
   new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format(
     new Date(date),
   );
+
+const FamilyMemberCard = ({
+  member,
+  index,
+}: {
+  index: number;
+  member: FamilyMemberResponseDto;
+}) => {
+  const [hasAvatarError, setHasAvatarError] = useState(false);
+  const { id, joinedAt, user } = member;
+
+  return (
+    <AnimatedPanel
+      animate={{ opacity: 1, y: 0 }}
+      className="min-w-0 p-5"
+      initial={{ opacity: 0, y: 16 }}
+      key={id}
+      transition={{ delay: index * 0.08 }}
+    >
+      <div className="bg-primary-neon/10 absolute right-0 -top-10 h-28 w-28 rounded-full blur-3xl" />
+      <div className="border-primary-neon/40 bg-primary-neon/10 text-primary-neon relative mb-4 grid h-14 w-14 place-items-center overflow-hidden rounded-2xl border text-lg font-semibold">
+        {user.avatarUrl && !hasAvatarError ? (
+          <img
+            alt={`Фото ${user.firstName} ${user.lastName}`}
+            className="h-full w-full object-cover"
+            onError={() => setHasAvatarError(true)}
+            src={user.avatarUrl}
+          />
+        ) : (
+          <span aria-hidden="true">
+            {user.firstName.slice(0, 1)}
+            {user.lastName.slice(0, 1)}
+          </span>
+        )}
+      </div>
+      <h2 className="text-text relative text-lg font-semibold">
+        {user.firstName} {user.lastName}
+      </h2>
+      <p className="text-muted-text relative mt-1 text-sm">{user.email}</p>
+      <p className="text-muted-text/75 relative mt-4 text-xs">В семье с {formatDate(joinedAt)}</p>
+    </AnimatedPanel>
+  );
+};
 
 export const MyFamilyPage = () => {
   const navigate = useNavigate();
@@ -111,27 +156,8 @@ export const MyFamilyPage = () => {
       />
 
       <section className="grid gap-gap sm:grid-cols-2">
-        {data.members.map(({ id, joinedAt, user }, index) => (
-          <AnimatedPanel
-            animate={{ opacity: 1, y: 0 }}
-            className="min-w-0 p-5"
-            initial={{ opacity: 0, y: 16 }}
-            key={id}
-            transition={{ delay: index * 0.08 }}
-          >
-            <div className="bg-primary-neon/10 absolute right-0 -top-10 h-28 w-28 rounded-full blur-3xl" />
-            <div className="border-primary-neon/40 bg-primary-neon/10 text-primary-neon relative mb-4 grid h-12 w-12 place-items-center rounded-2xl border text-lg font-semibold">
-              {user.firstName.slice(0, 1)}
-              {user.lastName.slice(0, 1)}
-            </div>
-            <h2 className="text-text relative text-lg font-semibold">
-              {user.firstName} {user.lastName}
-            </h2>
-            <p className="text-muted-text relative mt-1 text-sm">{user.email}</p>
-            <p className="text-muted-text/75 relative mt-4 text-xs">
-              В семье с {formatDate(joinedAt)}
-            </p>
-          </AnimatedPanel>
+        {data.members.map((member, index) => (
+          <FamilyMemberCard index={index} key={member.id} member={member} />
         ))}
       </section>
 

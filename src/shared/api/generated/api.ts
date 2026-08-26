@@ -1146,6 +1146,18 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['child-profiles'],
       }),
+      getAvatar2: build.query<GetAvatar2ApiResponse, GetAvatar2ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/children/${queryArg.id}/avatar`,
+          headers: {
+            Range: queryArg.range,
+          },
+          params: {
+            token: queryArg.token,
+          },
+        }),
+        providesTags: ['child-profiles'],
+      }),
       createFamilyEvent: build.mutation<CreateFamilyEventApiResponse, CreateFamilyEventApiArg>({
         query: (queryArg) => ({
           url: `/api/v1/family-events`,
@@ -1256,17 +1268,6 @@ const injectedRtkApi = api
       }),
       deleteAll: build.mutation<DeleteAllApiResponse, DeleteAllApiArg>({
         query: () => ({ url: `/api/v1/families/me/wellbeing/check-ins`, method: 'DELETE' }),
-        invalidatesTags: ['wellbeing'],
-      }),
-      findOne2: build.query<FindOne2ApiResponse, FindOne2ApiArg>({
-        query: (queryArg) => ({ url: `/api/v1/families/me/wellbeing/check-ins/${queryArg.id}` }),
-        providesTags: ['wellbeing'],
-      }),
-      remove5: build.mutation<Remove5ApiResponse, Remove5ApiArg>({
-        query: (queryArg) => ({
-          url: `/api/v1/families/me/wellbeing/check-ins/${queryArg.id}`,
-          method: 'DELETE',
-        }),
         invalidatesTags: ['wellbeing'],
       }),
       grantConsent: build.mutation<GrantConsentApiResponse, GrantConsentApiArg>({
@@ -1439,6 +1440,17 @@ const injectedRtkApi = api
           url: `/api/v1/families/me/wellbeing/check-ins/couple-meetings/${queryArg.id}/decision`,
           method: 'POST',
           body: queryArg.wellbeingCoupleMeetingDecisionDto,
+        }),
+        invalidatesTags: ['wellbeing'],
+      }),
+      findOne2: build.query<FindOne2ApiResponse, FindOne2ApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/families/me/wellbeing/check-ins/${queryArg.id}` }),
+        providesTags: ['wellbeing'],
+      }),
+      remove5: build.mutation<Remove5ApiResponse, Remove5ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/wellbeing/check-ins/${queryArg.id}`,
+          method: 'DELETE',
         }),
         invalidatesTags: ['wellbeing'],
       }),
@@ -2074,6 +2086,14 @@ export type Remove4ApiResponse = unknown;
 export type Remove4ApiArg = {
   id: string;
 };
+export type GetAvatar2ApiResponse = unknown;
+export type GetAvatar2ApiArg = {
+  id: string;
+  /** Optional byte range for preview loading */
+  range?: string;
+  /** Avatar preview capability token */
+  token: string;
+};
 export type CreateFamilyEventApiResponse = /** status 201  */ FamilyEventResponseDto;
 export type CreateFamilyEventApiArg = {
   /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
@@ -2143,14 +2163,6 @@ export type List15ApiResponse = /** status 200  */ WellbeingCheckInResponseDto[]
 export type List15ApiArg = void;
 export type DeleteAllApiResponse = unknown;
 export type DeleteAllApiArg = void;
-export type FindOne2ApiResponse = /** status 200  */ WellbeingCheckInResponseDto;
-export type FindOne2ApiArg = {
-  id: string;
-};
-export type Remove5ApiResponse = unknown;
-export type Remove5ApiArg = {
-  id: string;
-};
 export type GrantConsentApiResponse = /** status 201  */ WellbeingConsentResponseDto;
 export type GrantConsentApiArg = {
   createWellbeingConsentDto: CreateWellbeingConsentDto;
@@ -2236,6 +2248,14 @@ export type SetCoupleMeetingDecisionApiResponse =
 export type SetCoupleMeetingDecisionApiArg = {
   id: string;
   wellbeingCoupleMeetingDecisionDto: WellbeingCoupleMeetingDecisionDto;
+};
+export type FindOne2ApiResponse = /** status 200  */ WellbeingCheckInResponseDto;
+export type FindOne2ApiArg = {
+  id: string;
+};
+export type Remove5ApiResponse = unknown;
+export type Remove5ApiArg = {
+  id: string;
 };
 export type CheckHealthApiResponse = /** status 200  */ any;
 export type CheckHealthApiArg = void;
@@ -2601,7 +2621,7 @@ export type MediaUploadInitDto = {
   sizeBytes: number;
 };
 export type MediaUploadStatusDto = {
-  status: 'INITIATED' | 'COMPLETED' | 'ABORTED';
+  status: 'INITIATED' | 'COMPLETED' | 'ABORTED' | 'FAILED';
   uploadedBytes: number;
   totalBytes: number;
 };
@@ -3007,6 +3027,7 @@ export type ChildProfileResponseDto = {
   lastName?: object;
   birthDate: string;
   avatarUrl?: object;
+  avatarMediaId?: object | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -3015,6 +3036,8 @@ export type CreateChildProfileDto = {
   lastName?: string;
   birthDate: string;
   avatarUrl?: string;
+  /** Family image media to use as a private child avatar preview */
+  avatarMediaId?: object | null;
 };
 export type ChildProfileExportDto = {
   profile: ChildProfileResponseDto;
@@ -3026,6 +3049,8 @@ export type UpdateChildProfileDto = {
   lastName?: string;
   birthDate?: string;
   avatarUrl?: string;
+  /** Family image media to use as a private child avatar preview */
+  avatarMediaId?: object | null;
 };
 export type FamilyEventResponseDto = {
   id: string;
@@ -3383,6 +3408,7 @@ export const {
   useGetApiV1FamiliesMeChildrenByIdExportQuery,
   useUpdate10Mutation,
   useRemove4Mutation,
+  useGetAvatar2Query,
   useCreateFamilyEventMutation,
   useFindFamilyEventsQuery,
   useFindFamilyEventByIdQuery,
@@ -3398,8 +3424,6 @@ export const {
   useCreate14Mutation,
   useList15Query,
   useDeleteAllMutation,
-  useFindOne2Query,
-  useRemove5Mutation,
   useGrantConsentMutation,
   useListConsentsQuery,
   useRevokeConsentMutation,
@@ -3424,5 +3448,7 @@ export const {
   useRespondToCoupleMeetingMutation,
   usePublishCoupleMeetingMutation,
   useSetCoupleMeetingDecisionMutation,
+  useFindOne2Query,
+  useRemove5Mutation,
   useCheckHealthQuery,
 } = injectedRtkApi;

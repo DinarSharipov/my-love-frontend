@@ -136,7 +136,7 @@ My Love — приватный «семейный центр управлени�
 
 ## 5. Очерёдность реализации
 
-Каждый этап должен завершаться работающим вертикальным срезом: Prisma migration → NestJS module/API/Swagger/tests → RTK Query generation → FSD UI → e2e critical path.
+Каждый frontend-этап должен завершаться работающим вертикальным срезом: подтверждённый NestJS module/API/Swagger contract → RTK Query generation → FSD UI.
 
 ### Этап 0. Контракты и фундамент
 
@@ -144,9 +144,7 @@ My Love — приватный «семейный центр управлени�
 - Ввести роли семьи, правила видимости и сценарии выхода/расформирования.
 - Унифицировать API errors, pagination, date/time, money в minor units и idempotency для финансовых операций.
 - Добавить общий backend guard/service проверки членства и роли вместо копирования запросов по модулям.
-- Определить notification/outbox contract и фоновые scheduled jobs.
 - Довести UI-kit: modal/drawer, toast, confirm dialog, skeleton/empty/error, form fields, charts и date-time picker.
-- Добавить e2e-каркас для критических пользовательских сценариев.
 
 Результат: новые модули можно добавлять без расхождения контрактов и копирования security-логики.
 
@@ -215,15 +213,6 @@ My Love — приватный «семейный центр управлени�
 
 Результат: у семьи появляется причина сохранять приложение годами.
 
-### Этап 7. Готовность к production
-
-- E2E для auth, приглашения, календаря, задач, финансов и permissions.
-- Backup/restore drills, observability, alerts, rate limits, audit events и фоновые job retries.
-- Threat modeling для семейных, финансовых, детских и wellbeing-данных.
-- Accessibility audit, reduced motion, responsive/mobile polish и PWA/offline read cache.
-- Политика приватности, retention, consent history, export/delete SLA и incident response.
-- Нагрузочные тесты dashboard/calendar и индексов PostgreSQL.
-
 ## 6. Приоритеты
 
 ### P0 — продукт должен уметь
@@ -272,7 +261,6 @@ Backend-модули следует добавлять по доменам, а �
 - membership/role policy и decorators/guards;
 - visibility/consent policy;
 - money/date value objects;
-- outbox + scheduler + notification providers;
 - audit log и object storage adapter.
 
 Frontend сохраняет FSD. Доменные модели располагаются в `entities`, пользовательские действия — в `features`, крупные dashboard-блоки — в `widgets`, маршруты — в `pages`. В `shared` уходят только действительно общие UI и инфраструктура.

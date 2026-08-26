@@ -1,4 +1,4 @@
-import { Download, HeartHandshake, MessageCircleHeart, ShieldCheck, Sparkles } from 'lucide-react';
+import { HeartHandshake, MessageCircleHeart, ShieldCheck, Sparkles, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 
@@ -6,6 +6,7 @@ import {
   useCreateWellbeingAssessmentMutation,
   useCreateWellbeingGratitudeMutation,
   useCreateWellbeingSupportRequestMutation,
+  useDeleteAllWellbeingDataMutation,
   useGetWellbeingTrendsQuery,
   useLazyExportWellbeingDataQuery,
   useListWellbeingAssessmentsQuery,
@@ -15,7 +16,15 @@ import {
   useUpdateWellbeingSupportRequestMutation,
 } from '@/entities/wellbeing';
 import { useFindMyFamilyQuery, getApiErrorMessage } from '@/shared/api';
-import { AnimatedPanel, AsyncState, Button, Select, Textarea } from '@/shared/ui';
+import {
+  AnimatedPanel,
+  AsyncState,
+  Button,
+  ConfirmDialog,
+  DownloadLoader,
+  Select,
+  Textarea,
+} from '@/shared/ui';
 
 const scoreOptions = Array.from({ length: 6 }, (_, value) => ({
   label: `${value}/5`,
@@ -34,10 +43,12 @@ export const WellbeingAdvancedPanel = () => {
   const [deleteGratitude] = useDeleteWellbeingGratitudeMutation();
   const [createSupportRequest, supportState] = useCreateWellbeingSupportRequestMutation();
   const [updateSupportRequest] = useUpdateWellbeingSupportRequestMutation();
+  const [deleteAllWellbeingData, deleteAllState] = useDeleteAllWellbeingDataMutation();
   const [answers, setAnswers] = useState(['3', '3', '3', '3', '3']);
   const [recipientId, setRecipientId] = useState('');
   const [gratitudeMessage, setGratitudeMessage] = useState('');
   const [supportMessage, setSupportMessage] = useState('');
+  const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
   const [error, setError] = useState<string>();
 
   const members = useMemo(
@@ -95,6 +106,22 @@ export const WellbeingAdvancedPanel = () => {
     }
   };
 
+  const confirmDeleteAllData = async () => {
+    setError(undefined);
+    try {
+      await deleteAllWellbeingData().unwrap();
+      setConfirmDeleteAll(false);
+      await Promise.all([
+        assessments.refetch(),
+        trends.refetch(),
+        gratitudes.refetch(),
+        supportRequests.refetch(),
+      ]);
+    } catch (cause) {
+      setError(getApiErrorMessage(cause, 'Не удалось удалить данные благополучия'));
+    }
+  };
+
   return (
     <div className="space-y-gap">
       <AnimatedPanel className="p-5 sm:p-6">
@@ -148,10 +175,12 @@ export const WellbeingAdvancedPanel = () => {
           <AnimatedPanel className="bg-elevated/25 p-4">
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-text font-semibold">Тренды</h3>
-              <Button disabled={exportState.isFetching} onClick={() => exportData()} size="s">
-                <Download aria-hidden="true" className="size-4" />
-                Экспорт
-              </Button>
+              <DownloadLoader
+                aria-label="Экспортировать тренды"
+                onClick={() => exportData()}
+                size="s"
+                status={exportState.isFetching ? 'loading' : 'idle'}
+              />
             </div>
             <AsyncState
               error={trends.error}
@@ -192,6 +221,26 @@ export const WellbeingAdvancedPanel = () => {
             ))}
           </div>
         </AsyncState>
+        <div className="border-neon-pink/50 bg-neon-pink/5 mt-5 flex flex-col gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-text flex items-center gap-2 font-semibold">
+              <Trash2 aria-hidden="true" className="text-neon-pink size-4" />
+              Удалить данные благополучия
+            </h3>
+            <p className="text-muted-text mt-1 text-xs">
+              Безвозвратно удалит ваши check-in, оценки, благодарности и связанные записи.
+            </p>
+          </div>
+          <Button
+            className="border-neon-pink text-neon-pink shrink-0"
+            disabled={deleteAllState.isLoading}
+            isLoading={deleteAllState.isLoading}
+            onClick={() => setConfirmDeleteAll(true)}
+            size="s"
+          >
+            Удалить все данные
+          </Button>
+        </div>
       </AnimatedPanel>
 
       <div className="grid gap-gap lg:grid-cols-2">
@@ -305,6 +354,15 @@ export const WellbeingAdvancedPanel = () => {
           </AsyncState>
         </AnimatedPanel>
       </div>
+      <ConfirmDialog
+        confirmLabel="Удалить безвозвратно"
+        description="Все данные раздела благополучия будут удалены без возможности восстановления. Продолжить?"
+        isLoading={deleteAllState.isLoading}
+        onCancel={() => setConfirmDeleteAll(false)}
+        onConfirm={confirmDeleteAllData}
+        open={confirmDeleteAll}
+        title="Удалить данные благополучия?"
+      />
     </div>
   );
 };

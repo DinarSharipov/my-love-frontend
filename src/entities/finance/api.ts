@@ -104,8 +104,16 @@ export type RecurringPayment = {
   frequency: 'WEEKLY' | 'MONTHLY';
   interval: number;
   nextDueAt: string;
+  reminderOffsetMinutes: number | null;
+  reminderRecipientIds: string[];
   active: boolean;
   version: number;
+};
+export type RecurringPaymentForecast = {
+  id: string;
+  dueAt: string;
+  reminderAt: string;
+  reminderSentAt: string | null;
 };
 export type FinancialAnalytics = {
   periodStart: string;
@@ -375,6 +383,10 @@ const financeApi = baseApi.injectEndpoints({
         frequency: 'WEEKLY' | 'MONTHLY';
         nextDueAt: string;
         categoryId?: string;
+        note?: string;
+        interval?: number;
+        reminderOffsetMinutes?: number;
+        reminderRecipientIds?: string[];
       }
     >({
       query: (body) => ({ url: '/api/v1/families/me/recurring-payments', method: 'POST', body }),
@@ -390,6 +402,10 @@ const financeApi = baseApi.injectEndpoints({
     }),
     listArchivedRecurringPayments: build.query<RecurringPayment[], void>({
       query: () => '/api/v1/families/me/recurring-payments/archived',
+      providesTags: ['finance-recurring'],
+    }),
+    listRecurringPaymentForecasts: build.query<RecurringPaymentForecast[], string>({
+      query: (id) => `/api/v1/families/me/recurring-payments/${id}/forecasts`,
       providesTags: ['finance-recurring'],
     }),
     restoreRecurringPayment: build.mutation<RecurringPayment, { id: string; version?: number }>({
@@ -410,6 +426,9 @@ const financeApi = baseApi.injectEndpoints({
         interval?: number;
         nextDueAt?: string;
         categoryId?: string | null;
+        note?: string | null;
+        reminderOffsetMinutes?: number | null;
+        reminderRecipientIds?: string[];
         active?: boolean;
         version?: number;
       }
@@ -544,6 +563,7 @@ export const {
   useCreateRecurringPaymentMutation,
   useArchiveRecurringPaymentMutation,
   useListArchivedRecurringPaymentsQuery,
+  useListRecurringPaymentForecastsQuery,
   useRestoreRecurringPaymentMutation,
   useUpdateRecurringPaymentMutation,
   useGetFinancialAnalyticsQuery,

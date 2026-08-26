@@ -77,6 +77,7 @@ const wellbeingApi = baseApi.injectEndpoints({
     }),
     listWellbeingCheckIns: build.query<WellbeingCheckIn[], void>({
       query: () => '/api/v1/families/me/wellbeing/check-ins',
+      providesTags: ['wellbeing'],
     }),
     getWellbeingCheckIn: build.query<WellbeingCheckIn, string>({
       query: (id) => `/api/v1/families/me/wellbeing/check-ins/${id}`,
@@ -96,6 +97,7 @@ const wellbeingApi = baseApi.injectEndpoints({
     }),
     listWellbeingConsents: build.query<WellbeingConsent[], void>({
       query: () => '/api/v1/families/me/wellbeing/check-ins/consents',
+      providesTags: ['wellbeing'],
     }),
     revokeWellbeingConsent: build.mutation<void, string>({
       query: (id) => ({
@@ -105,6 +107,7 @@ const wellbeingApi = baseApi.injectEndpoints({
     }),
     listSharedWellbeingCheckIns: build.query<WellbeingCheckIn[], void>({
       query: () => '/api/v1/families/me/wellbeing/check-ins/shared-with-me',
+      providesTags: ['wellbeing'],
     }),
     createWellbeingAssessment: build.mutation<WellbeingAssessment, { answers: number[] }>({
       query: (body) => ({
@@ -115,15 +118,18 @@ const wellbeingApi = baseApi.injectEndpoints({
     }),
     listWellbeingAssessments: build.query<WellbeingAssessment[], void>({
       query: () => '/api/v1/families/me/wellbeing/check-ins/assessments',
+      providesTags: ['wellbeing'],
     }),
     getWellbeingTrends: build.query<Record<string, unknown>, void>({
       query: () => '/api/v1/families/me/wellbeing/check-ins/trends',
+      providesTags: ['wellbeing'],
     }),
     exportWellbeingData: build.query<Record<string, unknown>, void>({
       query: () => '/api/v1/families/me/wellbeing/check-ins/export',
     }),
     deleteAllWellbeingData: build.mutation<void, void>({
       query: () => ({ url: '/api/v1/families/me/wellbeing/check-ins', method: 'DELETE' }),
+      invalidatesTags: ['wellbeing'],
     }),
     createWellbeingGratitude: build.mutation<
       WellbeingGratitude,
@@ -137,6 +143,7 @@ const wellbeingApi = baseApi.injectEndpoints({
     }),
     listWellbeingGratitudes: build.query<WellbeingGratitude[], void>({
       query: () => '/api/v1/families/me/wellbeing/check-ins/gratitudes',
+      providesTags: ['wellbeing'],
     }),
     deleteWellbeingGratitude: build.mutation<void, string>({
       query: (id) => ({
@@ -156,6 +163,7 @@ const wellbeingApi = baseApi.injectEndpoints({
     }),
     listWellbeingSupportRequests: build.query<WellbeingSupportRequest[], void>({
       query: () => '/api/v1/families/me/wellbeing/check-ins/support-requests',
+      providesTags: ['wellbeing'],
     }),
     updateWellbeingSupportRequest: build.mutation<
       WellbeingSupportRequest,
@@ -179,6 +187,7 @@ const wellbeingApi = baseApi.injectEndpoints({
     }),
     listWellbeingRituals: build.query<WellbeingRitual[], void>({
       query: () => '/api/v1/families/me/wellbeing/check-ins/rituals',
+      providesTags: ['wellbeing'],
     }),
     updateWellbeingRitual: build.mutation<
       WellbeingRitual,
@@ -215,6 +224,7 @@ const wellbeingApi = baseApi.injectEndpoints({
     }),
     listWellbeingCoupleMeetings: build.query<WellbeingCoupleMeeting[], void>({
       query: () => '/api/v1/families/me/wellbeing/check-ins/couple-meetings',
+      providesTags: ['wellbeing'],
     }),
     updateWellbeingCoupleMeeting: build.mutation<
       WellbeingCoupleMeeting,

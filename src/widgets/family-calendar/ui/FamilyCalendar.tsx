@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { getAccessTokenSubject, selectAccessToken, selectCurrentUser } from '@/entities/user';
 import { getCalendarTasks } from '@/entities/task';
+import type { CalendarTask } from '@/entities/task';
 import {
   FamilyEventForm,
   formatFamilyEventTime,
@@ -105,75 +106,126 @@ type DayAgendaProps = {
   events: FamilyEventResponseDto[];
   onCreate: () => void;
   onOpen: (event: FamilyEventResponseDto) => void;
+  onOpenTask: (task: CalendarTask) => void;
   selectedDate: string;
+  tasks: CalendarTask[];
   timeZone: string;
 };
 
-const DayAgenda = ({ events, onCreate, onOpen, selectedDate, timeZone }: DayAgendaProps) => (
-  <div className="flex h-full min-h-0 flex-col">
-    <div className="flex flex-wrap items-start justify-between gap-gap">
-      <div>
-        <p className="text-primary-neon text-xs font-semibold uppercase tracking-[0.18em]">
-          План дня
-        </p>
-        <h2 className="text-text mt-1 text-lg font-semibold first-letter:uppercase">
-          {formatSelectedDate(selectedDate)}
-        </h2>
-      </div>
-      <Button onClick={onCreate} size="s">
-        <span className="flex items-center gap-2.5">
-          <Plus aria-hidden="true" className="h-4 w-4" />
-          Событие
-        </span>
-      </Button>
-    </div>
+const DayAgenda = ({
+  events,
+  onCreate,
+  onOpen,
+  onOpenTask,
+  selectedDate,
+  tasks,
+  timeZone,
+}: DayAgendaProps) => {
+  const agendaItems = [
+    ...events.map((event) => ({ event, kind: 'event' as const, timestamp: event.scheduledAt })),
+    ...tasks.map((task) => ({ kind: 'task' as const, task, timestamp: task.dueAt })),
+  ].sort((left, right) => new Date(left.timestamp).getTime() - new Date(right.timestamp).getTime());
 
-    {events.length === 0 ? (
-      <div className="border-border bg-elevated/25 text-muted-text mt-5 grid min-h-44 place-items-center rounded-2xl border border-dashed p-5 text-center">
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="flex flex-wrap items-start justify-between gap-gap">
         <div>
-          <CalendarDays className="text-primary-neon/70 mx-auto h-7 w-7" />
-          <p className="mt-3 text-sm">На этот день пока ничего не запланировано</p>
+          <p className="text-primary-neon text-xs font-semibold uppercase tracking-[0.18em]">
+            План дня
+          </p>
+          <h2 className="text-text mt-1 text-lg font-semibold first-letter:uppercase">
+            {formatSelectedDate(selectedDate)}
+          </h2>
         </div>
+        <Button onClick={onCreate} size="s">
+          <span className="flex items-center gap-2.5">
+            <Plus aria-hidden="true" className="h-4 w-4" />
+            Событие
+          </span>
+        </Button>
       </div>
-    ) : (
-      <div className="scrollbar-none mt-5 min-h-0 space-y-3 overflow-auto pr-1">
-        {events.map((event) => {
-          const meta = statusMeta[event.status];
 
-          return (
-            <motion.button
-              className="border-border bg-elevated/45 hover:border-primary-neon/60 w-full cursor-pointer rounded-2xl border p-4 text-left outline-none focus-visible:border-cyber-cyan"
-              key={event.id}
-              onClick={() => onOpen(event)}
-              type="button"
-              whileHover={{ x: 3 }}
-              whileTap={{ scale: 0.99 }}
-            >
-              <div className="flex items-start justify-between gap-gap">
-                <div className="min-w-0">
-                  <p className="text-text truncate text-sm font-semibold">{event.name}</p>
-                  <p className="text-muted-text mt-1 flex items-center gap-2.5 text-xs">
-                    <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
-                    {formatFamilyEventTime(event.scheduledAt, timeZone)}
-                  </p>
-                </div>
-                <span
-                  className={`shrink-0 rounded-full border px-2 py-1 text-[10px] ${meta.className}`}
+      {agendaItems.length === 0 ? (
+        <div className="border-border bg-elevated/25 text-muted-text mt-5 grid min-h-44 place-items-center rounded-2xl border border-dashed p-5 text-center">
+          <div>
+            <CalendarDays className="text-primary-neon/70 mx-auto h-7 w-7" />
+            <p className="mt-3 text-sm">На этот день пока ничего не запланировано</p>
+          </div>
+        </div>
+      ) : (
+        <div className="scrollbar-none mt-5 min-h-0 space-y-3 overflow-auto pr-1">
+          {agendaItems.map((item) => {
+            if (item.kind === 'task') {
+              const isCompleted = item.task.status === 'COMPLETED';
+
+              return (
+                <motion.button
+                  className="border-border bg-elevated/45 hover:border-primary-neon/60 w-full cursor-pointer rounded-2xl border p-4 text-left outline-none focus-visible:border-cyber-cyan"
+                  key={`task:${item.task.id}`}
+                  onClick={() => onOpenTask(item.task)}
+                  type="button"
+                  whileHover={{ x: 3 }}
+                  whileTap={{ scale: 0.99 }}
                 >
-                  {meta.label}
-                </span>
-              </div>
-              <p className="text-muted-text mt-3 flex items-center gap-2.5 truncate text-xs">
-                <MapPin aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
-                {event.location}
-              </p>
-            </motion.button>
-          );
-        })}
-      </div>
-    )}
-  </div>
-);
+                  <div className="flex items-start justify-between gap-gap">
+                    <div className="min-w-0">
+                      <p className="text-text truncate text-sm font-semibold">{item.task.title}</p>
+                      <p className="text-muted-text mt-1 flex items-center gap-2.5 text-xs">
+                        <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
+                        {formatFamilyEventTime(item.task.dueAt, timeZone)}
+                      </p>
+                    </div>
+                    <span
+                      className={`shrink-0 rounded-full border px-2 py-1 text-[10px] ${
+                        isCompleted
+                          ? 'border-acid-green/35 bg-acid-green/10 text-acid-green'
+                          : 'border-cyber-cyan/40 bg-cyber-cyan/10 text-cyber-cyan'
+                      }`}
+                    >
+                      {isCompleted ? 'Завершено' : 'Задача'}
+                    </span>
+                  </div>
+                </motion.button>
+              );
+            }
+
+            const meta = statusMeta[item.event.status];
+
+            return (
+              <motion.button
+                className="border-border bg-elevated/45 hover:border-primary-neon/60 w-full cursor-pointer rounded-2xl border p-4 text-left outline-none focus-visible:border-cyber-cyan"
+                key={`event:${item.event.id}`}
+                onClick={() => onOpen(item.event)}
+                type="button"
+                whileHover={{ x: 3 }}
+                whileTap={{ scale: 0.99 }}
+              >
+                <div className="flex items-start justify-between gap-gap">
+                  <div className="min-w-0">
+                    <p className="text-text truncate text-sm font-semibold">{item.event.name}</p>
+                    <p className="text-muted-text mt-1 flex items-center gap-2.5 text-xs">
+                      <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
+                      {formatFamilyEventTime(item.event.scheduledAt, timeZone)}
+                    </p>
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-full border px-2 py-1 text-[10px] ${meta.className}`}
+                  >
+                    {meta.label}
+                  </span>
+                </div>
+                <p className="text-muted-text mt-3 flex items-center gap-2.5 truncate text-xs">
+                  <MapPin aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+                  {item.event.location}
+                </p>
+              </motion.button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
 
 type EventDetailsProps = {
   currentUserId: string | null;
@@ -408,11 +460,13 @@ export const FamilyCalendar = () => {
         date: new Date(event.scheduledAt),
         id: `event:${event.id}`,
         name: event.name,
+        type: 'event' as const,
       })),
       ...tasks.map((task) => ({
         date: new Date(task.dueAt),
         id: `task:${task.id}`,
         name: `Задача: ${task.title}`,
+        type: 'task' as const,
       })),
     ],
     [events, tasks],
@@ -420,6 +474,10 @@ export const FamilyCalendar = () => {
   const selectedDayEvents = useMemo(
     () => events.filter((event) => getFamilyDateKey(event.scheduledAt, timeZone) === selectedDate),
     [events, selectedDate, timeZone],
+  );
+  const selectedDayTasks = useMemo(
+    () => tasks.filter((task) => getFamilyDateKey(task.dueAt, timeZone) === selectedDate),
+    [selectedDate, tasks, timeZone],
   );
   const selectedPeriod = useMemo(() => {
     const date = new Date(`${selectedDate}T00:00:00`);
@@ -628,7 +686,9 @@ export const FamilyCalendar = () => {
                 setMode('create');
               }}
               onOpen={openEvent}
+              onOpenTask={() => navigate('/my_family/tasks')}
               selectedDate={selectedDate}
+              tasks={selectedDayTasks}
               timeZone={timeZone}
             />
           )}
@@ -640,21 +700,19 @@ export const FamilyCalendar = () => {
           ) : (
             <Calendar
               className="min-h-0"
-              onClickDay={(day, item) => {
-                if (item) {
-                  const [kind, id] = String(item.id).split(':');
-                  if (kind === 'event') {
-                    const event = events.find((candidate) => candidate.id === id);
-                    if (event) openEvent(event);
-                  } else if (kind === 'task') {
-                    navigate('/my_family/tasks');
-                  }
-                  return;
-                }
-
-                setSelectedDate(dayjs(day).format('YYYY-MM-DD'));
+              onClickDay={(day) => {
+                setSelectedDate(getFamilyDateKey(day, timeZone));
                 setNotice(null);
                 setMode('agenda');
+              }}
+              onSelectItem={(item) => {
+                const [kind, id] = String(item.id).split(':');
+                if (kind === 'event') {
+                  const event = events.find((candidate) => candidate.id === id);
+                  if (event) openEvent(event);
+                } else if (kind === 'task') {
+                  navigate('/my_family/tasks');
+                }
               }}
               onVisiblePeriodChange={handleVisiblePeriodChange}
               plannedItems={plannedItems}

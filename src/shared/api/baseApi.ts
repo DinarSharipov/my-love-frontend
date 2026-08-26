@@ -17,6 +17,8 @@ export const baseApi = createApi({
     'finance-budgets',
     'finance-recurring',
     'finance-meetings',
+    'wellbeing',
+    'child-profiles',
   ],
   baseQuery: fetchBaseQuery({
     baseUrl: '/',

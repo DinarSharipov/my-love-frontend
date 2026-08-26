@@ -1,5 +1,75 @@
 # My Love — статус реализации
 
+# 26 августа 2026 — защита сводки финансов от пустых списков
+
+Исправлен runtime-баг на главной странице: выбор ближайшего регулярного платежа теперь безопасно обрабатывает пустой массив `recurringPayments` через начальное значение `undefined`. Ошибка `Reduce of empty array with no initial value` больше не возникает, когда у семьи нет регулярных платежей.
+
+Проверки после среза: `format`, `format:check`, `typecheck`, `lint`, `build`, `git diff --check`; browser QA выполняется пользователем.
+
+# 26 августа 2026 — задачи в плане дня календаря
+
+В `/my_family/calendar` дневная панель теперь объединяет события и задачи выбранной даты. Задачи фильтруются по `dueAt` с учётом часового пояса семьи, показывают название, время и статус; нажатие на задачу открывает `/my_family/tasks`. Причина бага была в том, что панель использовала только `selectedDayEvents`, хотя задачи уже загружались и отображались в календарной сетке.
+
+Проверки после среза: `format`, `format:check`, `typecheck`, `lint`, `build`, `git diff --check`; browser QA выполняется пользователем.
+
+# 26 августа 2026 — карточки участников семьи
+
+Карточки участников на `/my_family` вынесены в явный dumb-компонент `FamilyMemberCard`, каждая карточка использует общий `AnimatedPanel`. Если backend возвращает `user.avatarUrl`, показывается изображение с `object-cover`; при ошибке загрузки или отсутствии URL сохраняются инициалы как fallback.
+
+Проверки после среза: `format`, `format:check`, `typecheck`, `lint`, `build`, `git diff --check`; browser QA выполняется пользователем.
+
+# 26 августа 2026 — mobile-отображение событий в календаре
+
+На узких экранах событие или агрегат дня теперь отображается непосредственно в строке рядом с числом даты, поэтому ограниченная высота ячейки больше не скрывает планы. Десктопный список внутри ячейки сохранён; оба варианта используют тот же modal-список и маршрутизацию элементов.
+
+Проверки после среза: `format`, `format:check`, `typecheck`, `lint`, `build`, `git diff --check`; browser QA выполняется пользователем.
+
+# 26 августа 2026 — агрегированный календарь и список дня
+
+Общий `Calendar` больше не выводит несколько отдельных строк в ячейке: при двух и более элементах показывается компактная кнопка с иконкой и количеством (`N событие/события/событий`). Нажатие на одиночный элемент или агрегат открывает общий `Modal` со всеми планами дня; строки отображают тип и время, а выбор строки передаётся через `onSelectItem`. Главная и семейный календарь маршрутизируют задачи в `/my_family/tasks`, события — в `/my_family/calendar`/карточку события. Добавлен тип `PlannedItemType` для будущих доменных элементов.
+
+Проверки после среза: `format`, `format:check`, `typecheck`, `lint`, `build`, `git diff --check`; browser QA выполняется пользователем.
+
+# 26 августа 2026 — frontend-only завершение доступных текущих контрактов
+
+Главная страница дополнена сводками по доступным API: актуальные финансовые категории, ближайший регулярный платёж, прогресс активной цели и последний личный wellbeing check-in. Запросы выполняются только после подтверждённого семейного dashboard и не ломают страницу при отсутствии семьи. Вкладка истории финансов получила локальный CSV-экспорт текущей загруженной страницы без нового backend endpoint. В профиле добавлено подтверждённое удаление текущего аватара через опубликованный `DELETE /api/v1/users/me/avatar`.
+
+Проверки после среза: `format`, `format:check`, `typecheck`, `lint`, `build`, `git diff --check`; browser QA выполняется пользователем.
+
+# 26 августа 2026 — Два блока на странице профилей детей
+
+`ChildProfilesPanel` разделён на два независимых адаптивных `AnimatedPanel`: слева форма создания/редактирования профиля, справа список детей. На узких экранах панели переходят в одну колонку. Поле и controls загрузки «Аватар» убраны из формы; уже сохранённые изображения остаются доступными в карточках детей.
+
+Проверки после среза: `format`, `format:check`, `typecheck`, `lint`, `build`, `git diff --check`; browser QA выполняется пользователем.
+
+# 26 августа 2026 — DownloadLoader в shared UI
+
+По мотивам CodePen `Download progress animation` создан dumb-компонент `shared/ui/download-loader/DownloadLoader.tsx`. Он принимает `size` (`s|m|l|xl`, default `m`), `status`, опциональный `progress` и стандартные button props/callbacks; размеры совпадают с `Button` (`36/40/48/56px`), default `type="button"`. Визуально повторяет круговой progress-ring, download icon, wave-состояние, процент и success-check. Реализация выполнена на React + CSS без GSAP и прямых DOM-обработчиков; добавлена поддержка `prefers-reduced-motion` и indeterminate-режим без числового прогресса. Компонент экспортирован из `shared/ui` и подключён вместо export/download-кнопок в wellbeing trends, child profiles и family activity.
+
+Проверки после изменения: `format`, `format:check`, `typecheck`, `lint`, `build`, `git diff --check` — PASS; browser QA выполняется пользователем.
+
+# 26 августа 2026 — плавное закрытие shared-layout preview в Gallery
+
+В `widgets/media-gallery/Gallery.tsx` устранён конфликт Motion layout-анимации с CSS `transition` и hover-transform на `motion.article`. Карточка теперь плавно возвращается из превью в сетку без скачка; hover оставлен только для border/shadow. Preview переведён на один источник состояния `selectedMedia`: лишние `isPreviewOpen`/`onExitComplete` удалены, закрытие выполняется каноническим `AnimatePresence + layoutId`. Старый inline preview в `MediaPage` ранее удалён, отдельной старой реализации модалки в media-flow не осталось.
+
+Проверки после изменения: `format`, `format:check`, `typecheck`, `lint`, `build` — PASS; `git diff --check` не выявил ошибок whitespace (только стандартные предупреждения LF→CRLF). Browser QA выполняется пользователем.
+
+## 26 августа 2026 — controlled Gallery для `/my_family/media`
+
+UI галереи вынесен из `MediaPage` в dumb-компонент `widgets/media-gallery/Gallery.tsx`: компонент принимает только список медиа, состояния и callbacks, не выполняет запросы и не владеет состоянием страницы. Сохранены infinite scroll, состояния загрузки/пустого альбома, удаление и audio playback. Preview controlled через `selectedMedia`, `previewMedia`, `isPreviewOpen` и callbacks; `LayoutGroup` связывает всю карточку с preview, а `Modal` поддерживает `layoutId`, shared-layout variant и завершение exit-анимации. Shared preview теперь не использует старую panel-оболочку: media-элемент увеличивается до viewport-ограничений и центрируется поверх backdrop, close-control находится поверх изображения. Исправлено отображение stale detail response: до прихода нового ответа показывается именно выбранный файл, а для image/video/audio добавлен loader до готовности media.
+
+Проверки после среза: `format`, `format:check`, `typecheck`, `lint`, `build`, `git diff --check` — PASS; browser QA выполняет пользователь.
+
+## 26 августа 2026 — границы frontend-плана
+
+По решению пользователя из frontend-плана исключены notification outbox/scheduled jobs, backend e2e, production readiness и authenticated browser QA. Эти задачи остаются в зоне ответственности пользователя и не учитываются как незакрытые frontend-срезы. Правило `AGENTS.md` о том, что browser QA выполняет пользователь, сохранено.
+
+## 26 августа 2026 — обновлённый Swagger и аватары детских профилей
+
+Контракт перегенерирован из deployed Swagger. Новые поля `avatarMediaId` в create/update детского профиля и endpoint preview `GET /api/v1/families/me/children/:id/avatar` подключены на `/my_family/children`: пользователь выбирает изображение до 10 МБ, файл загружается через direct media upload, затем профиль сохраняется с media ID; карточка использует приватный `avatarUrl`, который возвращает backend, а очистка аватара отправляет `avatarMediaId: null`. Для загрузки добавлены preview, проверки типа/размера и единое состояние кнопки. Статус multipart upload синхронизирован с новым `FAILED`. Генерируемый `getAvatar2` оставлен в generated API без ручных правок; браузерный `<img src=avatarUrl>` вызывает тот же capability-token endpoint, что корректно поддерживает бинарный stream.
+
+Проверки после среза: `api:generate`, `format`, `format:check`, `typecheck`, `lint`, `build`, `git diff --check` — PASS; browser QA выполняет пользователь.
+
 ## 25 августа 2026 — общий HeaderPanel
 
 Добавлен `shared/ui/header-panel/HeaderPanel.tsx` с обязательным left-slot и опциональным right-slot для page-level заголовков. Компонент использует общий cyberpunk `AnimatedPanel`, занимает всю доступную ширину, имеет естественную высоту по контенту и адаптивно переносит правые действия. Все существовавшие `.page-header` в маршрутах и семейном календаре переведены на этот контракт; поисковая строка, primary actions и переключатели перенесены в `right`, где это уместно. В `AGENTS.md` закреплено обязательное использование `HeaderPanel` для новых page-level headers. Browser QA всех затронутых маршрутов выполняет пользователь.
@@ -170,8 +240,8 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 
 - Этап roadmap: **2 — Семейный стол и бытовой MVP**.
 - Последний завершённый продуктовый срез: **назначение исполнителей задач и task gap-analysis**.
-- Текущий срез: **lifecycle/visibility-аудит и недостающие UI primitives**.
-- Следующий рекомендуемый срез: **authenticated visual QA lifecycle/Telegram и visibility/consent consumer после появления backend domain-модуля**.
+- Текущий срез: **child-linked routines и meal plans**.
+- Следующий рекомендуемый срез: **visibility/consent consumer после появления backend domain-модуля**.
 
 ## Уже было в проекте
 
@@ -191,8 +261,7 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 - [x] Общая membership/role policy на backend.
 - [ ] Visibility/consent model для чувствительных данных.
 - [x] Единые API errors, money/date conventions и базовые idempotency rules.
-- [ ] Notification/outbox contract и scheduled jobs.
-- [ ] Недостающие UI primitives; backend e2e-каркас готов.
+- [ ] Недостающие UI primitives.
 
 ### Этап 1. Закрыть начатые сценарии
 
@@ -207,7 +276,7 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 - [x] Базовый общий `AsyncState` для loading/error/empty и retry.
 - [x] Security actions: request/confirm email change и request account deletion.
 
-### Этапы 2–7
+### Этапы 2–6
 
 - [ ] Этап 2: dashboard, задачи, покупки и уведомления.
   - [x] Разовые задачи и dashboard-виджет задач.
@@ -221,7 +290,6 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 - [ ] Этап 4: wellbeing и гармония.
 - [ ] Этап 5: дети, питание и семейные рутины.
 - [ ] Этап 6: воспоминания и долгосрочная ценность.
-- [ ] Этап 7: production readiness.
 
 ## Принятые решения
 
@@ -230,8 +298,8 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 - API-контракт проверяется на backend до frontend-реализации; generated RTK Query code вручную не редактируется.
 - Для frontend-задач backend read-only: агент только сверяет контракты и останавливает срез при недостающем backend API.
 - Основной рекомендуемый family onboarding — закрытое приглашение знакомого партнёра; публичный каталог пока остаётся существующей функцией и будет пересмотрен отдельным срезом.
-- Текущий закрытый onboarding использует передаваемую партнёру одноразовую ссылку, привязанную к точному email; автоматическая email-доставка появится после outbox/provider-контракта.
-- После каждого frontend-среза выполняется браузерная проверка затронутых маршрутов согласно `AGENTS.md`.
+- Текущий закрытый onboarding использует передаваемую партнёру одноразовую ссылку, привязанную к точному email; автоматическая email-доставка находится вне frontend-плана.
+- Browser QA, backend e2e, notification outbox/scheduled jobs и production readiness вынесены из frontend-плана; эти задачи ведёт пользователь отдельно.
 
 ## Известные пробелы
 
@@ -392,3 +460,15 @@ Auth-маршруты (`/login`, `/auth`, `/restore`, `/reset-password`) объ�
 ## 25 августа 2026 — infinite scroll для «Наших моментов»
 
 На `/my_family/media` пагинация заменена на `react-infinite-scroll-component`: галерея получила фиксированный прокручиваемый контейнер, следующая страница media API подгружается при приближении к нижней границе, а загруженные страницы объединяются в единый grid. Сохранены фильтры, upload, preview, audio-player и удаление; после фильтрации/upload/delete список сбрасывается к первой странице. Добавлена зависимость `react-infinite-scroll-component`. Проверки: `format:check`, `lint`, `typecheck`, `build`, `git diff --check` — PASS; browser QA выполняет пользователь.
+
+## 26 августа 2026 — удаление данных wellbeing
+
+В `WellbeingAdvancedPanel` добавлен безопасный destructive-flow для `DELETE /api/v1/families/me/wellbeing/check-ins`: отдельный warning-блок, общий `ConfirmDialog`, loading/error state и повторная загрузка assessments, trends, gratitudes и support requests после успешного удаления. Контракт уже существовал в typed wellbeing API; backend и Swagger не менялись. Добавлен RTK Query tag `wellbeing`, чтобы после операции обновлялись также check-ins, consent, rituals и couple meetings в соседних панелях. Проверки: Prettier, `format:check`, `typecheck`, ESLint, build и `git diff --check` — PASS; browser QA остаётся за пользователем. Следующий срез: синхронизировать полный контракт регулярных платежей — прогнозы `/recurring-payments/:id/forecasts`, интервалы, заметки, напоминания и получателей уведомлений.
+
+## 26 августа 2026 — полный контракт регулярных платежей
+
+На `/my_family/finance` вкладка регулярных платежей теперь использует все доступные поля backend-контракта: тип дохода/расхода, выбор кошелька и категории, интервал, заметку, смещение напоминания и получателей уведомлений. Добавлено редактирование с `If-Match`/version, восстановление архивных записей и ленивый просмотр до 50 прогнозов через `GET /api/v1/families/me/recurring-payments/:id/forecasts`. Добавлен typed wrapper `useListRecurringPaymentForecastsQuery`; generated API не редактировался. Проверки: `format`, `format:check`, `typecheck`, ESLint, build и `git diff --check` — PASS; browser QA остаётся за пользователем. Следующий срез: расширение детских профилей и privacy/export сценариев при подтверждённом backend-контракте.
+
+## 26 августа 2026 — детские профили и privacy/export
+
+Сверен deployed Swagger и перегенерирован generated API. На `/my_family/children` расширен текущий поток: профиль ребёнка поддерживает опциональный URL аватара, preview в карточке, export с loader, cache invalidation через child tags и destructive delete через shared `ConfirmDialog`. Общий account export сохранён в `FamilyActivityPanel`; UI не использует незапубликованный child avatar media endpoint. Локальный backend содержит `avatarMediaId`/private preview, но deployed Swagger пока их не публикует; отдельный upload отложен до синхронизации контракта. Проверки: `api:generate`, `format`, `format:check`, `lint`, `typecheck`, `build`, `git diff --check` — PASS; browser QA остаётся за пользователем. Следующий срез: child-routines/meal privacy linkage или upload child avatar после публикации Swagger.

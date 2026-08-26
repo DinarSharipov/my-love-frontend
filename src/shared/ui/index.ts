@@ -5,7 +5,12 @@ export { AnimatedPanel } from '@/shared/ui/animated-panel';
 export { AsyncState } from '@/shared/ui/async-state';
 export { Button } from '@/shared/ui/button';
 export { Calendar } from '@/shared/ui/calendar';
-export type { CalendarPeriod, CalendarVisiblePeriod, PlannedItem } from '@/shared/ui/calendar';
+export type {
+  CalendarPeriod,
+  CalendarVisiblePeriod,
+  PlannedItem,
+  PlannedItemType,
+} from '@/shared/ui/calendar';
 export { ConfirmDialog } from '@/shared/ui/confirm-dialog';
 export { Footer } from '@/shared/ui/footer';
 export { HeaderPanel } from '@/shared/ui/header-panel';
@@ -27,3 +32,9 @@ export type { TabItem } from '@/shared/ui/tabs';
 export { RouteLoading } from '@/shared/ui/route-loading';
 export { Sidebar } from '@/shared/ui/sidebar';
 export type { SidebarMenuGroup } from '@/shared/ui/sidebar';
+export { DownloadLoader } from '@/shared/ui/download-loader';
+export type {
+  DownloadLoaderProps,
+  DownloadLoaderSize,
+  DownloadLoaderStatus,
+} from '@/shared/ui/download-loader';

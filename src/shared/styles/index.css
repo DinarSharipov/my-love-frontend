@@ -44,6 +44,191 @@
   display: none;
 }
 
+.download-loader {
+  --download-loader-accent: var(--color-primary-neon);
+  --download-loader-icon-size: 22px;
+  --download-loader-percent-bottom: 6px;
+  position: relative;
+  display: inline-grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  padding: 0;
+  color: var(--download-loader-accent);
+  cursor: pointer;
+  border: 0;
+  outline: none;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s ease;
+}
+
+.download-loader--s {
+  --download-loader-icon-size: 18px;
+  --download-loader-percent-bottom: 5px;
+  width: 36px;
+  height: 36px;
+}
+
+.download-loader--m {
+  width: 40px;
+  height: 40px;
+}
+
+.download-loader--l {
+  --download-loader-icon-size: 26px;
+  --download-loader-percent-bottom: 8px;
+  width: 48px;
+  height: 48px;
+}
+
+.download-loader--xl {
+  --download-loader-icon-size: 30px;
+  --download-loader-percent-bottom: 10px;
+  width: 56px;
+  height: 56px;
+}
+
+.download-loader:hover:not(:disabled) {
+  transform: scale(1.04);
+}
+
+.download-loader:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.download-loader:focus-visible {
+  border-radius: 999px;
+  outline: 2px solid var(--color-cyber-cyan);
+  outline-offset: 4px;
+}
+
+.download-loader:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.download-loader__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.download-loader__ring-track {
+  stroke: color-mix(in srgb, var(--download-loader-accent) 20%, transparent);
+}
+
+.download-loader__ring-progress {
+  stroke: var(--download-loader-accent);
+  stroke-dasharray: 226.2px;
+  stroke-dashoffset: var(--download-loader-ring-offset, 226.2px);
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--download-loader-accent) 75%, transparent));
+  transition: stroke-dashoffset 0.45s ease;
+}
+
+.download-loader--loading:not(.download-loader--determinate) .download-loader__ring-progress {
+  stroke-dasharray: 72px 154px;
+  animation: download-loader-indeterminate 1.25s linear infinite;
+}
+
+.download-loader__icon {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: var(--download-loader-icon-size);
+  height: var(--download-loader-icon-size);
+  place-items: center;
+}
+
+.download-loader__icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.download-loader__download {
+  animation: download-loader-bounce 1.6s ease-in-out infinite;
+}
+
+.download-loader__wave {
+  width: 100% !important;
+  height: 45% !important;
+  stroke-width: 2.4 !important;
+  stroke-dasharray: 24 12;
+  animation: download-loader-wave 1.1s linear infinite;
+}
+
+.download-loader__check {
+  stroke-dasharray: 52;
+  stroke-dashoffset: 52;
+  animation: download-loader-check 0.45s ease forwards;
+}
+
+.download-loader__percent {
+  position: absolute;
+  right: 0;
+  bottom: var(--download-loader-percent-bottom);
+  left: 0;
+  z-index: 2;
+  color: var(--download-loader-accent);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--download-loader-accent) 70%, transparent);
+}
+
+@keyframes download-loader-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+@keyframes download-loader-wave {
+  to {
+    stroke-dashoffset: -36px;
+  }
+}
+
+@keyframes download-loader-indeterminate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes download-loader-check {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .download-loader,
+  .download-loader__download,
+  .download-loader__wave,
+  .download-loader__check,
+  .download-loader__ring-progress {
+    animation: none;
+    transition: none;
+  }
+}
+
 @layer base {
   * {
     scrollbar-width: thin;

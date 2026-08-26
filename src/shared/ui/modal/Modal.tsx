@@ -10,8 +10,10 @@ type ModalProps = {
   children: ReactNode;
   className?: string;
   contentClassName?: string;
+  layoutId?: string;
   onClose: () => void;
   open: boolean;
+  variant?: 'default' | 'shared-layout';
 };
 
 export const Modal = ({
@@ -21,9 +23,12 @@ export const Modal = ({
   children,
   className = '',
   contentClassName = '',
+  layoutId,
   onClose,
   open,
+  variant = 'default',
 }: ModalProps) => {
+  const isSharedLayout = variant === 'shared-layout';
   const contentRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return undefined;
@@ -53,17 +58,26 @@ export const Modal = ({
         >
           <motion.div
             ref={contentRef}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
+            animate={layoutId ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
             aria-describedby={ariaDescribedBy}
             aria-label={ariaLabel}
             aria-labelledby={ariaLabelledBy}
             aria-modal="true"
-            className={`border-border bg-surface/95 text-text max-h-[90vh] w-full cursor-default overflow-auto rounded-2xl border p-4 shadow-[0_0_55px_color-mix(in_srgb,var(--color-primary-neon)_28%,transparent)] outline-none ${contentClassName}`}
-            exit={{ opacity: 0, scale: 0.96, y: 18 }}
-            initial={{ opacity: 0, scale: 0.96, y: 18 }}
+            className={`${
+              isSharedLayout
+                ? 'text-text max-h-[90vh] w-auto max-w-[90vw] overflow-visible rounded-2xl bg-transparent p-0 shadow-none outline-none'
+                : 'border-border bg-surface/95 text-text max-h-[90vh] w-full overflow-auto rounded-2xl border p-4 shadow-[0_0_55px_color-mix(in_srgb,var(--color-primary-neon)_28%,transparent)] outline-none'
+            } ${contentClassName}`}
+            exit={layoutId ? { opacity: 1 } : { opacity: 0, scale: 0.96, y: 18 }}
+            initial={layoutId ? { opacity: 1 } : { opacity: 0, scale: 0.96, y: 18 }}
+            layoutId={layoutId}
             role="dialog"
             tabIndex={-1}
-            transition={{ duration: 0.24, ease: 'easeOut' }}
+            transition={
+              layoutId
+                ? { type: 'spring', bounce: 0.18, duration: 0.45 }
+                : { duration: 0.24, ease: 'easeOut' }
+            }
           >
             {children}
           </motion.div>
