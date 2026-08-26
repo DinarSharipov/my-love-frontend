@@ -36,7 +36,12 @@ import {
 import { selectCurrentUser } from '@/entities/user';
 import { useMessengerCommands } from '@/features/send-message';
 import { useMediaUploadDirectMutation, type Media } from '@/entities/media';
-import { getApiErrorMessage, type CreateMessageDto, useFindMyFamilyQuery } from '@/shared/api';
+import {
+  getApiErrorMessage,
+  type CreateMessageDto,
+  useFindCurrentUserQuery,
+  useFindMyFamilyQuery,
+} from '@/shared/api';
 import {
   AnimatedPanel,
   AsyncState,
@@ -164,6 +169,8 @@ const messageMediaType = (media: Media): 'IMAGE' | 'VIDEO' | 'VOICE' => {
 
 export const MessengerWorkspace = () => {
   const currentUser = useSelector((state: RootState) => selectCurrentUser(state));
+  const currentUserQuery = useFindCurrentUserQuery();
+  const currentUserId = currentUserQuery.data?.id ?? currentUser?.id;
   const connectionStatus = useSelector(
     (state: RootState) => state.messengerRealtime.connectionStatus,
   );
@@ -287,11 +294,11 @@ export const MessengerWorkspace = () => {
 
   useEffect(() => {
     const latest = messages.at(-1);
-    if (!selectedId || !latest || latest.senderId === currentUser?.id) return;
+    if (!selectedId || !latest || latest.senderId === currentUserId) return;
     if (lastReadMessageByConversationRef.current[selectedId] === latest.id) return;
     lastReadMessageByConversationRef.current[selectedId] = latest.id;
     runSafely(markRead({ conversationId: selectedId, messageId: latest.id }));
-  }, [currentUser?.id, markRead, messages, selectedId]);
+  }, [currentUserId, markRead, messages, selectedId]);
 
   useEffect(() => {
     if (!messages.length) return;
@@ -568,7 +575,7 @@ export const MessengerWorkspace = () => {
 
   const nextCursor = asText(messageQuery.currentData?.nextCursor);
   const typingUsers = (typingByConversation[selectedId ?? ''] ?? []).filter(
-    (userId) => userId !== currentUser?.id,
+    (userId) => userId !== currentUserId,
   );
 
   return (
@@ -623,9 +630,9 @@ export const MessengerWorkspace = () => {
           >
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
               {conversations.map((conversation) => {
-                const title = conversationTitle(conversation, currentUser?.id);
+                const title = conversationTitle(conversation, currentUserId);
                 const other = conversation.members.find(
-                  (member) => member.userId !== currentUser?.id,
+                  (member) => member.userId !== currentUserId,
                 )?.user;
                 return (
                   <button
@@ -662,15 +669,15 @@ export const MessengerWorkspace = () => {
             <>
               <div className="border-border flex shrink-0 items-center gap-3 border-b px-4 py-3">
                 <Avatar
-                  name={conversationTitle(selectedConversation, currentUser?.id)}
+                  name={conversationTitle(selectedConversation, currentUserId)}
                   url={asUrl(
-                    selectedConversation.members.find((member) => member.userId !== currentUser?.id)
+                    selectedConversation.members.find((member) => member.userId !== currentUserId)
                       ?.user.avatarUrl,
                   )}
                 />
                 <div className="min-w-0">
                   <h2 className="text-text truncate font-semibold">
-                    {conversationTitle(selectedConversation, currentUser?.id)}
+                    {conversationTitle(selectedConversation, currentUserId)}
                   </h2>
                   <p className="text-muted-text text-xs">
                     {typingUsers.length
@@ -715,7 +722,7 @@ export const MessengerWorkspace = () => {
                 ) : (
                   <div className="flex min-h-full flex-col justify-end gap-3">
                     {messages.map((message) => {
-                      const isOwn = message.senderId === currentUser?.id;
+                      const isOwn = message.senderId === currentUserId;
                       const text = message.deletedAt ? 'Сообщение удалено' : asText(message.text);
                       const attachments = message.media ?? [];
                       return (
@@ -896,8 +903,12 @@ export const MessengerWorkspace = () => {
         </Modal>
       )}
       {isCreateOpen && (
-        <Modal onClose={resetCreateDialog} open>
-          <div className="w-[min(34rem,calc(100vw-2rem))] space-y-4 p-5">
+        <Modal
+          contentClassName="!w-[min(34rem,calc(100vw-2rem))] !p-0"
+          onClose={resetCreateDialog}
+          open
+        >
+          <div className="w-full space-y-4 p-5">
             <div>
               <h2 className="text-text text-lg font-semibold">Новый чат</h2>
               <p className="text-muted-text mt-1 text-sm">Выберите членов вашей семьи.</p>
@@ -925,32 +936,36 @@ export const MessengerWorkspace = () => {
               />
             )}
             <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
-              {(familyQuery.data?.members ?? [])
-                .filter((member) => member.user.id !== currentUser?.id)
-                .map((member) => {
-                  const name = participantName(member.user);
-                  const checked = newMemberIds.includes(member.user.id);
-                  return (
-                    <label
-                      className="border-border hover:border-primary-neon/60 flex cursor-pointer items-center gap-3 rounded-xl border p-3"
-                      htmlFor={`new-conversation-member-${member.user.id}`}
-                      key={member.user.id}
-                    >
-                      <input
-                        checked={checked}
-                        className="accent-primary-neon h-4 w-4"
-                        disabled={
-                          newConversationType === 'DIRECT' && !checked && newMemberIds.length > 0
-                        }
-                        id={`new-conversation-member-${member.user.id}`}
-                        onChange={() => toggleNewMember(member.user.id)}
-                        type="checkbox"
-                      />
-                      <Avatar name={name} url={asUrl(member.user.avatarUrl)} />
-                      <span className="text-text text-sm font-medium">{name}</span>
-                    </label>
-                  );
-                })}
+              {!currentUserId ? (
+                <p className="text-muted-text py-4 text-center text-sm">Загружаем состав семьи…</p>
+              ) : (
+                (familyQuery.data?.members ?? [])
+                  .filter((member) => member.user.id !== currentUserId)
+                  .map((member) => {
+                    const name = participantName(member.user);
+                    const checked = newMemberIds.includes(member.user.id);
+                    return (
+                      <label
+                        className="border-border hover:border-primary-neon/60 flex cursor-pointer items-center gap-3 rounded-xl border p-3"
+                        htmlFor={`new-conversation-member-${member.user.id}`}
+                        key={member.user.id}
+                      >
+                        <input
+                          checked={checked}
+                          className="accent-primary-neon h-4 w-4"
+                          disabled={
+                            newConversationType === 'DIRECT' && !checked && newMemberIds.length > 0
+                          }
+                          id={`new-conversation-member-${member.user.id}`}
+                          onChange={() => toggleNewMember(member.user.id)}
+                          type="checkbox"
+                        />
+                        <Avatar name={name} url={asUrl(member.user.avatarUrl)} />
+                        <span className="text-text text-sm font-medium">{name}</span>
+                      </label>
+                    );
+                  })
+              )}
             </div>
             {conversationError && (
               <p className="text-neon-pink text-sm" role="alert">
@@ -990,9 +1005,9 @@ export const MessengerWorkspace = () => {
               </p>
             )}
             {selectedConversation.members.map((member) => {
-              const isSelf = member.userId === currentUser?.id;
+              const isSelf = member.userId === currentUserId;
               const myRole = selectedConversation.members.find(
-                (item) => item.userId === currentUser?.id,
+                (item) => item.userId === currentUserId,
               )?.role;
               const canManage = myRole === 'OWNER' || myRole === 'ADMIN';
               const canRemove =
