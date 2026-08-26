@@ -1,6 +1,8 @@
 import dayjs from 'dayjs';
 import {
   ChevronUp,
+  Check,
+  CheckCheck,
   Circle,
   Mic,
   LoaderCircle,
@@ -19,10 +21,13 @@ import { useSelector } from 'react-redux';
 import {
   asText,
   asUrl,
+  getMessageReadStatus,
   participantName,
+  type MessageReadStatus,
   useConversationsQuery,
   useCreateConversationMutation,
   useCreateMessageMutation,
+  useDeleteMessageMutation,
   useAddMemberMutation,
   useLeaveMutation,
   useMarkReadMutation,
@@ -87,6 +92,19 @@ const memberRoleTitle = (role: MessengerConversation['members'][number]['role'])
   if (role === 'OWNER') return 'Владелец';
   if (role === 'ADMIN') return 'Администратор';
   return 'Участник';
+};
+
+const messageReadTitle = (readStatus: MessageReadStatus | null) => {
+  if (!readStatus || readStatus.recipientCount === 0) return undefined;
+
+  if (readStatus.recipientCount === 1) {
+    return readStatus.readByCount
+      ? `Прочитано: ${readStatus.readerNames[0] ?? 'собеседник'}`
+      : 'Ещё не прочитано';
+  }
+
+  if (!readStatus.readByCount) return 'Ещё никто не прочитал';
+  return `Прочитали ${readStatus.readByCount} из ${readStatus.recipientCount}: ${readStatus.readerNames.join(', ')}`;
 };
 
 const Avatar = ({ name, url }: { name: string; url: string | null }) => (
@@ -209,6 +227,7 @@ export const MessengerWorkspace = () => {
   const lastReadMessageByConversationRef = useRef<Record<string, string>>({});
   const familyQuery = useFindMyFamilyQuery();
   const [createMessage] = useCreateMessageMutation();
+  const [deleteMessageHttp, { isLoading: isDeletingMessage }] = useDeleteMessageMutation();
   const [uploadMedia] = useMediaUploadDirectMutation();
   const [createConversation, { isLoading: isCreatingConversation }] =
     useCreateConversationMutation();
@@ -220,15 +239,7 @@ export const MessengerWorkspace = () => {
   const [updateConversation, { isLoading: isUpdatingConversation }] =
     useUpdateConversationMutation();
   const [markRead] = useMarkReadMutation();
-  const {
-    deleteMessage,
-    editMessage,
-    joinConversation,
-    leaveConversation,
-    sendMessage,
-    sendText,
-    setTyping,
-  } = useMessengerCommands();
+  const { editMessage, sendMessage, sendText, setTyping } = useMessengerCommands();
   const selectedConversation =
     conversations.find((conversation) => conversation.id === selectedId) ?? null;
   const messageQuery = useMessagesQuery(
@@ -261,14 +272,6 @@ export const MessengerWorkspace = () => {
       [beforeId ?? 'latest']: page.items,
     }));
   }, [beforeId, messageQuery.currentData, selectedId]);
-
-  useEffect(() => {
-    if (!selectedId) return undefined;
-    runSafely(joinConversation(selectedId));
-    return () => {
-      runSafely(leaveConversation(selectedId));
-    };
-  }, [joinConversation, leaveConversation, selectedId]);
 
   const messages = useMemo(() => {
     const messageIds = new Set<string>();
@@ -569,9 +572,14 @@ export const MessengerWorkspace = () => {
 
   const onDelete = async (message: MessengerMessage) => {
     if (!selectedId) return;
-    const response = await deleteMessage(selectedId, message.id);
-    if (response.ok) setMessageToDelete(null);
-    else setSendError(response.error.message);
+    setSendError(null);
+    try {
+      await deleteMessageHttp({ conversationId: selectedId, messageId: message.id }).unwrap();
+      setMessageToDelete(null);
+    } catch (error) {
+      setMessageToDelete(null);
+      setSendError(getApiErrorMessage(error, 'Не удалось удалить сообщение.'));
+    }
   };
 
   const nextCursor = asText(messageQuery.currentData?.nextCursor);
@@ -726,6 +734,11 @@ export const MessengerWorkspace = () => {
                       const isOwn = message.senderId === currentUserId;
                       const text = message.deletedAt ? 'Сообщение удалено' : asText(message.text);
                       const attachments = message.media ?? [];
+                      const readStatus = selectedConversation
+                        ? getMessageReadStatus(selectedConversation, message)
+                        : null;
+                      const isRead = Boolean(readStatus?.readByCount);
+                      const readTitle = messageReadTitle(readStatus);
                       return (
                         <div
                           className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
@@ -757,6 +770,22 @@ export const MessengerWorkspace = () => {
                                 <span>изменено</span>
                               )}
                               <span>{dayjs(message.createdAt).format('HH:mm')}</span>
+                              {isOwn && !message.deletedAt && readStatus?.recipientCount ? (
+                                <span
+                                  aria-label={readTitle}
+                                  className={isRead ? 'text-primary-neon' : 'text-muted-text'}
+                                  title={readTitle}
+                                >
+                                  {isRead ? (
+                                    <CheckCheck aria-hidden="true" className="h-3.5 w-3.5" />
+                                  ) : (
+                                    <Check aria-hidden="true" className="h-3.5 w-3.5" />
+                                  )}
+                                  {readStatus.recipientCount > 1 && isRead && (
+                                    <span className="ml-0.5">{readStatus.readByCount}</span>
+                                  )}
+                                </span>
+                              ) : null}
                               {isOwn && !message.deletedAt && (
                                 <>
                                   {message.type === 'TEXT' && (
@@ -1103,6 +1132,7 @@ export const MessengerWorkspace = () => {
       <ConfirmDialog
         confirmLabel="Удалить"
         description="Сообщение исчезнет у всех участников чата."
+        isLoading={isDeletingMessage}
         open={Boolean(messageToDelete)}
         onCancel={() => setMessageToDelete(null)}
         onConfirm={() => {

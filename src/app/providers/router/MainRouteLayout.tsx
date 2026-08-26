@@ -22,6 +22,7 @@ import { LogoIcon } from '@/shared/ui/logo/LogoIcon';
 import type { MenuItem } from '@/shared/ui';
 import { ProtectedRoute } from '@/app/providers/router/ProtectedRoute';
 import type { AppDispatch } from '@/app/providers/store';
+import { MessengerUnreadIndicator } from '@/widgets/messenger-unread-indicator';
 
 export const MainRouteLayout = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -89,6 +90,7 @@ export const MainRouteLayout = () => {
       <AppBackground>
         <MainLayout footerItems={footerItems}>
           <Outlet />
+          <MessengerUnreadIndicator />
         </MainLayout>
       </AppBackground>
     </ProtectedRoute>
