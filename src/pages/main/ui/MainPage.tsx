@@ -294,7 +294,7 @@ export const MainPage = () => {
 
   return (
     <main className="text-text flex h-full min-h-0 flex-col overflow-hidden">
-      <div className="flex min-h-0 w-full flex-1 flex-col p-5">
+      <div className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto overscroll-contain p-5 pb-24 lg:overflow-visible lg:pb-5">
         <HeaderPanel
           className="mb-5"
           left={
@@ -320,8 +320,8 @@ export const MainPage = () => {
           }
           onRetry={retry}
         >
-          <div className="grid min-h-0 flex-1 items-stretch gap-gap lg:grid-cols-[minmax(0,1.6fr)_minmax(16rem,0.7fr)]">
-            <AnimatedPanel className="min-h-0 min-w-0 p-5 sm:p-6">
+          <div className="grid min-h-0 flex-none items-stretch gap-gap lg:flex-1 lg:grid-cols-[minmax(0,1.6fr)_minmax(16rem,0.7fr)]">
+            <AnimatedPanel className="h-auto min-w-0 p-5 sm:p-6 lg:h-full lg:min-h-0">
               <div className="mb-4 flex items-center justify-between gap-gap">
                 <div className="flex items-center gap-gap">
                   <CalendarDays aria-hidden="true" className="text-cyber-cyan size-5" />
@@ -344,7 +344,7 @@ export const MainPage = () => {
               </div>
             </AnimatedPanel>
 
-            <AnimatedPanel className="min-h-0 min-w-0 p-5 sm:p-6">
+            <AnimatedPanel className="h-auto min-w-0 p-5 sm:p-6 lg:h-full lg:min-h-0">
               <div className="mb-4 flex items-center gap-gap">
                 <Plus aria-hidden="true" className="text-cyber-cyan size-5" />
                 <h2 className="text-text text-lg font-semibold">Быстрые действия</h2>

@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from 'motion/react';
 import { useEffect, useState, type PropsWithChildren } from 'react';
 
-import mainBackground from '@/shared/assets/main-bg.jpg';
+import mainBackground from '@/shared/assets/main-bg.png';
 
 type AppBackgroundProps = PropsWithChildren<{
   useDefaultImage?: boolean;

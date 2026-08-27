@@ -44,6 +44,22 @@
   display: none;
 }
 
+.home-page-hero {
+  animation: home-page-hero-enter 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+@keyframes home-page-hero-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 120px, 0) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
 .download-loader {
   --download-loader-accent: var(--color-primary-neon);
   --download-loader-icon-size: 22px;
@@ -219,6 +235,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home-page-hero {
+    animation: none;
+  }
+
   .download-loader,
   .download-loader__download,
   .download-loader__wave,
