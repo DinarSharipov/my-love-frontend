@@ -28,6 +28,14 @@
   z-index: 10;
 }
 
+.main-layout-background {
+  background-color: color-mix(
+    in srgb,
+    var(--color-background) var(--main-layout-background-opacity, 35%),
+    transparent
+  );
+}
+
 .main-idle-scroll {
   scrollbar-width: none;
 }

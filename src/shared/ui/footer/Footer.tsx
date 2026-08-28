@@ -7,6 +7,7 @@ export type MenuItem = {
   badgeCount?: number;
   callback?: () => Promise<void> | void;
   children?: MenuItem[];
+  featured?: boolean;
   icon: ComponentType<{ className?: string; strokeWidth?: number }>;
   label: string;
   to?: string;
@@ -49,6 +50,7 @@ const isMenuItemActive = (item: MenuItem, pathname: string): boolean =>
 
 type DockIconProps = {
   badgeCount?: number;
+  featured?: boolean;
   Icon: MenuItem['icon'];
   iconSize: ReturnType<typeof useTransform<number, number>>;
   isActive: boolean;
@@ -56,43 +58,58 @@ type DockIconProps = {
   size: ReturnType<typeof useSpring>;
 };
 
-const DockIcon = ({ badgeCount, Icon, iconSize, isActive, lift, size }: DockIconProps) => (
-  <motion.span
-    className={`relative grid place-items-center rounded-2xl border backdrop-blur-xl transition-colors duration-300 ${
-      isActive
-        ? 'border-primary-neon/80 bg-primary-neon/15 text-primary-neon shadow-[0_0_24px_rgba(176,38,255,0.48),inset_0_0_16px_rgba(176,38,255,0.12)]'
-        : 'border-border bg-elevated/65 text-muted-text group-hover:border-primary-neon/70 group-hover:text-text group-hover:shadow-[0_0_26px_rgba(176,38,255,0.42)] group-focus-visible:border-cyber-cyan group-focus-visible:text-cyber-cyan'
-    }`}
-    style={{ height: size, translateY: lift, width: size }}
-  >
+const DockIcon = ({
+  badgeCount,
+  featured,
+  Icon,
+  iconSize,
+  isActive,
+  lift,
+  size,
+}: DockIconProps) => {
+  const inactiveClassName = featured
+    ? 'border-neon-pink/55 bg-primary-neon/20 text-text shadow-[0_0_22px_rgba(255,43,214,0.3)] group-hover:border-neon-pink group-hover:shadow-[0_0_30px_rgba(255,43,214,0.5)] group-focus-visible:border-cyber-cyan'
+    : 'border-border bg-elevated/65 text-muted-text group-hover:border-primary-neon/70 group-hover:text-text group-hover:shadow-[0_0_26px_rgba(176,38,255,0.42)] group-focus-visible:border-cyber-cyan group-focus-visible:text-cyber-cyan';
+
+  return (
     <motion.span
-      aria-hidden="true"
-      className="bg-primary-neon/20 pointer-events-none absolute inset-2 rounded-xl opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
-    />
-    <motion.span
-      className="relative grid place-items-center"
-      style={{ height: iconSize, width: iconSize }}
+      className={`relative grid place-items-center rounded-2xl border backdrop-blur-xl transition-colors duration-300 ${
+        isActive
+          ? 'border-primary-neon/80 bg-primary-neon/15 text-primary-neon shadow-[0_0_24px_rgba(176,38,255,0.48),inset_0_0_16px_rgba(176,38,255,0.12)]'
+          : inactiveClassName
+      }`}
+      style={{ height: size, translateY: lift, width: size }}
     >
-      <Icon className="h-full w-full" strokeWidth={1.7} />
-    </motion.span>
-    {isActive && (
       <motion.span
-        className="bg-cyber-cyan shadow-cyber-cyan/80 absolute -bottom-2 h-1 w-1 rounded-full shadow-[0_0_10px_currentColor]"
-        layoutId="footer-active-indicator"
+        aria-hidden="true"
+        className="bg-primary-neon/20 pointer-events-none absolute inset-2 rounded-xl opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
       />
-    )}
-    {Boolean(badgeCount) && (
-      <span className="bg-neon-pink text-text absolute -right-1.5 -top-1.5 grid min-h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold shadow-[0_0_12px_var(--color-neon-pink)]">
-        {Math.min(badgeCount ?? 0, 99)}
-      </span>
-    )}
-  </motion.span>
-);
+      <motion.span
+        className="relative grid place-items-center"
+        style={{ height: iconSize, width: iconSize }}
+      >
+        <Icon className="h-full w-full" strokeWidth={1.7} />
+      </motion.span>
+      {isActive && (
+        <motion.span
+          className="bg-cyber-cyan shadow-cyber-cyan/80 absolute -bottom-2 h-1 w-1 rounded-full shadow-[0_0_10px_currentColor]"
+          layoutId="footer-active-indicator"
+        />
+      )}
+      {Boolean(badgeCount) && (
+        <span className="bg-neon-pink text-text absolute -right-1.5 -top-1.5 grid min-h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold shadow-[0_0_12px_var(--color-neon-pink)]">
+          {Math.min(badgeCount ?? 0, 99)}
+        </span>
+      )}
+    </motion.span>
+  );
+};
 
 const DockItem = ({
   badgeCount,
   callback,
   children,
+  featured,
   icon: Icon,
   label,
   mouseX,
@@ -141,6 +158,7 @@ const DockItem = ({
       >
         <DockIcon
           badgeCount={badgeCount}
+          featured={featured}
           Icon={Icon}
           iconSize={iconSize}
           isActive={isBranchActive || isOpen}
@@ -164,6 +182,7 @@ const DockItem = ({
         {({ isActive }) => (
           <DockIcon
             badgeCount={badgeCount}
+            featured={featured}
             Icon={Icon}
             iconSize={iconSize}
             isActive={isActive}
@@ -184,6 +203,7 @@ const DockItem = ({
       >
         <DockIcon
           badgeCount={badgeCount}
+          featured={featured}
           Icon={Icon}
           iconSize={iconSize}
           isActive={false}

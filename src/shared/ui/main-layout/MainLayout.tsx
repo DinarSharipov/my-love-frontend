@@ -9,7 +9,7 @@ type MainLayoutProps = {
 };
 
 export const MainLayout: FC<MainLayoutProps> = ({ children, footerItems }) => (
-  <div className="bg-background/35 text-text relative flex h-dvh min-h-0 w-full overflow-hidden">
+  <div className="main-layout-background text-text relative flex h-dvh min-h-0 w-full overflow-hidden">
     <div className="min-h-0 w-full min-w-0 flex-1 overflow-visible p-page">{children}</div>
     <Footer items={footerItems} />
   </div>

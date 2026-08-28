@@ -149,10 +149,10 @@ export const ChildProfilesPanel = () => {
           loading={<p className="text-muted-text text-sm">Загрузка…</p>}
           onRetry={() => list.refetch()}
         >
-          <div className="grid gap-gap sm:grid-cols-2">
+          <div className="grid min-w-0 grid-cols-1 gap-gap">
             {(list.data ?? []).map((child) => (
               <article
-                className="border-border bg-elevated/30 rounded-2xl border p-4"
+                className="border-border bg-elevated/30 w-full min-w-[18rem] rounded-2xl border p-4"
                 key={child.id}
               >
                 <div className="flex items-start justify-between gap-3">

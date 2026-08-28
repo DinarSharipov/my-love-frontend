@@ -1,4 +1,4 @@
-import { Image, RotateCcw, Upload } from 'lucide-react';
+import { Image, RotateCcw, Sun, Upload } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 
 import {
@@ -8,7 +8,7 @@ import {
   THEME_COLOR_TOKENS,
   type ThemeColorKey,
 } from '@/shared/lib/theme';
-import { AnimatedPanel, Button } from '@/shared/ui';
+import { AnimatedPanel, Button, RangeSlider } from '@/shared/ui';
 
 export const ThemeSettingsPanel = () => {
   const [preferences, setPreferences] = useState(readThemePreferences);
@@ -25,6 +25,12 @@ export const ThemeSettingsPanel = () => {
     typeof preferences.animatedPanelOpacity === 'number' ? preferences.animatedPanelOpacity : 0.9;
   const panelBlur =
     typeof preferences.animatedPanelBlur === 'number' ? preferences.animatedPanelBlur : 12;
+  let backgroundBrightness = 0.65;
+  if (typeof preferences.backgroundBrightness === 'number') {
+    backgroundBrightness = preferences.backgroundBrightness;
+  } else if (typeof preferences.backgroundOpacity === 'number') {
+    backgroundBrightness = 1 - preferences.backgroundOpacity;
+  }
 
   const updateColor = (key: ThemeColorKey, value: string) => {
     const next = { ...preferences, [key]: value };
@@ -97,52 +103,70 @@ export const ThemeSettingsPanel = () => {
             </label>
           ))}
         </div>
-        <label
-          className="border-border bg-elevated/35 mt-3 block rounded-xl border p-3"
-          htmlFor="animated-panel-opacity"
-        >
-          <span className="text-text block text-sm font-medium">Прозрачность AnimatedPanel</span>
-          <span className="text-muted-text mt-1 block text-xs">
-            Панели: {Math.round(panelOpacity * 100)}%
-          </span>
-          <input
-            aria-label="Прозрачность AnimatedPanel"
-            className="accent-primary-neon mt-3 w-full cursor-pointer"
-            id="animated-panel-opacity"
-            max="1"
-            min="0"
-            onChange={(event) => {
-              const next = { ...preferences, animatedPanelOpacity: Number(event.target.value) };
-              setPreferences(next);
-              applyThemePreferences(next);
-            }}
-            step="0.05"
-            type="range"
-            value={panelOpacity}
-          />
-        </label>
-        <label
-          className="border-border bg-elevated/35 mt-3 block rounded-xl border p-3"
-          htmlFor="animated-panel-blur"
-        >
-          <span className="text-text block text-sm font-medium">Размытие AnimatedPanel</span>
-          <span className="text-muted-text mt-1 block text-xs">Blur: {panelBlur} px</span>
-          <input
-            aria-label="Размытие AnimatedPanel"
-            className="accent-primary-neon mt-3 w-full cursor-pointer"
-            id="animated-panel-blur"
-            max="32"
-            min="0"
-            onChange={(event) => {
-              const next = { ...preferences, animatedPanelBlur: Number(event.target.value) };
-              setPreferences(next);
-              applyThemePreferences(next);
-            }}
-            step="1"
-            type="range"
-            value={panelBlur}
-          />
-        </label>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="border-border bg-elevated/35 flex flex-col items-center rounded-xl border p-4 text-center">
+            <span className="text-text text-sm font-medium">Яркость фона</span>
+            <span className="text-muted-text mt-1 text-xs">
+              Фон: {Math.round(backgroundBrightness * 100)}%
+            </span>
+            <RangeSlider
+              aria-label="Яркость фона"
+              className="mt-4"
+              icon={<Sun aria-hidden="true" className="size-7" />}
+              id="main-layout-background-brightness"
+              max={0.95}
+              min={0}
+              onChange={(value) => {
+                const next = { ...preferences, backgroundBrightness: value };
+                delete next.backgroundOpacity;
+                setPreferences(next);
+                applyThemePreferences(next);
+              }}
+              step={0.05}
+              value={backgroundBrightness}
+            />
+          </div>
+          <div className="border-border bg-elevated/35 flex flex-col items-center rounded-xl border p-4 text-center">
+            <span className="text-text text-sm font-medium">Прозрачность AnimatedPanel</span>
+            <span className="text-muted-text mt-1 text-xs">
+              Панели: {Math.round(panelOpacity * 100)}%
+            </span>
+            <RangeSlider
+              aria-label="Прозрачность AnimatedPanel"
+              className="mt-4"
+              icon={<Sun aria-hidden="true" className="size-7" />}
+              id="animated-panel-opacity"
+              max={1}
+              min={0}
+              onChange={(value) => {
+                const next = { ...preferences, animatedPanelOpacity: value };
+                setPreferences(next);
+                applyThemePreferences(next);
+              }}
+              step={0.05}
+              value={panelOpacity}
+            />
+          </div>
+          <div className="border-border bg-elevated/35 flex flex-col items-center rounded-xl border p-4 text-center">
+            <span className="text-text text-sm font-medium">Размытие AnimatedPanel</span>
+            <span className="text-muted-text mt-1 text-xs">Blur: {panelBlur} px</span>
+            <RangeSlider
+              aria-label="Размытие AnimatedPanel"
+              className="mt-4"
+              icon={<Sun aria-hidden="true" className="size-7" />}
+              id="animated-panel-blur"
+              max={32}
+              min={0}
+              onChange={(value) => {
+                const next = { ...preferences, animatedPanelBlur: value };
+                setPreferences(next);
+                applyThemePreferences(next);
+              }}
+              step={1}
+              value={panelBlur}
+            />
+          </div>
+        </div>
       </AnimatedPanel>
       <AnimatedPanel className="p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-gap">

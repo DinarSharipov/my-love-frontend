@@ -8,6 +8,7 @@ import {
   MailCheck,
   MessageCircleMore,
   Repeat2,
+  Sparkles,
   ShoppingBasket,
   WalletCards,
 } from 'lucide-react';
@@ -56,6 +57,13 @@ const familyMenuGroups: readonly SidebarMenuGroup[] = [
       { icon: Images, label: 'Наши моменты', to: '/my_family/media' },
     ],
     label: 'Семья',
+  },
+  {
+    featured: true,
+    icon: Sparkles,
+    id: 'entertainment',
+    label: 'Развлечения',
+    to: '/my_family/entertainment',
   },
   {
     icon: WalletCards,

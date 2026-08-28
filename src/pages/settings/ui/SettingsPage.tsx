@@ -8,10 +8,10 @@ import { ThemeSettingsPanel } from './ThemeSettingsPanel';
 type SettingsTab = 'notifications' | 'profile' | 'theme';
 
 export const SettingsPage = () => {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('notifications');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const content = (() => {
-    if (activeTab === 'notifications') return <NotificationsPage />;
     if (activeTab === 'profile') return <ProfilePage />;
+    if (activeTab === 'notifications') return <NotificationsPage />;
     return <ThemeSettingsPanel />;
   })();
 
@@ -35,8 +35,8 @@ export const SettingsPage = () => {
           <Tabs
             activeId={activeTab}
             items={[
-              { id: 'notifications', label: 'Уведомления' },
               { id: 'profile', label: 'Личный кабинет' },
+              { id: 'notifications', label: 'Уведомления' },
               { id: 'theme', label: 'Темизация' },
             ]}
             onChange={(id) => setActiveTab(id as SettingsTab)}

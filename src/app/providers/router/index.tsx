@@ -30,6 +30,9 @@ const WellbeingPage = lazyPage(() => import('@/pages/wellbeing'), 'WellbeingPage
 const ChildProfilesPage = lazyPage(() => import('@/pages/child-profiles'), 'ChildProfilesPage');
 const MediaPage = lazyPage(() => import('@/pages/media'), 'MediaPage');
 const MessengerPage = lazyPage(() => import('@/pages/messenger'), 'MessengerPage');
+const EntertainmentPage = lazyPage(() => import('@/pages/entertainment'), 'EntertainmentPage');
+const WishesPage = lazyPage(() => import('@/pages/wishes'), 'WishesPage');
+const IntimacyCalendarPage = lazyPage(() => import('@/pages/intimacy'), 'IntimacyCalendarPage');
 const MediaHubPage = lazyPage(() => import('@/pages/media'), 'MediaHubPage');
 const RestorePage = lazyPage(() => import('@/pages/restore'), 'RestorePage');
 const ResetPasswordPage = lazyPage(() => import('@/pages/reset-password'), 'ResetPasswordPage');
@@ -92,6 +95,9 @@ export const router = createBrowserRouter([
               { path: 'children', element: withSuspense(<ChildProfilesPage />) },
               { path: 'media', element: withSuspense(<MediaPage />) },
               { path: 'messenger', element: withSuspense(<MessengerPage />) },
+              { path: 'entertainment', element: withSuspense(<EntertainmentPage />) },
+              { path: 'wishes', element: withSuspense(<WishesPage />) },
+              { path: 'intimacy', element: withSuspense(<IntimacyCalendarPage />) },
             ],
           },
           { path: '/settings', element: withSuspense(<SettingsPage />) },

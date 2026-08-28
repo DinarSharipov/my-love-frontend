@@ -20,6 +20,9 @@ export const addTagTypes = [
   'wellbeing',
   'health',
   'messenger',
+  'push',
+  'family wishes',
+  'intimacy',
 ] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
@@ -1638,6 +1641,163 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['messenger'],
       }),
+      register2: build.mutation<Register2ApiResponse, Register2ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/push/devices`,
+          method: 'POST',
+          body: queryArg.registerPushDeviceDto,
+        }),
+        invalidatesTags: ['push'],
+      }),
+      remove6: build.mutation<Remove6ApiResponse, Remove6ApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/push/devices/${queryArg.token}`, method: 'DELETE' }),
+        invalidatesTags: ['push'],
+      }),
+      create16: build.mutation<Create16ApiResponse, Create16ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/wishes`,
+          method: 'POST',
+          body: queryArg.createFamilyWishDto,
+          headers: {
+            'Idempotency-Key': queryArg['Idempotency-Key'],
+          },
+        }),
+        invalidatesTags: ['family wishes'],
+      }),
+      list17: build.query<List17ApiResponse, List17ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/wishes`,
+          params: {
+            page: queryArg.page,
+            limit: queryArg.limit,
+            implementationStatus: queryArg.implementationStatus,
+            partnerApprovalStatus: queryArg.partnerApprovalStatus,
+            createdFrom: queryArg.createdFrom,
+            createdTo: queryArg.createdTo,
+          },
+        }),
+        providesTags: ['family wishes'],
+      }),
+      findOne3: build.query<FindOne3ApiResponse, FindOne3ApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/families/me/wishes/${queryArg.id}` }),
+        providesTags: ['family wishes'],
+      }),
+      update12: build.mutation<Update12ApiResponse, Update12ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/wishes/${queryArg.id}`,
+          method: 'PATCH',
+          body: queryArg.updateFamilyWishDto,
+          headers: {
+            'If-Match': queryArg['If-Match'],
+          },
+        }),
+        invalidatesTags: ['family wishes'],
+      }),
+      remove7: build.mutation<Remove7ApiResponse, Remove7ApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/wishes/${queryArg.id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['family wishes'],
+      }),
+      accept: build.mutation<AcceptApiResponse, AcceptApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/wishes/${queryArg.id}/accept`,
+          method: 'POST',
+          headers: {
+            'Idempotency-Key': queryArg['Idempotency-Key'],
+          },
+        }),
+        invalidatesTags: ['family wishes'],
+      }),
+      reject: build.mutation<RejectApiResponse, RejectApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/wishes/${queryArg.id}/reject`,
+          method: 'POST',
+          headers: {
+            'Idempotency-Key': queryArg['Idempotency-Key'],
+          },
+        }),
+        invalidatesTags: ['family wishes'],
+      }),
+      markRealized: build.mutation<MarkRealizedApiResponse, MarkRealizedApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/wishes/${queryArg.id}/mark-realized`,
+          method: 'POST',
+          headers: {
+            'Idempotency-Key': queryArg['Idempotency-Key'],
+          },
+        }),
+        invalidatesTags: ['family wishes'],
+      }),
+      confirmRealization: build.mutation<ConfirmRealizationApiResponse, ConfirmRealizationApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/wishes/${queryArg.id}/confirm-realization`,
+          method: 'POST',
+          headers: {
+            'Idempotency-Key': queryArg['Idempotency-Key'],
+          },
+        }),
+        invalidatesTags: ['family wishes'],
+      }),
+      rejectRealization: build.mutation<RejectRealizationApiResponse, RejectRealizationApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/wishes/${queryArg.id}/reject-realization`,
+          method: 'POST',
+          headers: {
+            'Idempotency-Key': queryArg['Idempotency-Key'],
+          },
+        }),
+        invalidatesTags: ['family wishes'],
+      }),
+      calendar: build.query<CalendarApiResponse, CalendarApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/intimacy/calendar`,
+          params: {
+            from: queryArg['from'],
+            to: queryArg.to,
+          },
+        }),
+        providesTags: ['intimacy'],
+      }),
+      getCheckIn: build.query<GetCheckInApiResponse, GetCheckInApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/families/me/intimacy/check-ins/${queryArg.date}` }),
+        providesTags: ['intimacy'],
+      }),
+      upsertCheckIn: build.mutation<UpsertCheckInApiResponse, UpsertCheckInApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/intimacy/check-ins/${queryArg.date}`,
+          method: 'PUT',
+          body: queryArg.upsertIntimacyCheckInDto,
+        }),
+        invalidatesTags: ['intimacy'],
+      }),
+      deleteCheckIn: build.mutation<DeleteCheckInApiResponse, DeleteCheckInApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/intimacy/check-ins/${queryArg.date}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['intimacy'],
+      }),
+      upsertEvent: build.mutation<UpsertEventApiResponse, UpsertEventApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/intimacy/events/${queryArg.date}`,
+          method: 'PUT',
+          body: queryArg.upsertIntimacyEventDto,
+        }),
+        invalidatesTags: ['intimacy'],
+      }),
+      getEvent: build.query<GetEventApiResponse, GetEventApiArg>({
+        query: (queryArg) => ({ url: `/api/v1/families/me/intimacy/events/${queryArg.date}` }),
+        providesTags: ['intimacy'],
+      }),
+      deleteEvent: build.mutation<DeleteEventApiResponse, DeleteEventApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/families/me/intimacy/events/${queryArg.date}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['intimacy'],
+      }),
     }),
     overrideExisting: false,
   });
@@ -2481,7 +2641,9 @@ export type Remove5ApiArg = {
 };
 export type CheckHealthApiResponse = /** status 200  */ any;
 export type CheckHealthApiArg = void;
-export type Create15ApiResponse = /** status 201  */ ConversationResponseDto;
+export type Create15ApiResponse =
+  | /** status 200 Existing direct conversation returned */ ConversationResponseDto
+  | /** status 201  */ ConversationResponseDto;
 export type Create15ApiArg = {
   createConversationDto: CreateConversationDto;
 };
@@ -2565,6 +2727,105 @@ export type DeleteMessageApiResponse = /** status 200  */ MessageResponseDto;
 export type DeleteMessageApiArg = {
   conversationId: string;
   messageId: string;
+};
+export type Register2ApiResponse = /** status 200  */ PushDeviceResponseDto;
+export type Register2ApiArg = {
+  registerPushDeviceDto: RegisterPushDeviceDto;
+};
+export type Remove6ApiResponse = unknown;
+export type Remove6ApiArg = {
+  token: string;
+};
+export type Create16ApiResponse = /** status 201  */ FamilyWishResponseDto;
+export type Create16ApiArg = {
+  /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
+  'Idempotency-Key'?: string;
+  createFamilyWishDto: CreateFamilyWishDto;
+};
+export type List17ApiResponse = /** status 200  */ PaginatedFamilyWishesResponseDto;
+export type List17ApiArg = {
+  page?: number;
+  limit?: number;
+  implementationStatus?: 'NOT_REALIZED' | 'REALIZED';
+  partnerApprovalStatus?: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  createdFrom?: string;
+  createdTo?: string;
+};
+export type FindOne3ApiResponse = /** status 200  */ FamilyWishResponseDto;
+export type FindOne3ApiArg = {
+  id: string;
+};
+export type Update12ApiResponse = /** status 200  */ FamilyWishResponseDto;
+export type Update12ApiArg = {
+  id: string;
+  /** Current resource version */
+  'If-Match'?: string;
+  updateFamilyWishDto: UpdateFamilyWishDto;
+};
+export type Remove7ApiResponse = unknown;
+export type Remove7ApiArg = {
+  id: string;
+};
+export type AcceptApiResponse = /** status 200  */ FamilyWishResponseDto;
+export type AcceptApiArg = {
+  id: string;
+  /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
+  'Idempotency-Key'?: string;
+};
+export type RejectApiResponse = /** status 200  */ FamilyWishResponseDto;
+export type RejectApiArg = {
+  id: string;
+  /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
+  'Idempotency-Key'?: string;
+};
+export type MarkRealizedApiResponse = /** status 200  */ FamilyWishResponseDto;
+export type MarkRealizedApiArg = {
+  id: string;
+  /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
+  'Idempotency-Key'?: string;
+};
+export type ConfirmRealizationApiResponse = /** status 200  */ FamilyWishResponseDto;
+export type ConfirmRealizationApiArg = {
+  id: string;
+  /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
+  'Idempotency-Key'?: string;
+};
+export type RejectRealizationApiResponse = /** status 200  */ FamilyWishResponseDto;
+export type RejectRealizationApiArg = {
+  id: string;
+  /** Retry key for this command (8-128 safe ASCII characters). Reusing it with another payload returns 409. */
+  'Idempotency-Key'?: string;
+};
+export type CalendarApiResponse = /** status 200  */ IntimacyCalendarDayDto[];
+export type CalendarApiArg = {
+  from: string;
+  to: string;
+};
+export type GetCheckInApiResponse = /** status 200  */ IntimacyCheckInResponseDto;
+export type GetCheckInApiArg = {
+  date: string;
+};
+export type UpsertCheckInApiResponse = /** status 200  */ IntimacyCheckInResponseDto;
+export type UpsertCheckInApiArg = {
+  date: string;
+  upsertIntimacyCheckInDto: UpsertIntimacyCheckInDto;
+};
+export type DeleteCheckInApiResponse = unknown;
+export type DeleteCheckInApiArg = {
+  date: string;
+};
+export type UpsertEventApiResponse = /** status 200  */ IntimacyEventResponseDto;
+export type UpsertEventApiArg = {
+  date: string;
+  upsertIntimacyEventDto: UpsertIntimacyEventDto;
+};
+export type GetEventApiResponse = /** status 200  */ IntimacyEventResponseDto;
+export type GetEventApiArg = {
+  date: string;
+};
+export type DeleteEventApiResponse = unknown;
+export type DeleteEventApiArg = {
+  date: string;
 };
 export type TaskResponseDto = {
   id: string;
@@ -2693,6 +2954,7 @@ export type MediaResponseDto = {
   originalName: string;
   mimeType: string;
   kind: 'IMAGE' | 'VIDEO' | 'AUDIO';
+  scope: 'ALBUM' | 'CHAT' | 'RECIPE' | 'FAMILY_EVENT' | 'LEDGER' | 'USER_AVATAR' | 'CHILD_AVATAR';
   sizeBytes: number;
   createdAt: string;
   /** Short-lived URL for downloading the private object */
@@ -2929,6 +3191,8 @@ export type MediaUploadInitDto = {
   originalName: string;
   mimeType: string;
   sizeBytes: number;
+  /** Logical owner of the upload. Legacy clients default to ALBUM. */
+  scope?: 'ALBUM' | 'CHAT' | 'RECIPE' | 'FAMILY_EVENT' | 'LEDGER' | 'USER_AVATAR' | 'CHILD_AVATAR';
 };
 export type MediaUploadStatusDto = {
   status: 'INITIATED' | 'COMPLETED' | 'ABORTED' | 'FAILED';
@@ -3653,6 +3917,97 @@ export type ReadStateResponseDto = {
 export type UpdateMessageDto = {
   text: string;
 };
+export type PushDeviceResponseDto = {
+  id: string;
+  platform: 'ANDROID' | 'IOS';
+  appVersion?: object;
+  lastSeenAt: string;
+  createdAt: string;
+};
+export type RegisterPushDeviceDto = {
+  token: string;
+  platform: 'android' | 'ios';
+  appVersion?: string;
+};
+export type FamilyWishUserDto = {
+  id: string;
+  firstName: string;
+  lastName: string;
+};
+export type FamilyWishResponseDto = {
+  id: string;
+  familyId: string;
+  createdBy: FamilyWishUserDto;
+  partner: FamilyWishUserDto;
+  title: string;
+  description?: object | null;
+  implementationStatus: 'NOT_REALIZED' | 'REALIZED';
+  partnerApprovalStatus: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  realizationConfirmationStatus: 'NOT_REQUESTED' | 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  realizedBy?: FamilyWishUserDto | null;
+  realizedAt?: string | null;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+};
+export type CreateFamilyWishDto = {
+  title: string;
+  description?: object | null;
+  /** Partner user id. FamilyMember.id is also accepted for compatibility. */
+  partnerId: string;
+};
+export type PaginatedFamilyWishesResponseDto = {
+  data: FamilyWishResponseDto[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+export type UpdateFamilyWishDto = {
+  title?: string;
+  description?: object | null;
+};
+export type IntimacyCalendarDayDto = {
+  date: string;
+  myCheckInExists: boolean;
+  partnerCheckInExists: boolean;
+  hasMutualInterest: object | null;
+  intimacyEventExists: boolean;
+};
+export type IntimacyCheckInPrivateDto = {
+  mood: 'SEX' | 'TENDERNESS' | 'CLOSENESS' | 'EXPERIMENT' | 'NOT_TODAY' | 'UNSURE';
+  desireLevel: number;
+  preferences: ('KISSING' | 'MASSAGE' | 'SEX' | 'SHOWER' | 'ROMANTIC' | 'EXPERIMENT' | 'OTHER')[];
+};
+export type IntimacyAggregateDto = {
+  hasMutualInterest: boolean;
+  matchedPreferences: (
+    'KISSING' | 'MASSAGE' | 'SEX' | 'SHOWER' | 'ROMANTIC' | 'EXPERIMENT' | 'OTHER'
+  )[];
+};
+export type IntimacyCheckInResponseDto = {
+  date: string;
+  myCheckIn: IntimacyCheckInPrivateDto | null;
+  partnerHasAnswered: boolean;
+  aggregate: IntimacyAggregateDto | null;
+};
+export type UpsertIntimacyCheckInDto = {
+  mood: 'SEX' | 'TENDERNESS' | 'CLOSENESS' | 'EXPERIMENT' | 'NOT_TODAY' | 'UNSURE';
+  desireLevel: number;
+  preferences?: ('KISSING' | 'MASSAGE' | 'SEX' | 'SHOWER' | 'ROMANTIC' | 'EXPERIMENT' | 'OTHER')[];
+};
+export type IntimacyEventResponseDto = {
+  id: string;
+  date: string;
+  occurred: boolean;
+  rating?: ('GREAT' | 'GOOD' | 'NEUTRAL') | null;
+  createdAt: string;
+  updatedAt: string;
+};
+export type UpsertIntimacyEventDto = {
+  occurred: boolean;
+  rating?: ('GREAT' | 'GOOD' | 'NEUTRAL') | null;
+};
 export const {
   useCreateMutation,
   useListQuery,
@@ -3874,4 +4229,23 @@ export const {
   useMarkReadMutation,
   useUpdateMessageMutation,
   useDeleteMessageMutation,
+  useRegister2Mutation,
+  useRemove6Mutation,
+  useCreate16Mutation,
+  useList17Query,
+  useFindOne3Query,
+  useUpdate12Mutation,
+  useRemove7Mutation,
+  useAcceptMutation,
+  useRejectMutation,
+  useMarkRealizedMutation,
+  useConfirmRealizationMutation,
+  useRejectRealizationMutation,
+  useCalendarQuery,
+  useGetCheckInQuery,
+  useUpsertCheckInMutation,
+  useDeleteCheckInMutation,
+  useUpsertEventMutation,
+  useGetEventQuery,
+  useDeleteEventMutation,
 } = injectedRtkApi;

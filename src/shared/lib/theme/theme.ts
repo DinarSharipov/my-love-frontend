@@ -16,7 +16,9 @@ export const THEME_COLOR_TOKENS = [
 ] as const;
 export type ThemeColorKey = (typeof THEME_COLOR_TOKENS)[number]['key'];
 export type ThemePreferences = Partial<Record<ThemeColorKey, string>> & {
+  backgroundBrightness?: number;
   backgroundImage?: string;
+  backgroundOpacity?: number;
   animatedPanelOpacity?: number;
   animatedPanelBlur?: number;
 };
@@ -30,6 +32,18 @@ export const readThemePreferences = (): ThemePreferences => {
   }
 };
 
+const getBackgroundBrightness = (preferences: ThemePreferences) => {
+  if (typeof preferences.backgroundBrightness === 'number') {
+    return Math.min(0.95, Math.max(0, preferences.backgroundBrightness));
+  }
+
+  if (typeof preferences.backgroundOpacity === 'number') {
+    return 1 - Math.min(1, Math.max(0.05, preferences.backgroundOpacity));
+  }
+
+  return 0.65;
+};
+
 export const applyThemePreferences = (preferences: ThemePreferences) => {
   const root = document.documentElement;
   THEME_COLOR_TOKENS.forEach(({ fallback, key }) =>
@@ -40,6 +54,11 @@ export const applyThemePreferences = (preferences: ThemePreferences) => {
       ? Math.min(1, Math.max(0.2, preferences.animatedPanelOpacity))
       : 0.9;
   root.style.setProperty('--animated-panel-opacity', String(panelOpacity));
+  const backgroundBrightness = getBackgroundBrightness(preferences);
+  root.style.setProperty(
+    '--main-layout-background-opacity',
+    `${(1 - backgroundBrightness) * 100}%`,
+  );
   const panelBlur =
     typeof preferences.animatedPanelBlur === 'number'
       ? Math.min(32, Math.max(0, preferences.animatedPanelBlur))

@@ -94,10 +94,10 @@ export const ProfilePage = () => {
           className="mb-5 p-5 sm:p-6"
           initial={{ opacity: 0, y: 10 }}
         >
-          <div className="relative h-full overflow-hidden rounded-3xl">
+          <div className="relative">
             <div className="bg-primary-neon/10 pointer-events-none absolute -right-10 -top-16 h-44 w-44 rounded-full blur-3xl" />
-            <div className="relative flex flex-col gap-gap sm:flex-row sm:items-center">
-              <div className="shrink-0">
+            <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+              <div className="flex w-20 shrink-0 flex-col items-center gap-2">
                 <input
                   accept="image/*"
                   className="sr-only"
@@ -108,7 +108,7 @@ export const ProfilePage = () => {
                 <button
                   aria-describedby={avatarError ? 'avatar-upload-error' : undefined}
                   aria-label="Изменить фото профиля"
-                  className="group border-primary-neon/40 bg-primary-neon/10 relative grid h-16 w-16 overflow-hidden rounded-3xl border text-primary-neon shadow-[0_0_24px_rgba(176,38,255,0.2)] outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-cyber-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-wait"
+                  className="group border-primary-neon/40 bg-primary-neon/10 relative grid size-20 shrink-0 overflow-hidden rounded-full border text-primary-neon shadow-[0_0_24px_rgba(176,38,255,0.2)] outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-cyber-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-wait"
                   disabled={uploadState.isLoading}
                   onClick={selectAvatar}
                   type="button"
@@ -120,7 +120,7 @@ export const ProfilePage = () => {
                       src={user.avatarUrl}
                     />
                   ) : (
-                    <UserRound aria-hidden="true" className="m-auto h-8 w-8" />
+                    <UserRound aria-hidden="true" className="m-auto h-9 w-9" />
                   )}
                   <span className="bg-background/80 absolute inset-0 flex flex-col items-center justify-center gap-1 opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
                     <Camera aria-hidden="true" className="h-4 w-4" />
@@ -135,7 +135,7 @@ export const ProfilePage = () => {
                 </button>
                 {user.avatarUrl && (
                   <Button
-                    className="mt-2 w-16 px-1 text-[10px]"
+                    className="w-full px-1 text-[10px]"
                     disabled={uploadState.isLoading || removeAvatarState.isLoading}
                     onClick={() => setIsRemoveDialogOpen(true)}
                     size="s"
@@ -146,7 +146,7 @@ export const ProfilePage = () => {
                 )}
                 {avatarError && (
                   <p
-                    className="text-neon-pink mt-2 max-w-48 text-xs"
+                    className="text-neon-pink w-full text-center text-xs"
                     id="avatar-upload-error"
                     role="alert"
                   >

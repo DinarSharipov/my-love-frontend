@@ -26,6 +26,13 @@ export type PlannedItem = {
   readonly type?: PlannedItemType;
 };
 
+export type CalendarDayBadge = {
+  readonly date: Date;
+  readonly id: number | string;
+  readonly label: string;
+  readonly tone?: 'accent' | 'default' | 'success';
+};
+
 export type CalendarPeriod = {
   readonly from: Date;
   readonly to: Date;
@@ -38,6 +45,7 @@ export type CalendarVisiblePeriod = {
 
 type CalendarProps = {
   className?: string;
+  dayBadges?: readonly CalendarDayBadge[];
   onChangePeriod?: (period: CalendarPeriod) => void;
   onClickDay?: (day: Date, item?: PlannedItem) => void;
   onSelectItem?: (item: PlannedItem, day: Date) => void;
@@ -149,8 +157,15 @@ const getRangeHighlightClassName = ({
   return className;
 };
 
+const getBadgeToneClassName = (tone: CalendarDayBadge['tone']) => {
+  if (tone === 'success') return 'text-cyber-cyan';
+  if (tone === 'accent') return 'text-neon-pink';
+  return 'text-primary-neon';
+};
+
 export const Calendar = ({
   className = '',
+  dayBadges = [],
   onChangePeriod,
   onClickDay,
   onSelectItem,
@@ -223,6 +238,20 @@ export const Calendar = ({
 
     return result;
   }, [plannedItems, timeZone]);
+
+  const badgesByDay = useMemo(() => {
+    const result = new Map<string, CalendarDayBadge[]>();
+
+    dayBadges
+      .filter((badge) => dayjs(badge.date).isValid())
+      .forEach((badge) => {
+        const badgeDate = timeZone ? dayjs(badge.date).tz(timeZone) : dayjs(badge.date);
+        const dateKey = badgeDate.format('YYYY-MM-DD');
+        result.set(dateKey, [...(result.get(dateKey) ?? []), badge]);
+      });
+
+    return result;
+  }, [dayBadges, timeZone]);
 
   const visibleYears = useMemo(
     () => Array.from({ length: yearsPerPage }, (_, index) => yearPageStart + index),
@@ -440,6 +469,7 @@ export const Calendar = ({
       <div className="grid min-h-0 flex-1 grid-cols-7 grid-rows-6 gap-px bg-border/50" role="grid">
         {calendarDays.map((day) => {
           const dateKey = day.format('YYYY-MM-DD');
+          const badges = badgesByDay.get(dateKey) ?? [];
           const dayItems = itemsByDay.get(dateKey) ?? [];
           const isCurrentMonth = day.month() === visibleMonth.month();
           const today = timeZone ? dayjs().tz(timeZone) : dayjs();
@@ -520,6 +550,23 @@ export const Calendar = ({
                     </motion.button>
                   )}
                 </div>
+
+                {badges.length > 0 && (
+                  <div
+                    aria-label={badges.map((badge) => badge.label).join(', ')}
+                    className="pointer-events-none flex min-h-3 flex-wrap items-center gap-0.5 px-0.5 sm:min-h-4"
+                  >
+                    {badges.map((badge) => (
+                      <span
+                        className={`text-[10px] leading-none sm:text-xs ${getBadgeToneClassName(badge.tone)}`}
+                        key={badge.id}
+                        title={badge.label}
+                      >
+                        {badge.label}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 <div className="hidden min-h-0 min-w-0 flex-col gap-2.5 overflow-hidden sm:flex">
                   {dayItems.length > 1 ? (

@@ -5,16 +5,23 @@ import { Provider } from 'react-redux';
 import { userReducer } from '@/entities/user';
 import { messengerRealtimeReducer } from '@/features/messenger-realtime';
 import { baseApi } from '@/shared/api';
+import { notificationsReducer } from '@/shared/model/notifications';
 import { authMiddleware } from '@/app/providers/store/authMiddleware';
+import { apiErrorNotificationMiddleware } from '@/app/providers/store/apiErrorNotificationMiddleware';
 
 export const store = configureStore({
   reducer: {
     [baseApi.reducerPath]: baseApi.reducer,
     messengerRealtime: messengerRealtimeReducer,
+    notifications: notificationsReducer,
     user: userReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authMiddleware, baseApi.middleware),
+    getDefaultMiddleware().concat(
+      authMiddleware,
+      apiErrorNotificationMiddleware,
+      baseApi.middleware,
+    ),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

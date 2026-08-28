@@ -8,10 +8,12 @@ import { LogoIcon } from '@/shared/ui/logo/LogoIcon';
 import { AnimatedPanel } from '../animated-panel';
 
 export type SidebarMenuGroup = {
+  featured?: boolean;
   icon: ComponentType<{ className?: string; strokeWidth?: number }>;
   id: string;
-  items: readonly MenuItem[];
+  items?: readonly MenuItem[];
   label: string;
+  to?: string;
 };
 
 type SidebarProps = { groups: readonly SidebarMenuGroup[] };
@@ -20,13 +22,30 @@ const isItemActive = (item: MenuItem, pathname: string): boolean =>
   item.to === pathname || Boolean(item.children?.some((child) => isItemActive(child, pathname)));
 
 const isGroupActive = (group: SidebarMenuGroup, pathname: string): boolean =>
-  group.items.some((item) => isItemActive(item, pathname));
+  group.to === pathname || Boolean(group.items?.some((item) => isItemActive(item, pathname)));
+
+const getItemToneClassName = (featured: boolean | undefined, isActive: boolean) => {
+  if (featured) {
+    return isActive
+      ? 'border-neon-pink/80 bg-gradient-to-r from-primary-neon/35 via-neon-pink/25 to-cyber-cyan/15 text-text shadow-[0_0_26px_rgba(255,43,214,0.38),inset_0_0_16px_rgba(176,38,255,0.16)]'
+      : 'border-primary-neon/45 bg-gradient-to-r from-primary-neon/20 via-neon-pink/15 to-cyber-cyan/10 text-text shadow-[0_0_20px_rgba(176,38,255,0.26)] hover:border-neon-pink/80 hover:shadow-[0_0_30px_rgba(255,43,214,0.38)]';
+  }
+
+  return isActive
+    ? 'border-primary-neon/35 bg-primary-neon/15 text-primary-neon shadow-[0_0_22px_rgb(176_38_255_/_16%)]'
+    : 'border-transparent text-muted-text hover:border-border hover:bg-elevated/70 hover:text-text';
+};
 
 export const Sidebar = ({ groups }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const { pathname } = useLocation();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(groups.map((group) => [group.id, isGroupActive(group, pathname)])),
+    Object.fromEntries(
+      groups.map((group) => [
+        group.id,
+        isGroupActive(group, pathname) || Boolean(group.items?.some((item) => item.featured)),
+      ]),
+    ),
   );
 
   useEffect(() => {
@@ -65,8 +84,27 @@ export const Sidebar = ({ groups }: SidebarProps) => {
             )}
           </button>
           {groups.map((group) => {
-            const groupIsOpen = collapsed || expandedGroups[group.id];
             const GroupIcon = group.icon;
+
+            if (group.to) {
+              const directClassName = getItemToneClassName(group.featured, group.to === pathname);
+
+              return (
+                <NavLink
+                  aria-label={group.label}
+                  className={() =>
+                    `flex min-w-0 items-center border text-sm transition-[color,background-color,border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-cyber-cyan ${collapsed ? 'mx-auto h-10 w-10 justify-center rounded-full p-0' : 'gap-gap rounded-[var(--radius-panel)] px-2 py-2'} ${directClassName}`
+                  }
+                  key={group.id}
+                  to={group.to}
+                >
+                  <GroupIcon className="h-5 w-5 shrink-0" />
+                  {!collapsed && <span className="truncate">{group.label}</span>}
+                </NavLink>
+              );
+            }
+
+            const groupIsOpen = collapsed || expandedGroups[group.id];
 
             return (
               <section className="flex flex-col gap-1" key={group.id}>
@@ -102,9 +140,10 @@ export const Sidebar = ({ groups }: SidebarProps) => {
                     className={`flex flex-col gap-1 ${collapsed ? '' : 'pl-5'}`}
                     id={`sidebar-group-${group.id}`}
                   >
-                    {group.items.map((item) => {
+                    {(group.items ?? []).map((item) => {
                       const Icon = item.icon;
                       const itemIsActive = isItemActive(item, pathname);
+                      const featuredClassName = getItemToneClassName(item.featured, itemIsActive);
 
                       return (
                         <div
@@ -115,7 +154,7 @@ export const Sidebar = ({ groups }: SidebarProps) => {
                             <NavLink
                               aria-label={item.label}
                               className={() =>
-                                `flex min-w-0 items-center ${collapsed ? 'mx-auto h-10 w-10 justify-center rounded-full p-0' : 'gap-gap rounded-[var(--radius-panel)] px-2 py-2'} border text-sm transition-colors focus-visible:outline-2 focus-visible:outline-cyber-cyan ${itemIsActive ? 'border-primary-neon/35 bg-primary-neon/15 text-primary-neon shadow-[0_0_22px_rgb(176_38_255_/_16%)]' : 'border-transparent text-muted-text hover:border-border hover:bg-elevated/70 hover:text-text'}`
+                                `flex min-w-0 items-center ${collapsed ? 'mx-auto h-10 w-10 justify-center rounded-full p-0' : 'gap-gap rounded-[var(--radius-panel)] px-2 py-2'} border text-sm transition-[color,background-color,border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-cyber-cyan ${featuredClassName}`
                               }
                               end={!item.children?.length}
                               to={item.to}

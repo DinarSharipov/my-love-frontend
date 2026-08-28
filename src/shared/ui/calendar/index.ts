@@ -1,5 +1,6 @@
 export { Calendar } from '@/shared/ui/calendar/Calendar';
 export type {
+  CalendarDayBadge,
   CalendarPeriod,
   CalendarVisiblePeriod,
   PlannedItem,

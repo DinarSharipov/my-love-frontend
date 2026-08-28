@@ -1,6 +1,7 @@
 export { AppBackground } from '@/shared/ui/app-background';
 export { MainLayout } from '@/shared/ui/main-layout';
 export { Modal } from '@/shared/ui/modal';
+export { Notifications } from '@/shared/ui/notifications';
 export { AnimatedPanel } from '@/shared/ui/animated-panel';
 export { AsyncState } from '@/shared/ui/async-state';
 export { Button } from '@/shared/ui/button';
@@ -8,6 +9,7 @@ export { Calendar } from '@/shared/ui/calendar';
 export type {
   CalendarPeriod,
   CalendarVisiblePeriod,
+  CalendarDayBadge,
   PlannedItem,
   PlannedItemType,
 } from '@/shared/ui/calendar';
@@ -30,6 +32,7 @@ export { Textarea } from '@/shared/ui/textarea';
 export { Tabs } from '@/shared/ui/tabs';
 export type { TabItem } from '@/shared/ui/tabs';
 export { RouteLoading } from '@/shared/ui/route-loading';
+export { RangeSlider } from '@/shared/ui/range-slider';
 export { Sidebar } from '@/shared/ui/sidebar';
 export type { SidebarMenuGroup } from '@/shared/ui/sidebar';
 export { DownloadLoader } from '@/shared/ui/download-loader';
