@@ -94,10 +94,10 @@ export const ProfilePage = () => {
           className="mb-5 p-5 sm:p-6"
           initial={{ opacity: 0, y: 10 }}
         >
-          <div className="relative">
+          <div className="relative h-full">
             <div className="bg-primary-neon/10 pointer-events-none absolute -right-10 -top-16 h-44 w-44 rounded-full blur-3xl" />
-            <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-              <div className="flex w-20 shrink-0 flex-col items-center gap-2">
+            <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start">
+              <div className="flex shrink-0 flex-col items-start gap-2">
                 <input
                   accept="image/*"
                   className="sr-only"
@@ -105,14 +105,7 @@ export const ProfilePage = () => {
                   ref={avatarInputRef}
                   type="file"
                 />
-                <button
-                  aria-describedby={avatarError ? 'avatar-upload-error' : undefined}
-                  aria-label="Изменить фото профиля"
-                  className="group border-primary-neon/40 bg-primary-neon/10 relative grid size-20 shrink-0 overflow-hidden rounded-full border text-primary-neon shadow-[0_0_24px_rgba(176,38,255,0.2)] outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-cyber-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-wait"
-                  disabled={uploadState.isLoading}
-                  onClick={selectAvatar}
-                  type="button"
-                >
+                <div className="border-primary-neon/40 bg-primary-neon/10 relative grid h-20 w-20 overflow-hidden rounded-2xl border text-primary-neon shadow-[0_0_24px_rgba(176,38,255,0.2)]">
                   {user.avatarUrl ? (
                     <img
                       alt="Фото профиля"
@@ -122,31 +115,39 @@ export const ProfilePage = () => {
                   ) : (
                     <UserRound aria-hidden="true" className="m-auto h-9 w-9" />
                   )}
-                  <span className="bg-background/80 absolute inset-0 flex flex-col items-center justify-center gap-1 opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
-                    <Camera aria-hidden="true" className="h-4 w-4" />
-                    <span className="text-[10px] font-semibold">Изменить</span>
-                  </span>
                   {uploadState.isLoading && (
                     <span className="bg-background/80 absolute inset-0 grid place-items-center backdrop-blur-sm">
                       <span className="border-primary-neon h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" />
                       <span className="sr-only">Загружаем фото</span>
                     </span>
                   )}
-                </button>
-                {user.avatarUrl && (
+                </div>
+                <div className="flex flex-col items-stretch gap-2 xl:flex-row">
                   <Button
-                    className="w-full px-1 text-[10px]"
+                    aria-describedby={avatarError ? 'avatar-upload-error' : undefined}
                     disabled={uploadState.isLoading || removeAvatarState.isLoading}
-                    onClick={() => setIsRemoveDialogOpen(true)}
+                    icon={<Camera aria-hidden="true" className="h-3.5 w-3.5" />}
+                    isLoading={uploadState.isLoading}
+                    onClick={selectAvatar}
                     size="s"
                   >
-                    <Trash2 aria-hidden="true" className="size-3.5" />
-                    Удалить
+                    {user.avatarUrl ? 'Изменить фото' : 'Добавить фото'}
                   </Button>
-                )}
+                  {user.avatarUrl && (
+                    <Button
+                      className="!border-neon-pink/80 !bg-neon-pink/10 !text-neon-pink hover:!bg-neon-pink/20"
+                      disabled={uploadState.isLoading || removeAvatarState.isLoading}
+                      icon={<Trash2 aria-hidden="true" className="h-3.5 w-3.5" />}
+                      onClick={() => setIsRemoveDialogOpen(true)}
+                      size="s"
+                    >
+                      Удалить фото
+                    </Button>
+                  )}
+                </div>
                 {avatarError && (
                   <p
-                    className="text-neon-pink w-full text-center text-xs"
+                    className="text-neon-pink max-w-56 text-xs"
                     id="avatar-upload-error"
                     role="alert"
                   >
@@ -158,10 +159,10 @@ export const ProfilePage = () => {
                 <p className="text-cyber-cyan text-xs font-semibold uppercase tracking-[0.2em]">
                   Личный кабинет
                 </p>
-                <h1 className="text-text mt-1 truncate text-2xl font-semibold sm:text-3xl">
+                <h1 className="text-text mt-1 break-words text-2xl font-semibold sm:text-3xl">
                   {user.firstName} {user.lastName}
                 </h1>
-                <div className="text-muted-text mt-3 flex flex-wrap gap-gap text-xs">
+                <div className="text-muted-text mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs">
                   <span className="inline-flex items-center gap-2.5">
                     <AtSign aria-hidden="true" className="h-3.5 w-3.5" />
                     {user.email}

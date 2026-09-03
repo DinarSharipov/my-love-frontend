@@ -1519,6 +1519,15 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/v1/health` }),
         providesTags: ['health'],
       }),
+      outboxMetrics: build.query<OutboxMetricsApiResponse, OutboxMetricsApiArg>({
+        query: (queryArg) => ({
+          url: `/api/v1/health/outbox`,
+          headers: {
+            'x-ops-token': queryArg['x-ops-token'],
+          },
+        }),
+        providesTags: ['health'],
+      }),
       create15: build.mutation<Create15ApiResponse, Create15ApiArg>({
         query: (queryArg) => ({
           url: `/api/v1/conversations`,
@@ -2641,6 +2650,10 @@ export type Remove5ApiArg = {
 };
 export type CheckHealthApiResponse = /** status 200  */ any;
 export type CheckHealthApiArg = void;
+export type OutboxMetricsApiResponse = /** status 200  */ any;
+export type OutboxMetricsApiArg = {
+  'x-ops-token': string;
+};
 export type Create15ApiResponse =
   | /** status 200 Existing direct conversation returned */ ConversationResponseDto
   | /** status 201  */ ConversationResponseDto;
@@ -4213,6 +4226,7 @@ export const {
   useFindOne2Query,
   useRemove5Mutation,
   useCheckHealthQuery,
+  useOutboxMetricsQuery,
   useCreate15Mutation,
   useList16Query,
   useGet6Query,
